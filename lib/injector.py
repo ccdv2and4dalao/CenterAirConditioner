@@ -12,6 +12,14 @@ class Injector:
             raise AssertionError(f'proto {proto} is already provided')
         self.mapping[proto] = impl
 
+    def build(self, proto: type, impl: type):
+        impl_instance = impl(self)
+        if not isinstance(impl_instance, proto):
+            raise NotImplementedError(f'impl {type(impl_instance)} not implement proto {proto}')
+        if proto in self.mapping:
+            raise AssertionError(f'proto {proto} is already provided')
+        self.mapping[proto] = impl_instance
+
     def require(self, proto: type):
         return self.mapping[proto]
 

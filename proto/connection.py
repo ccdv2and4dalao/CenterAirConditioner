@@ -7,6 +7,12 @@ class ConnectionRequest(Request):
         self.room_id = ''  # type: str
         self.id = ''  # type: str
 
+    def bind_dict(self, d: dict):
+        if d is None:
+            return
+        self.room_id = d['room_id']
+        self.id = d['id']
+
 
 class ConnectionResponse(Response):
     def __init__(self):

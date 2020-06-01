@@ -2,7 +2,7 @@ from abc import abstractmethod, ABC
 
 from proto import FailedResponse, Request, Response
 from proto.connection import ConnectionRequest, ConnectionResponse
-from proto.metricsrequest import MetricsResponse, MetricsRequest
+from proto.metrics import MetricsResponse, MetricsRequest
 from proto.start_state_control import StartStateControlRequest, StartStateControlResponse
 from proto.stop_state_control import StopStateControlRequest, StopStateControlResponse
 
