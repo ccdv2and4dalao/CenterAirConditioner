@@ -21,5 +21,5 @@ if __name__ == '__main__':
     injector.build(PingController, PingControllerFlaskImpl)
 
     router = FlaskRouter(injector)
-    router.run('127.0.0.1', '23333')
+    router.run('0.0.0.0', '8080')
 

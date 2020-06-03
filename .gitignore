@@ -5,5 +5,5 @@ __pycache__/
 .minimum-lib-env.json
 docker-compose.template.yml
 docker-compose.yml
-config.toml
+config.yaml
 data

@@ -44,8 +44,14 @@ get-config:
 	./bin/minimum make context
 #### end of commands for management scripts
 
+#### shortcuts
+
+build-image:
+	./bin/minimum make image
+
 
 .PHONY: \
 	install-docker install-get-docker-script\
 	enable-docker disable-docker start-docker stop-docker\
-	gov-shell help-gov-shell install-gov-shell get-config
+	gov-shell help-gov-shell install-gov-shell get-config\
+	build-image

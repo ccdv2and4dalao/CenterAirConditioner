@@ -86,7 +86,7 @@ class Makefile:
     key_file_target = None
     current_path = os.path.dirname(os.path.realpath(__file__))
     base_path = os.path.dirname(current_path)
-    config_file_name = 'config.toml'
+    config_file_name = 'config.yaml'
     context = dict()
 
     compose_template_file = 'docker-compose.template.yml'
@@ -197,15 +197,15 @@ class Makefile:
             cls.context['target-port'] = cls.context.get('target-port', 2022)
             cls.context['enable-https'] = cls.context.get('enable-https', False)
 
-            cls.context['config-file-name'] = cls.context.get('config-file-name', 'config.toml')
+            cls.context['config-file-name'] = cls.context.get('config-file-name', 'config.yaml')
             cls.config_file = os.path.abspath(cls.context['config-file-name'])
             cls.config_file_target = os.path.join('/', cls.context['config-file-name'])
 
-            cls.context['crt-file-name'] = cls.context.get('crt-file-name', 'myd.crt')
+            cls.context['crt-file-name'] = cls.context.get('crt-file-name', 'air.crt')
             cls.crt_file = os.path.abspath(cls.context['crt-file-name'])
             cls.crt_file_target = os.path.join('/', cls.context['crt-file-name'])
 
-            cls.context['key-file-name'] = cls.context.get('key-file-name', 'myd.pri')
+            cls.context['key-file-name'] = cls.context.get('key-file-name', 'air.pri')
             cls.key_file = os.path.abspath(cls.context['key-file-name'])
             cls.key_file_target = os.path.join('/', cls.context['key-file-name'])
 
