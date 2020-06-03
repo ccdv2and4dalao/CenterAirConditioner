@@ -1,0 +1,10 @@
+#!/bin/bash
+
+current_path=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+
+if [ $# -eq 0 ];
+then
+    /bin/bash --rcfile $current_path/.bashrc
+else
+    python3 $current_path/cli.py "$@"
+fi

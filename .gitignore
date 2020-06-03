@@ -2,3 +2,8 @@
 __pycache__/
 *.pyc
 .vs/
+.minimum-lib-env.json
+docker-compose.template.yml
+docker-compose.yml
+config.toml
+data
