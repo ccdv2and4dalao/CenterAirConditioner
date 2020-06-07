@@ -12,23 +12,23 @@ class SQLDatabase(object):
         pass
 
     @abstractmethod
-    def _select(self, sql: str) -> List[tuple]:
+    def select(self, sql: str) -> List[tuple]:
         pass
 
     @abstractmethod
-    def _insert(self, sql: str) -> bool:
+    def insert(self, sql: str) -> bool:
         pass
 
     @abstractmethod
-    def _create(self, sql: str) -> bool:
+    def create(self, sql: str) -> bool:
         pass
 
     @abstractmethod
-    def _delete(self, sql: str) -> bool:
+    def delete(self, sql: str) -> bool:
         pass
 
     @abstractmethod
-    def _update(self, sql: str) -> bool:
+    def update(self, sql: str) -> bool:
         pass
 
     
