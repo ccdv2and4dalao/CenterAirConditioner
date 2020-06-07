@@ -5,8 +5,8 @@ class Injector:
     def __init__(self):
         self.mapping = dict()
 
-    def provide(self, proto: type, impl: object):
-        if not isinstance(impl, proto):
+    def provide(self, proto: type or str, impl: object):
+        if not isinstance(proto, str) and not isinstance(impl, proto):
             raise NotImplementedError(f'impl {type(impl)} not implement proto {proto}')
         if proto in self.mapping:
             raise AssertionError(f'proto {proto} is already provided')
@@ -20,8 +20,11 @@ class Injector:
             raise AssertionError(f'proto {proto} is already provided')
         self.mapping[proto] = impl_instance
 
-    def require(self, proto: type):
+    def require(self, proto: type or str):
         return self.mapping[proto]
+
+    def week_require(self, proto: type or str, default_value=None):
+        return self.mapping.get(proto, default_value)
 
     def requires(self, prototypes: List[type]):
         return tuple([self.require(proto) for proto in prototypes])
