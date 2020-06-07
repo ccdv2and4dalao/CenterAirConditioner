@@ -1,4 +1,5 @@
 
-Version = str
+APPVersion = 'app_version'
+APPDescription = 'app_description'
 
-__all__ = ['Version']
+__all__ = ['APPVersion', 'APPDescription']

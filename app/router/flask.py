@@ -6,6 +6,7 @@ from flask import Flask, make_response
 from collections import namedtuple
 
 from abstract.controller.connect import ConnectController
+from abstract.singleton import option_context, OptionArgument
 from lib import Serializer
 from lib.injector import Injector
 from flask import request
@@ -47,6 +48,10 @@ class RouteController(object):
         pass
 
 
+option_context.arguments.append(OptionArgument(
+    long_opt='host', help_msg='host_name', default_value='127.0.0.1'))
+
+
 class FlaskRouteController(RouteController):
     def __init__(self, inj: Injector):
         self.s = inj.require(Serializer)  # type: Serializer
@@ -70,7 +75,6 @@ class FlaskRouteController(RouteController):
         req = req_type()
         req.bind_dict(request.get_json())
         return req
-
 
 
 class FlaskRouter(object):
