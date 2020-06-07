@@ -37,7 +37,7 @@ class UserModel(Model):
     #     pass
 
     @abstractmethod
-    def query_by_id_card_number(self, id_card_number: int) -> User:
+    def query_by_id_card_number(self, id_card_number: str) -> User:
         """
         :param id_card_number: 用户身份证号码
         :return: user或返回None

@@ -37,7 +37,7 @@ class RoomModel(Model):
     #     pass
 
     @abstractmethod
-    def query_by_room_id(self, room_id: int) -> Room:
+    def query_by_room_id(self, room_id: str) -> Room:
         """
         :param room_id: 房间号（墙上的名字）
         :return: room或返回None
