@@ -14,21 +14,64 @@ from lib.file_configuration import FileConfigurationProvider
 from lib.injector import Injector
 from lib.serializer import JSONSerializer, Serializer
 
+import lib.functional
+
+
+def inject_global_vars(inj: Injector):
+    inj.provide(APPVersion, 'v0.1.0')
+    inj.provide(APPDescription, 'center air conditioner base on flask')
+    return inj
+
+
+def inject_external_dependency(inj: Injector):
+    inj.provide(Serializer, JSONSerializer())
+    inj.build(OptionProvider, StdArgParser)
+    inj.build(ConfigurationProvider, FileConfigurationProvider)
+    return inj
+
+
+def inject_model(inj: Injector):
+    return inj
+
+
+def inject_service(inj: Injector):
+    inj.build(ConnectionService, ConnectionServiceImpl)
+    return inj
+
+
+def inject_controller(inj: Injector):
+    inj.build(RouteController, FlaskRouteController)
+    inj.build(ConnectController, ConnectControllerFlaskImpl)
+    inj.build(PingController, PingControllerFlaskImpl)
+    return inj
+
+
+def expose_service(inj: Injector):
+    opt = inj.require(OptionProvider)  # type: OptionProvider
+
+    FlaskRouter(inj).run(
+        opt.find('host'), opt.find('port'))
+
+
 if __name__ == '__main__':
-    injector = Injector()
-    injector.provide(APPVersion, 'v0.1.0')
-    injector.provide(APPDescription, 'center air conditioner base on flask')
-    register_singletons(injector)
-    injector.provide(Serializer, JSONSerializer())
-    injector.build(OptionProvider, StdArgParser)
+    """
+    Injector中保存了构建的上下文
+    injector的使用方法参考 lib/injector.py类的说明
+    """
+    lib.functional.compose_(*[
 
-    injector.build(ConfigurationProvider, FileConfigurationProvider)
+        # 注入全局上下文
+        inject_global_vars,
+        register_singletons,
 
-    injector.build(RouteController, FlaskRouteController)
-    injector.build(ConnectionService, ConnectionServiceImpl)
-    injector.build(ConnectController, ConnectControllerFlaskImpl)
-    injector.build(PingController, PingControllerFlaskImpl)
+        # 注入外部依赖
+        inject_external_dependency,
 
-    router = FlaskRouter(injector)
-    router.run('0.0.0.0', '8080')
+        # 分层构建模块
+        inject_model,
+        inject_service,
+        inject_controller,
 
+        # 将服务暴露到进程外
+        expose_service,
+    ])(Injector())  # type: Injector

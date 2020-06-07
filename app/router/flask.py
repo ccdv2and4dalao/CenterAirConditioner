@@ -48,10 +48,6 @@ class RouteController(object):
         pass
 
 
-option_context.arguments.append(OptionArgument(
-    long_opt='host', help_msg='host_name', default_value='127.0.0.1'))
-
-
 class FlaskRouteController(RouteController):
     def __init__(self, inj: Injector):
         self.s = inj.require(Serializer)  # type: Serializer
@@ -77,6 +73,12 @@ class FlaskRouteController(RouteController):
         return req
 
 
+option_context.arguments.append(OptionArgument(
+    long_opt='host', help_msg='host_name', default_value='127.0.0.1'))
+option_context.arguments.append(OptionArgument(
+    long_opt='port', help_msg='the port run on', default_value='8080'))
+
+
 class FlaskRouter(object):
     def __init__(self, injector: Injector):
         self.app = Flask('center-air-conditioner')
@@ -92,4 +94,3 @@ class FlaskRouter(object):
             self.app.add_url_rule(spec.path, None,
                                   getattr(ctl, spec.ctl_prop),
                                   methods=spec.methods)
-
