@@ -71,10 +71,10 @@ class BaseSQLDatabaseImpl(SQLDatabase):
                join: Dict[str, Union[str, DatabaseOperation]]={}, order=None, limit=None) -> List[tuple]:
         pass
 
-    def select_sql(self, sql: str) -> List[tuple]:
+    def execute_sql(self, sql: str) -> object:
         '''
-        In case that self.select cannot support all the situations, this function can be used
-to write sql directly.
+        In case that self.select and other functions cannot support all the situations, 
+this function can be used to write sql directly. But do not use this often.
         '''
         pass
 
