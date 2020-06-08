@@ -1,8 +1,9 @@
 ﻿from abc import abstractmethod
 
+
 class TelemetryManager(object):
     @abstractmethod
-    def receive_config(self, cfgReq): 
+    def receive_config(self, cfgReq):
         pass
 
     @abstractmethod
