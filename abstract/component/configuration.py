@@ -48,4 +48,7 @@ class ConfigurationProvider(object):
 
     @abstractmethod
     def get(self) -> Configuration:
+        """
+        :return: 返回一个Configuration结构体，该结构体原则上是不可变的（例如文件变化时，该结构体对应字段不会被更新）
+        """
         pass
