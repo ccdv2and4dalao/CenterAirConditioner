@@ -5,22 +5,21 @@ from abc import abstractmethod
 class Logger(object):
 
     @abstractmethod
-    def info(self, msg: str):
+    def info(self, msg: str, args: dict):
         pass
 
     @abstractmethod
-    def warn(self, msg: str):
+    def warn(self, msg: str, args: dict):
         pass
 
     @abstractmethod
-    def debug(self, msg: str):
+    def debug(self, msg: str, args: dict):
         pass
 
     @abstractmethod
-    def error(self, msg: str):
+    def error(self, msg: str, args: dict):
         pass
 
     @abstractmethod
-    def fatal(self, msg: str):
+    def fatal(self, msg: str, args: dict):
         pass
-

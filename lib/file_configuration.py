@@ -1,7 +1,8 @@
+import os
+
 from abstract.component import ConfigurationProvider, Configuration, OptionProvider
 from abstract.singleton import option_context, OptionArgument
 from lib.injector import Injector
-import os
 
 option_context.arguments.append(OptionArgument(
     long_opt='config', help_msg='config file path'))
@@ -48,13 +49,16 @@ class FileConfigurationProvider(ConfigurationProvider):
 
         self.opt = injector.require(OptionProvider)  # type: OptionProvider
         self.file_path = self.opt.find('config')
-        with open(self.file_path) as f:
-            ext = os.path.splitext(self.file_path)[1]
-            if ext == '.yaml' or ext == '.yml' or ext == '':
-                yaml = load_yaml_module()
-                self.config = load_configuration_from_dict(yaml.load(f, yaml.SafeLoader))
-            else:
-                raise ValueError(f'configuration file with unknown ext: path {self.file_path}, ext {ext}')
+        if self.file_path:
+            with open(self.file_path) as f:
+                ext = os.path.splitext(self.file_path)[1]
+                if ext == '.yaml' or ext == '.yml' or ext == '':
+                    yaml = load_yaml_module()
+                    self.config = load_configuration_from_dict(yaml.load(f, yaml.SafeLoader))
+                else:
+                    raise ValueError(f'configuration file with unknown ext: path {self.file_path}, ext {ext}')
+        else:
+            self.config = Configuration()
 
     def get(self) -> Configuration:
         return self.config
