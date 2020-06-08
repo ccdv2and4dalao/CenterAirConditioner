@@ -1,7 +1,10 @@
 # impl example
+
+import lib.functional
 from abstract.component import ConfigurationProvider, OptionProvider
 from abstract.controller import PingController
 from abstract.controller.connect import ConnectController
+from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel
 from abstract.service import ConnectionService
 from abstract.singleton import register_singletons
 from app.config import APPVersion, APPDescription
@@ -13,8 +16,7 @@ from lib.arg_parser import StdArgParser
 from lib.file_configuration import FileConfigurationProvider
 from lib.injector import Injector
 from lib.serializer import JSONSerializer, Serializer
-
-import lib.functional
+from mock.model import MockUserModel, MockRoomModel, MockUserInRoomRelationshipModel
 
 
 def inject_global_vars(inj: Injector):
@@ -31,6 +33,9 @@ def inject_external_dependency(inj: Injector):
 
 
 def inject_model(inj: Injector):
+    inj.provide(UserModel, MockUserModel())
+    inj.provide(RoomModel, MockRoomModel())
+    inj.provide(UserInRoomRelationshipModel, MockUserInRoomRelationshipModel())
     return inj
 
 
