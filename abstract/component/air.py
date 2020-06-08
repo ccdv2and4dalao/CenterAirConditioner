@@ -1,5 +1,7 @@
 from abc import abstractmethod
 
+from abstract.component import Bootable
+
 
 class AirCond(object):
 
@@ -11,7 +13,7 @@ class AirCond(object):
         self.status = {}
 
 
-class MasterAirCond(AirCond):
+class MasterAirCond(AirCond, Bootable):
 
     @abstractmethod
     def __init__(self):
