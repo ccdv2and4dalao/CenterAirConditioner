@@ -11,7 +11,7 @@ class StoppableThread(threading.Thread):
     def boot_up(self):
         self.start()
 
-    def shut_down(self, timeout: int = None):
+    def shut_down(self, timeout: float = None):
         self.join(timeout=timeout)
 
 

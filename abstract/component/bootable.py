@@ -8,5 +8,5 @@ class Bootable(object):
         pass
 
     @abstractmethod
-    def shut_down(self, timeout: int):
+    def shut_down(self, timeout: float):
         pass
