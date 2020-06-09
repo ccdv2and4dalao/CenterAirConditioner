@@ -1,7 +1,7 @@
 # impl example
 
 import lib.functional
-from abstract.component import ConfigurationProvider, OptionProvider
+from abstract.component import ConfigurationProvider, OptionProvider, Logger
 from abstract.controller import PingController
 from abstract.controller.connect import ConnectController
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel
@@ -12,6 +12,7 @@ from app.controller.connect import ConnectControllerFlaskImpl
 from app.controller.ping import PingControllerFlaskImpl
 from app.router.flask import FlaskRouter, FlaskRouteController, RouteController
 from app.service.connect import ConnectionServiceImpl
+from lib import std_logging
 from lib.arg_parser import StdArgParser
 from lib.file_configuration import FileConfigurationProvider
 from lib.injector import Injector
@@ -27,6 +28,11 @@ def inject_global_vars(inj: Injector):
 
 def inject_external_dependency(inj: Injector):
     inj.provide(Serializer, JSONSerializer())
+
+    logger = std_logging.StdLoggerImpl()
+    logger.logger.addHandler(std_logging.StreamHandler())
+    inj.provide(Logger, logger)
+
     inj.build(OptionProvider, StdArgParser)
     inj.build(ConfigurationProvider, FileConfigurationProvider)
     return inj

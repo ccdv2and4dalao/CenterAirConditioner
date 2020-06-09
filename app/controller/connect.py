@@ -1,9 +1,10 @@
 from abc import abstractmethod
 
 from abstract.controller.connect import ConnectController
-from abstract.service import ConnectionService, ConnectionRequest
+from abstract.service import ConnectionService
 from app.router.flask import RouteController
 from lib.injector import Injector
+from proto.connection import ConnectionRequest
 
 
 class ConnectControllerFlaskImpl(ConnectController):
