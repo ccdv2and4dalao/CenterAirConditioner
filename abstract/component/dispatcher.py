@@ -1,5 +1,5 @@
 ﻿from abc import abstractmethod
-
+import asyncio
 
 class Dispatcher:
     @abstractmethod
@@ -7,7 +7,7 @@ class Dispatcher:
         pass
 
     @abstractmethod
-    async def schedule(self):
+    def schedule(self):
         pass
 
     @abstractmethod
