@@ -1,4 +1,3 @@
-from .TelemetryManager import *
 from .abstract import Service
 from .auth import AuthService
 from .connect import ConnectionService
