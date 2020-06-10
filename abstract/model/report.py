@@ -56,7 +56,7 @@ class ReportModel(Model):
         pass
 
     @abstractmethod
-    def generate_report(self, stop_time: str, report_duration: str) -> List[Report]:
+    def get_reports(self, stop_time: str, report_duration: str) -> List[Report]:
         '''
         查询到stop_time为止的报表
         @stop_time: 截止时间
