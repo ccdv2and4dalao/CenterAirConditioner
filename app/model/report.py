@@ -8,15 +8,15 @@ class ReportModelImpl(ReportModel):
 
     def create(self):
         sql = f'''
-        CREATE TABLE IF NOT EXISTS %s (
-            %s INT AUTO_INCREMENT PRIMARY KEY,
-            %s VARCHAR(20) REFERENCE ROOM,
-            %s DATETIME,
-            %s DATETIME,
-            %s FLOAT,
-            %s FLOAT,
-            %s FLOAT,
-            %s FLOAT
+        CREATE TABLE IF NOT EXISTS ? (
+            ? INT AUTO_INCREMENT PRIMARY KEY,
+            ? VARCHAR(20) REFERENCE ROOM,
+            ? DATETIME,
+            ? DATETIME,
+            ? FLOAT,
+            ? FLOAT,
+            ? FLOAT,
+            ? FLOAT
         )
         '''.replace('\n', '')
         return self.db.create(sql, Report.table_name,
