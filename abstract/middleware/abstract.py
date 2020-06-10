@@ -1,4 +1,6 @@
-from abstract.service import Service, abstractmethod
+from abc import abstractmethod
+
+from abstract.service import Service
 
 
 class Middleware(object):

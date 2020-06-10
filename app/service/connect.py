@@ -2,6 +2,7 @@ from abc import abstractmethod, ABC
 
 from abstract.component import ConfigurationProvider
 from abstract.component.air import MasterAirCond
+from abstract.component.connection_pool import ConnectionPool
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel
 from abstract.service import ConnectionService
 from lib.injector import Injector
@@ -18,7 +19,7 @@ class BaseConnectionServiceImpl(ConnectionService, ABC):
         pass
 
     @abstractmethod
-    def update_connection_pool(self, room_id: int, identifier: IDCardNumber):
+    def update_connection_pool(self, token: str, room_id: str, identifier: IDCardNumber):
         pass
 
 
@@ -29,9 +30,12 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
         self.user_in_room_model = inj.require(UserInRoomRelationshipModel)  # type: UserInRoomRelationshipModel
         self.cfg_provider = inj.require(ConfigurationProvider)  # type: ConfigurationProvider
         self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
+        self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
 
     def serve(self, req: ConnectionRequest) -> ConnectionResponse or FailedResponse:
-        if self.authenticate(req.room_id, req.id):
+        ap = self.authenticate(req.room_id, req.id)
+        if ap:
+            self.update_connection_pool(req.app_key, *ap)
             response = ConnectionResponse()
             cfg = self.cfg_provider.get()
             response.mode, response.default_temperature = self.master_air_cond.get_md_pair()
@@ -44,7 +48,7 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
     def authenticate(self, room_id: str, identifier: IDCardNumber):
         user = self.user_model.query_by_id_card_number(identifier)
         room = user and self.room_model.query_by_room_id(room_id)
-        return room and self.user_in_room_model.query(user.id, room.id)
+        return room and self.user_in_room_model.query(user.id, room.id) and (room.id, user.id)
 
-    def update_connection_pool(self, room_id: int, identifier: IDCardNumber) -> str:
-        pass
+    def update_connection_pool(self, token: str, room_id: int, user_id: int):
+        self.connection_pool.put(token, room_id, user_id, False)

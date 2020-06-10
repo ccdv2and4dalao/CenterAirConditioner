@@ -1,23 +1,32 @@
 # impl example
 
 import lib.functional
-from abstract.component import ConfigurationProvider, OptionProvider, Logger, MasterAirCond
+from abstract.component import ConfigurationProvider, OptionProvider, Logger, MasterAirCond, SystemEntropyProvider, \
+    UUIDGenerator, Dispatcher
+from abstract.component.connection_pool import ConnectionPool
 from abstract.controller import PingController
 from abstract.controller.connect import ConnectController
+from abstract.middleware import ReceiveRequestMiddleware
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel
-from abstract.service import ConnectionService
+from abstract.service import ConnectionService, StartStateControlService, StopStateControlService
 from abstract.singleton import register_singletons
-from app.component.air import MasterAirCondImpl
+from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
 from app.config import APPVersion, APPDescription
 from app.controller.connect import ConnectControllerFlaskImpl
 from app.controller.ping import PingControllerFlaskImpl
-from app.router.flask import FlaskRouter, FlaskRouteController, RouteController
+from app.middleware.receive_request import ReceiveRequestMiddlewareImpl
+from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
 from app.service.connect import ConnectionServiceImpl
+from app.service.start_state_control import StartStateControlServiceImpl
+from app.service.stop_state_control import StopStateControlServiceImpl
 from lib import std_logging
 from lib.arg_parser import StdArgParser
 from lib.file_configuration import FileConfigurationProvider
 from lib.injector import Injector
+from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl
 from lib.serializer import JSONSerializer, Serializer
+from lib.system_entropy_provider import SystemEntropyProviderImpl
+from lib.system_entropy_uuid import SystemEntropyUUIDGeneratorImpl
 from mock.model import MockUserModel, MockRoomModel, MockUserInRoomRelationshipModel
 
 
@@ -28,15 +37,27 @@ def inject_global_vars(inj: Injector):
 
 
 def inject_external_dependency(inj: Injector):
+    # 无依赖接口
     inj.provide(Serializer, JSONSerializer())
 
+    # system接口
+    inj.provide(SystemEntropyProvider, SystemEntropyProviderImpl())
+
+    # 日志
     logger = std_logging.StdLoggerImpl()
     logger.logger.addHandler(std_logging.StreamHandler())
     inj.provide(Logger, logger)
 
+    #
+    inj.build(UUIDGenerator, SystemEntropyUUIDGeneratorImpl)
     inj.build(OptionProvider, StdArgParser)
     inj.build(ConfigurationProvider, FileConfigurationProvider)
     inj.build(MasterAirCond, MasterAirCondImpl)
+
+    inj.provide(ConnectionPool, SafeMemoryConnectionPoolImpl())
+
+    # todo: should provide parameters later
+    inj.provide(Dispatcher, QueueDispatcherWithThreadPool())
     return inj
 
 
@@ -47,8 +68,15 @@ def inject_model(inj: Injector):
     return inj
 
 
+def inject_middleware(inj: Injector):
+    inj.build(ReceiveRequestMiddleware, ReceiveRequestMiddlewareImpl)
+    return inj
+
+
 def inject_service(inj: Injector):
     inj.build(ConnectionService, ConnectionServiceImpl)
+    inj.build(StartStateControlService, StartStateControlServiceImpl)
+    inj.build(StopStateControlService, StopStateControlServiceImpl)
     return inj
 
 
@@ -59,10 +87,16 @@ def inject_controller(inj: Injector):
     return inj
 
 
+def boot_server(inj: Injector):
+    dispatcher = inj.require(Dispatcher)  # type: Dispatcher
+    dispatcher.boot_up()
+    return inj
+
+
 def expose_service(inj: Injector):
     opt = inj.require(OptionProvider)  # type: OptionProvider
 
-    FlaskRouter(inj).run(
+    MasterFlaskRouter(inj).run(
         opt.find('host'), opt.find('port'))
 
 
@@ -82,9 +116,11 @@ if __name__ == '__main__':
 
         # 分层构建模块
         inject_model,
+        inject_middleware,
         inject_service,
         inject_controller,
 
         # 将服务暴露到进程外
+        boot_server,
         expose_service,
     ])(Injector())  # type: Injector

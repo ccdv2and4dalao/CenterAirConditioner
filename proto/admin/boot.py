@@ -1,13 +1,12 @@
 from proto import Request, Response
 
 
-class StopStateControlRequest(Request):
+class AdminBootMasterRequest(Request):
     def __init__(self):
         super().__init__()
-        self.token = ''  # type: str
+        self.jwt_token = ''  # type: str
 
 
-class StopStateControlResponse(Response):
+class AdminBootMasterResponse(Response):
     def __init__(self):
         super().__init__()
-

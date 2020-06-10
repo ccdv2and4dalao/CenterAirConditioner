@@ -21,8 +21,8 @@ class MasterAirCondImpl(StoppableThread, MasterAirCond):
         self.mutex.release()
         return p
 
-    def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode, target_temperature: float):
+    def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode):
         pass
 
-    def stop_supply(self, room_id: int, speed: FanSpeed, mode: AirMode, target_temperature: float):
+    def stop_supply(self, room_id: int):
         pass
