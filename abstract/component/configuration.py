@@ -7,23 +7,28 @@ Millisecond = int
 
 class Configuration(object):
     database_config_key = 'database'
+    master_default_config_key = 'master-default'
     slave_default_config_key = 'slave-default'
 
-    class SlaveDefault:
+    class MasterDefault:
         default_temperature_key = 'default-temperature'
-        metric_delay_key = 'metric-delay'
-        update_delay_key = 'update-delay'
         mode_key = 'mode'
 
         def __init__(self,
                      default_temperature=None,
-                     metric_delay=None,
-                     update_delay=None,
                      mode=None):
-            self.default_temperature = default_temperature or 27  # type: float
+            self.default_temperature = default_temperature or 22.0  # type: float
+            self.mode = mode or AirMode.Cool.value  # type: str
+
+    class SlaveDefault:
+        metric_delay_key = 'metric-delay'
+        update_delay_key = 'update-delay'
+
+        def __init__(self,
+                     metric_delay=None,
+                     update_delay=None):
             self.metric_delay = metric_delay or 100  # type: Millisecond
             self.update_delay = update_delay or 100  # type: Millisecond
-            self.mode = mode or AirMode.Cool.value  # type: str
 
     class Database:
         connection_type_key = 'connection-type'
@@ -59,8 +64,9 @@ class Configuration(object):
             self.escape = escape or '`'  # type: str
             self.location = location or 'Local'  # type: str
 
-    def __init__(self, database_config=None, slave_default=None):
+    def __init__(self, database_config=None, master_default=None, slave_default=None):
         self.database_config = database_config or Configuration.Database()  # type: Configuration.Database
+        self.master_default = master_default or Configuration.MasterDefault()  # type: Configuration.MasterDefault
         self.slave_default = slave_default or Configuration.SlaveDefault()  # type: Configuration.SlaveDefault
 
 

@@ -1,6 +1,7 @@
 from abc import abstractmethod, ABC
 
 from abstract.component import ConfigurationProvider
+from abstract.component.air import MasterAirCond
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel
 from abstract.service import ConnectionService
 from lib.injector import Injector
@@ -27,15 +28,16 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
         self.room_model = inj.require(RoomModel)  # type: RoomModel
         self.user_in_room_model = inj.require(UserInRoomRelationshipModel)  # type: UserInRoomRelationshipModel
         self.cfg_provider = inj.require(ConfigurationProvider)  # type: ConfigurationProvider
+        self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
 
     def serve(self, req: ConnectionRequest) -> ConnectionResponse or FailedResponse:
         if self.authenticate(req.room_id, req.id):
             response = ConnectionResponse()
             cfg = self.cfg_provider.get()
-            response.default_temperature = cfg.slave_default.default_temperature
+            response.mode, response.default_temperature = self.master_air_cond.get_md_pair()
+            response.mode = response.mode.value
             response.metric_delay = cfg.slave_default.metric_delay
             response.update_delay = cfg.slave_default.update_delay
-            response.mode = cfg.slave_default.mode
             return response
         return NotFound(f'relationship(room_id, id_card_number) ({req.room_id}, {req.id}) not found')
 

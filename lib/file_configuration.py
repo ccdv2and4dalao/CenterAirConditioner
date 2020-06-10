@@ -22,12 +22,16 @@ def load_database_configuration_from_dict(d: dict):
         location=d.get(Configuration.Database.location_key))
 
 
+def load_master_default_configuration_from_dict(d: dict):
+    return Configuration.MasterDefault(
+        default_temperature=d.get(Configuration.MasterDefault.default_temperature_key),
+        mode=d.get(Configuration.MasterDefault.mode_key))
+
+
 def load_slave_default_configuration_from_dict(d: dict):
     return Configuration.SlaveDefault(
-        default_temperature=d.get(Configuration.SlaveDefault.default_temperature_key),
         metric_delay=d.get(Configuration.SlaveDefault.metric_delay_key),
-        update_delay=d.get(Configuration.SlaveDefault.update_delay_key),
-        mode=d.get(Configuration.SlaveDefault.mode_key))
+        update_delay=d.get(Configuration.SlaveDefault.update_delay_key))
 
 
 def load_configuration_from_dict(d: dict):
@@ -35,6 +39,7 @@ def load_configuration_from_dict(d: dict):
         return Configuration()
     return Configuration(
         database_config=load_database_configuration_from_dict(d.get(Configuration.database_config_key)),
+        master_default=load_master_default_configuration_from_dict(d.get(Configuration.master_default_config_key)),
         slave_default=load_slave_default_configuration_from_dict(d.get(Configuration.slave_default_config_key)))
 
 
