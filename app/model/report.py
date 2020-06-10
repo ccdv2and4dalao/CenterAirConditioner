@@ -107,8 +107,8 @@ class ReportModelImpl(ReportModel):
         '''
         return self.db.delete(sql)
 
-    def generate_report(self, stop_time: str, report_duration: str):
-        if report_duration not in ['day', 'month', 'week']:
+    def get_reports(self, stop_time: str, report_duration: str):
+        if report_duration.lower() not in ['day', 'month', 'week']:
             raise ValueError('report duraion should in [day, month, week]')
         sql = f'''
         SELECT * FROM {Report.table_name} 
