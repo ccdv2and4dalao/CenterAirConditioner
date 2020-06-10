@@ -8,6 +8,12 @@ option_context.arguments.append(OptionArgument(
     long_opt='config', help_msg='config file path'))
 
 
+def load_admin_configuration_from_dict(d: dict):
+    return Configuration.Admin(
+        app_key=d.get(Configuration.Admin.app_key_key),
+        admin_password=d.get(Configuration.Admin.admin_password_key))
+
+
 def load_database_configuration_from_dict(d: dict):
     return Configuration.Database(
         connection_type=d.get(Configuration.Database.connection_type_key),
@@ -38,6 +44,7 @@ def load_configuration_from_dict(d: dict):
     if d is None:
         return Configuration()
     return Configuration(
+        admin_config=load_admin_configuration_from_dict(d.get(Configuration.admin_config_key)),
         database_config=load_database_configuration_from_dict(d.get(Configuration.database_config_key)),
         master_default=load_master_default_configuration_from_dict(d.get(Configuration.master_default_config_key)),
         slave_default=load_slave_default_configuration_from_dict(d.get(Configuration.slave_default_config_key)))

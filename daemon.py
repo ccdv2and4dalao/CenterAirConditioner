@@ -1,5 +1,6 @@
 import lib.functional
-from abstract.component import OptionProvider, Logger
+from abstract.component import OptionProvider, Logger, ConfigurationProvider
+from abstract.component.jwt import JWT
 from abstract.controller import PingController, DaemonAdminController
 from abstract.singleton import register_singletons
 from app.config import APPVersion, APPDescription
@@ -8,7 +9,9 @@ from app.controller.ping import PingControllerFlaskImpl
 from app.router.flask import DaemonFlaskRouter, FlaskRouteController, RouteController
 from lib import std_logging
 from lib.arg_parser import StdArgParser
+from lib.file_configuration import FileConfigurationProvider
 from lib.injector import Injector
+from lib.py_jwt import PyJWTImpl
 from lib.serializer import JSONSerializer, Serializer
 
 
@@ -28,6 +31,9 @@ def inject_external_dependency(inj: Injector):
     inj.provide(Logger, logger)
 
     inj.build(OptionProvider, StdArgParser)
+    inj.build(ConfigurationProvider, FileConfigurationProvider)
+    inj.build(JWT, PyJWTImpl)
+
     return inj
 
 

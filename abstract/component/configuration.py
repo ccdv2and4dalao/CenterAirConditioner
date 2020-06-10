@@ -6,9 +6,20 @@ Millisecond = int
 
 
 class Configuration(object):
+    admin_config_key = 'admin'
     database_config_key = 'database'
     master_default_config_key = 'master-default'
     slave_default_config_key = 'slave-default'
+
+    class Admin:
+        app_key_key = 'app-key'
+        admin_password_key = 'admin-password'
+
+        def __init__(self,
+                     app_key=None,
+                     admin_password=None):
+            self.app_key = app_key or ''  # type: str
+            self.admin_password = admin_password or ''  # type: str
 
     class MasterDefault:
         default_temperature_key = 'default-temperature'
@@ -64,7 +75,8 @@ class Configuration(object):
             self.escape = escape or '`'  # type: str
             self.location = location or 'Local'  # type: str
 
-    def __init__(self, database_config=None, master_default=None, slave_default=None):
+    def __init__(self, admin_config=None, database_config=None, master_default=None, slave_default=None):
+        self.admin_config = admin_config or Configuration.Admin()  # type: Configuration.Admin
         self.database_config = database_config or Configuration.Database()  # type: Configuration.Database
         self.master_default = master_default or Configuration.MasterDefault()  # type: Configuration.MasterDefault
         self.slave_default = slave_default or Configuration.SlaveDefault()  # type: Configuration.SlaveDefault

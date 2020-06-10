@@ -8,7 +8,7 @@ class FlaskDaemonAdminControllerImpl(DaemonAdminController):
         pass
 
     def login(self, *args, **kwargs):
-        pass
+        return
 
     def boot(self, *args, **kwargs):
         pass
