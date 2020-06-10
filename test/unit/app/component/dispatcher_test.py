@@ -2,7 +2,7 @@ import unittest
 from random import randint
 from time import sleep
 
-from app.component import QueueDispatcher, QueueDispatcherWithThreadPool
+from app.component import QueueDispatcher, QueueDispatcherWithThreadPool, SuspendableQueueDispatcherWithThreadPool
 
 
 def dispatcher_schedule_successfully(_, tag):
@@ -44,3 +44,6 @@ class DispatcherFunctionTest(unittest.TestCase):
 
     def test_basic_QueueDispatcherWithThreadPool(self):
         self.basic_main(QueueDispatcherWithThreadPool)
+
+    def test_basic_SuspendableQueueDispatcherWithThreadPool(self):
+        self.basic_main(SuspendableQueueDispatcherWithThreadPool)

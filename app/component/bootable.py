@@ -1,5 +1,7 @@
-﻿from abstract.component.bootable import Bootable
-import threading
+﻿import threading
+
+from abstract.component.bootable import Bootable
+
 
 class BootableImpl(Bootable, threading.Thread):
     def __init__(self, main_func, *args, daemonic=False):
@@ -26,9 +28,9 @@ class BootableImpl(Bootable, threading.Thread):
         else:
             self.running.set()
 
-
     def shut_down(self, timeout=0):
         '''
         暂停线程
         '''
-        self.running.clear()
+        if self.running is not None:
+            self.running.clear()
