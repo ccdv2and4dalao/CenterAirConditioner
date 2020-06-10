@@ -1,23 +1,23 @@
 from abc import abstractmethod
-
-from abstract.controller import PingController
-
-from flask import Flask, make_response
 from collections import namedtuple
 
+from flask import Flask, make_response
+from flask import request
+
+from abstract.consensus import FlowLabel
+from abstract.controller import PingController
 from abstract.controller.connect import ConnectController
 from abstract.singleton import option_context, OptionArgument
 from lib import Serializer
 from lib.injector import Injector
-from flask import request
 
-HTTPSpecItem = namedtuple('HTTPSpecItem', ['ctl_prop', 'path', 'methods'])
+HTTPSpecItem = namedtuple('HTTPSpecItem', ['ctl_prop', 'path', 'methods', 'label'])
 http_spec = namedtuple('HTTPSpec', ['ping', 'connect'])(
     [
-        HTTPSpecItem('ping', '/ping', ['GET'])
+        HTTPSpecItem('ping', '/ping', ['GET'], FlowLabel.Ping)
     ],
     [
-        HTTPSpecItem('connect', '/connect', ['POST'])
+        HTTPSpecItem('connect', '/connect', ['POST'], FlowLabel.Connect)
     ]
 )
 
@@ -89,8 +89,16 @@ class FlaskRouter(object):
         self.app.run(host, port, debug=debug)
 
     def apply_ctl(self, ctl, specs):
-
         for spec in specs:
+            serve_func = getattr(ctl, spec.ctl_prop)
+            flow_label = spec.label
+
+            def label_middleware(*args, **kwargs):
+                request.environ['_m_lbl'] = flow_label
+                serve_func(*args, **kwargs)
+
+            label_middleware.__name__ = type(ctl).__name__ + '.' + spec.ctl_prop
+
             self.app.add_url_rule(spec.path, None,
-                                  getattr(ctl, spec.ctl_prop),
+                                  label_middleware,
                                   methods=spec.methods)

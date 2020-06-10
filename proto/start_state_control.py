@@ -9,6 +9,7 @@ class StartStateControlRequest(Request):
         super().__init__()
         self.mode = ''  # type: Mode
         self.speed = ''  # type: FanSpeed
+        self.token = ''  # type: str
 
 
 class StartStateControlResponse(Response):

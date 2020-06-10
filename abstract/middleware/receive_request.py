@@ -1,9 +1,8 @@
-from abc import abstractmethod
+from abc import ABC
 
-from proto import Request, Response
+from abstract.middleware.abstract import Middleware
 
 
-class ReceiveRequestMiddleware(object):
-
-    def receive_request(self, request: Request) -> Response:
-        pass
+# aborted
+class ReceiveRequestMiddleware(Middleware, ABC):
+    pass

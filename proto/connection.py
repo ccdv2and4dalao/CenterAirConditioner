@@ -6,6 +6,7 @@ class ConnectionRequest(Request):
         super().__init__()
         self.room_id = ''  # type: str
         self.id = ''  # type: str
+        self.app_key = ''  # type: str
 
     def bind_dict(self, d: dict):
         if d is None:

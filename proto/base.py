@@ -3,7 +3,7 @@ import enum
 
 class Request(object):
     def __init__(self):
-        pass
+        self.label = 0  # type: int
 
     def bind_dict(self, d: dict):
         pass
