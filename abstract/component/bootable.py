@@ -11,6 +11,13 @@ class Bootable(object):
         """
         pass
 
+    # @abstractmethod
+    # def pause(self, timeout: float = None):
+    #     """
+    #     暂停boot_up拉起的服务
+    #     """
+    #     pass
+
     @abstractmethod
     def shut_down(self, timeout: float = None):
         """

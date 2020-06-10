@@ -1,12 +1,13 @@
 # impl example
 
 import lib.functional
-from abstract.component import ConfigurationProvider, OptionProvider, Logger
+from abstract.component import ConfigurationProvider, OptionProvider, Logger, MasterAirCond
 from abstract.controller import PingController
 from abstract.controller.connect import ConnectController
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel
 from abstract.service import ConnectionService
 from abstract.singleton import register_singletons
+from app.component.air import MasterAirCondImpl
 from app.config import APPVersion, APPDescription
 from app.controller.connect import ConnectControllerFlaskImpl
 from app.controller.ping import PingControllerFlaskImpl
@@ -35,6 +36,7 @@ def inject_external_dependency(inj: Injector):
 
     inj.build(OptionProvider, StdArgParser)
     inj.build(ConfigurationProvider, FileConfigurationProvider)
+    inj.build(MasterAirCond, MasterAirCondImpl)
     return inj
 
 
