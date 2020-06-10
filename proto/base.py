@@ -8,6 +8,9 @@ class Request(object):
     def bind_dict(self, d: dict):
         pass
 
+    def bind_header(self, h):
+        pass
+
 
 class Response(object):
     def __init__(self, code: int = 0):
@@ -28,6 +31,8 @@ class ServiceCode(enum.Enum):
     ConflictMode = 2
     InvalidModeValue = 3
     InvalidFanSpeedValue = 4
+    WrongPassword = 5
+    AuthJWTFailed = 6
 
 
 class NotFound(FailedResponse):
@@ -48,3 +53,13 @@ class InvalidModeValue(FailedResponse):
 class InvalidFanSpeedValue(FailedResponse):
     def __init__(self, data: str):
         super().__init__(ServiceCode.InvalidFanSpeedValue.value, data)
+
+
+class WrongPassword(FailedResponse):
+    def __init__(self):
+        super().__init__(ServiceCode.WrongPassword.value)
+
+
+class AuthJWTFailed(FailedResponse):
+    def __init__(self, data: str):
+        super().__init__(ServiceCode.AuthJWTFailed.value, data)
