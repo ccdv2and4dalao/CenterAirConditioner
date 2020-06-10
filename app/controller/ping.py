@@ -1,5 +1,3 @@
-from abc import abstractmethod
-
 from abstract.controller import PingController
 from app.config import APPVersion
 from app.router.flask import RouteController
@@ -13,6 +11,5 @@ class PingControllerFlaskImpl(PingController):
         self.v = inj.require(APPVersion)  # type: str
         self.rc = inj.require(RouteController)  # type: RouteController
 
-    @abstractmethod
     def ping(self, *args, **kwargs):
         return self.rc.ok(PingResponse(self.v))

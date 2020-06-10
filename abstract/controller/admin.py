@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 
-class AdminController(object):
+class DaemonAdminController(object):
 
     @abstractmethod
     def login(self, *args, **kwargs):
@@ -9,9 +9,9 @@ class AdminController(object):
         /v1/admin/login POST
 
         request:
-        {"admin-token": "0123456789"}
+        {"admin_token": "0123456789"}
         response:
-        {"code": 0, "jwt-token": "9876543210"}
+        {"code": 0, "jwt_token": "9876543210"}
         """
         pass
 
@@ -21,7 +21,7 @@ class AdminController(object):
         /v1/admin/boot POST
 
         request:
-        with header: "Authorization" : "Bearer " + jwt-token
+        with header: "Authorization" : "Bearer " + jwt_token
         response:
         {"code": 0}
         """
@@ -33,12 +33,14 @@ class AdminController(object):
         /v1/admin/shutdown POST
 
         request:
-        with header: "Authorization" : "Bearer " + jwt-token
+        with header: "Authorization" : "Bearer " + jwt_token
         response:
         {"code": 0}
         """
         pass
 
+
+class AdminController(object):
     @abstractmethod
     def set_mode(self, *args, **kwargs):
         """
@@ -46,7 +48,7 @@ class AdminController(object):
 
         request:
         {mode:"cool"|"heat"}
-        with header: "Authorization" : "Bearer " + jwt-token
+        with header: "Authorization" : "Bearer " + jwt_token
         response:
         {"code": 0}
         """
@@ -69,7 +71,7 @@ class AdminController(object):
 
         request:
         {"target": 22.0}
-        with header: "Authorization" : "Bearer " + jwt-token
+        with header: "Authorization" : "Bearer " + jwt_token
         response:
         {"code": 0}
         """
@@ -90,11 +92,10 @@ class AdminController(object):
     @abstractmethod
     def get_server_status(self, *args, **kwargs):
         """
-        /v1/admin/status POST
+        /v1/admin/status GET
 
         request:
-        {"target": 22.0}
-        with header: "Authorization" : "Bearer " + jwt-token
+        with header: "Authorization" : "Bearer " + jwt_token
         response:
         {"code": 0, "server_state": "on" | "off" | "idle", "mode": "heat"|"cool"}
         """

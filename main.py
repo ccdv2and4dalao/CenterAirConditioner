@@ -15,7 +15,7 @@ from app.config import APPVersion, APPDescription
 from app.controller.connect import ConnectControllerFlaskImpl
 from app.controller.ping import PingControllerFlaskImpl
 from app.middleware.receive_request import ReceiveRequestMiddlewareImpl
-from app.router.flask import FlaskRouter, FlaskRouteController, RouteController
+from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
 from app.service.connect import ConnectionServiceImpl
 from app.service.start_state_control import StartStateControlServiceImpl
 from app.service.stop_state_control import StopStateControlServiceImpl
@@ -96,7 +96,7 @@ def boot_server(inj: Injector):
 def expose_service(inj: Injector):
     opt = inj.require(OptionProvider)  # type: OptionProvider
 
-    FlaskRouter(inj).run(
+    MasterFlaskRouter(inj).run(
         opt.find('host'), opt.find('port'))
 
 

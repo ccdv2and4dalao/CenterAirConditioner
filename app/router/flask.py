@@ -5,19 +5,37 @@ from flask import Flask, make_response
 from flask import request
 
 from abstract.consensus import FlowLabel
-from abstract.controller import PingController
-from abstract.controller.connect import ConnectController
+from abstract.controller import PingController, ConnectController, DaemonAdminController
 from abstract.singleton import option_context, OptionArgument
 from lib import Serializer
 from lib.injector import Injector
 
 HTTPSpecItem = namedtuple('HTTPSpecItem', ['ctl_prop', 'path', 'methods', 'label'])
-http_spec = namedtuple('HTTPSpec', ['ping', 'connect'])(
+MasterServerHTTPSpec = namedtuple('MasterServerHTTPSpec', ['ping', 'connect', 'admin'])
+DaemonServerHTTPSpec = namedtuple('DaemonServerHTTPSpec', ['ping', 'admin'])
+master_http_spec = MasterServerHTTPSpec(
     [
         HTTPSpecItem('ping', '/ping', ['GET'], FlowLabel.Ping)
     ],
     [
-        HTTPSpecItem('connect', '/connect', ['POST'], FlowLabel.Connect)
+        HTTPSpecItem('connect', 'v1/connect', ['POST'], FlowLabel.Connect)
+    ],
+    [
+        HTTPSpecItem('set_mode', '/v1/admin/mode', ['POST'], FlowLabel.AdminSetMode),
+        HTTPSpecItem('set_current_temperature', '/v1/admin/current-temp', ['POST'],
+                     FlowLabel.AdminSetCurrentTemperature),
+        HTTPSpecItem('get_server_status', '/v1/admin/status', ['GET'], FlowLabel.AdminGetServerStatus),
+    ]
+)
+
+daemon_http_spec = DaemonServerHTTPSpec(
+    [
+        HTTPSpecItem('ping', '/ping', ['GET'], FlowLabel.Ping)
+    ],
+    [
+        HTTPSpecItem('login', '/v1/admin/login', ['POST'], FlowLabel.AdminLogin),
+        HTTPSpecItem('boot', '/v1/admin/boot', ['POST'], FlowLabel.AdminBoot),
+        HTTPSpecItem('shutdown', '/v1/admin/shutdown', ['POST'], FlowLabel.AdminShutdown),
     ]
 )
 
@@ -80,10 +98,8 @@ option_context.arguments.append(OptionArgument(
 
 
 class FlaskRouter(object):
-    def __init__(self, injector: Injector):
-        self.app = Flask('center-air-conditioner')
-        self.apply_ctl(injector.require(PingController), http_spec.ping)
-        self.apply_ctl(injector.require(ConnectController), http_spec.connect)
+    def __init__(self, name):
+        self.app = Flask(name)
 
     def run(self, host: str, port: str, debug: bool = True):
         self.app.run(host, port, debug=debug)
@@ -95,10 +111,24 @@ class FlaskRouter(object):
 
             def label_middleware(*args, **kwargs):
                 request.environ['_m_lbl'] = flow_label
-                serve_func(*args, **kwargs)
+                return serve_func(*args, **kwargs)
 
             label_middleware.__name__ = type(ctl).__name__ + '.' + spec.ctl_prop
 
             self.app.add_url_rule(spec.path, None,
                                   label_middleware,
                                   methods=spec.methods)
+
+
+class MasterFlaskRouter(FlaskRouter):
+    def __init__(self, injector: Injector):
+        super().__init__('center-air-conditioner-server')
+        self.apply_ctl(injector.require(PingController), master_http_spec.ping)
+        self.apply_ctl(injector.require(ConnectController), master_http_spec.connect)
+
+
+class DaemonFlaskRouter(FlaskRouter):
+    def __init__(self, injector: Injector):
+        super().__init__('center-air-conditioner-daemon')
+        self.apply_ctl(injector.require(PingController), master_http_spec.ping)
+        self.apply_ctl(injector.require(DaemonAdminController), daemon_http_spec.admin)
