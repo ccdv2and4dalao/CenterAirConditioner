@@ -4,12 +4,9 @@ from abstract.model import User
 from lib.sql_sqlite3 import SQLite3
 
 
-class JSONSerializerTest(unittest.TestCase):
+class BasicSQLTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.db = SQLite3(memory=True)
-
-    def tearDown(self) -> None:
-        del self.db
+        self.db = None
 
     def assert_create_table(self):
         self.assertTrue(self.db.create(
@@ -55,3 +52,11 @@ class JSONSerializerTest(unittest.TestCase):
         self.assertFalse(self.db.insert(
             f"""INSERT INTO {User.table_name}({User.id_card_number_key}) VALUES ('111111202002023333')"""
         ), self.db.last_error_lazy)
+
+
+class Sqlite3Test(BasicSQLTest):
+    def setUp(self) -> None:
+        self.db = SQLite3(memory=True)
+
+    def tearDown(self) -> None:
+        del self.db
