@@ -1,10 +1,29 @@
-
-
 from abc import abstractmethod
+
+from abstract.consensus import AirMode
+
+Millisecond = int
 
 
 class Configuration(object):
     database_config_key = 'database'
+    slave_default_config_key = 'slave-default'
+
+    class SlaveDefault:
+        default_temperature_key = 'default-temperature'
+        metric_delay_key = 'metric-delay'
+        update_delay_key = 'update-delay'
+        mode_key = 'mode'
+
+        def __init__(self,
+                     default_temperature=None,
+                     metric_delay=None,
+                     update_delay=None,
+                     mode=None):
+            self.default_temperature = default_temperature or 27  # type: float
+            self.metric_delay = metric_delay or 100  # type: Millisecond
+            self.update_delay = update_delay or 100  # type: Millisecond
+            self.mode = mode or AirMode.Cool.value  # type: str
 
     class Database:
         connection_type_key = 'connection-type'
@@ -40,8 +59,9 @@ class Configuration(object):
             self.escape = escape or '`'  # type: str
             self.location = location or 'Local'  # type: str
 
-    def __init__(self, database_config=None):
+    def __init__(self, database_config=None, slave_default=None):
         self.database_config = database_config or Configuration.Database()  # type: Configuration.Database
+        self.slave_default = slave_default or Configuration.SlaveDefault()  # type: Configuration.SlaveDefault
 
 
 class ConfigurationProvider(object):

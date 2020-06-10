@@ -35,6 +35,10 @@ class UserInRoomRelationshipModel(Model):
         pass
 
     @abstractmethod
+    def query(self, user_id: int, room_id: int) -> bool:
+        pass
+
+    @abstractmethod
     def query_by_room_id(self, room_id: int) -> List[int]:
         """
         :param room_id: 房间id
