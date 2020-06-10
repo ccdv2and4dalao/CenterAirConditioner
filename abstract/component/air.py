@@ -9,8 +9,8 @@ class AirCond(object):
 
     @abstractmethod
     def __init__(self):
-        self.mode = ''
-        self.current_temperature = 0.0
+        self.mode = AirMode.Cool.value  # type: AirMode
+        self.current_temperature = 0.0  # type: float
         # todo: ?
         self.status = {}
 
@@ -25,9 +25,9 @@ class MasterAirCond(AirCond, Bootable):
         pass
 
     @abstractmethod
-    def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode, target_temperature: float):
+    def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode):
         pass
 
     @abstractmethod
-    def stop_supply(self, room_id: int, speed: FanSpeed, mode: AirMode, target_temperature: float):
+    def stop_supply(self, room_id: int):
         pass

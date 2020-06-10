@@ -5,7 +5,7 @@ from abstract.component import ConfigurationProvider, OptionProvider, Logger, Ma
 from abstract.controller import PingController
 from abstract.controller.connect import ConnectController
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel
-from abstract.service import ConnectionService
+from abstract.service import ConnectionService, StartStateControlService, StopStateControlService
 from abstract.singleton import register_singletons
 from app.component.air import MasterAirCondImpl
 from app.config import APPVersion, APPDescription
@@ -13,6 +13,8 @@ from app.controller.connect import ConnectControllerFlaskImpl
 from app.controller.ping import PingControllerFlaskImpl
 from app.router.flask import FlaskRouter, FlaskRouteController, RouteController
 from app.service.connect import ConnectionServiceImpl
+from app.service.start_state_control import StartStateControlServiceImpl
+from app.service.stop_state_control import StopStateControlServiceImpl
 from lib import std_logging
 from lib.arg_parser import StdArgParser
 from lib.file_configuration import FileConfigurationProvider
@@ -49,6 +51,8 @@ def inject_model(inj: Injector):
 
 def inject_service(inj: Injector):
     inj.build(ConnectionService, ConnectionServiceImpl)
+    inj.build(StartStateControlService, StartStateControlServiceImpl)
+    inj.build(StopStateControlService, StopStateControlServiceImpl)
     return inj
 
 
