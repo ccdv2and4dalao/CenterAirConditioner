@@ -1,1 +1,3 @@
-__all__ = []
+from .dispatcher import *
+
+__all__ = ['QueueDispatcher']

@@ -23,7 +23,7 @@ class Injector:
     def require(self, proto: type or str):
         return self.mapping[proto]
 
-    def week_require(self, proto: type or str, default_value=None):
+    def weak_require(self, proto: type or str, default_value=None):
         return self.mapping.get(proto, default_value)
 
     def requires(self, prototypes: List[type]):
