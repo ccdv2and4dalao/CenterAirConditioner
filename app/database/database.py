@@ -97,7 +97,8 @@ class BaseSQLDatabaseImpl(SQLDatabase):
                 flag = False
         return flag
 
-    def get_last_error(self) -> Exception:
+    @property
+    def last_error(self) -> Exception:
         return self.exception
 
 

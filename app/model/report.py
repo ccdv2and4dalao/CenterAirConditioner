@@ -7,46 +7,41 @@ class ReportModelImpl(ReportModel):
         self.db = sqlDatabase
 
     def create(self):
-        sql = f'''
-        CREATE TABLE IF NOT EXISTS ? (
-            ? INT AUTO_INCREMENT PRIMARY KEY,
-            ? VARCHAR(20) REFERENCE ROOM,
-            ? DATETIME,
-            ? DATETIME,
-            ? FLOAT,
-            ? FLOAT,
-            ? FLOAT,
-            ? FLOAT
+        sql = f"""
+        CREATE TABLE IF NOT EXISTS {Report.table_name} (
+            {Report.report_no_key} INT AUTO_INCREMENT PRIMARY KEY,
+            {Report.room_id_key} VARCHAR(20),
+            {Report.start_time_key} DATETIME,
+            {Report.stop_time_key} DATETIME,
+            {Report.start_temperature_key} FLOAT,
+            {Report.end_temperature_key} FLOAT,
+            {Report.energy_key} FLOAT,
+            {Report.cost_key} FLOAT
         )
-        '''.replace('\n', '')
-        return self.db.create(sql, Report.table_name,
-                       Report.report_no_key, Report.room_id_key, Report.start_time_key, Report.stop_time_key,
-                       Report.start_temperature_key, Report.end_temperature_key, Report.energy_key, Report.cost_key)
+        """
+
+        return self.db.create(sql)
 
     def insert(self, report: Report) -> int:
-        sql = '''
-        INSERT INTO %s (
-        %s, 
-        %s, %s,
-        %s, %s, 
-        %s, %s) 
+        sql = f'''
+        INSERT INTO {Report.table_name} (
+        {Report.room_id_key}, 
+        {Report.start_time_key}, {Report.stop_time_key},
+        {Report.start_temperature_key}, {Report.end_temperature_key}, 
+        {Report.energy_key}, {Report.cost_key}) 
         VALUES
         (%s, %s, %s,
         %s, %s, %s, %s)
         '''
-        return self.db.insert(sql, Report.table_name,
-                          Report.room_id_key, 
-                          Report.start_time_key, Report.stop_time_key, 
-                          Report.start_temperature_key, Report.end_temperature_key, 
-                          Report.energy_key, Report.cost_key, 
+        return self.db.insert(sql,
                           report.room_id, report.start_time, report.stop_time,
                           report.start_temperature, report.end_temperature, report.energy, report.cost)
     
     def query_by_report_no(self, report_no: int) -> Report or None:
         sql = f'''
-        SELECT * FROM %s WHERE %s = %s
+        SELECT * FROM {Report.table_name} WHERE {Report.report_no_key} = %s
         '''
-        result = self.db.select(sql, Report.table_name, Report.report_no_key, report_no)
+        result = self.db.select(sql, report_no)
         if result:
             r = Report()
             r.report_no, r.room_id, r.start_time, r.stop_time, r.start_temperature, r.end_temperature,\
@@ -57,23 +52,20 @@ class ReportModelImpl(ReportModel):
     def query_by_conditions(self, room_id='', start_time='', stop_time='') -> List[Report]:
         values = []
         if room_id != '':
-            room_id_str = '%s = %s'
-            values.append(Report.room_id_key)
+            room_id_str = f'{Report.room_id_key} = %s'
             values.append(room_id)
         else:
             room_id_str = None
 
         time_str = None
         if start_time != '':
-            start_time_str = '%s >= %s'
-            values.append(Report.start_time_key)
+            start_time_str = f'{Report.start_time_key} >= %s'
             values.append(start_time)
         else:
             start_time_str = None
 
         if stop_time != '':
-            stop_time_str = '%s <= %s'
-            values.append(Report.stop_time_key)
+            stop_time_str = '{Report.stop_time_key} <= %s'
             values.append(stop_time)
         else:
             stop_time_str = None
@@ -97,8 +89,8 @@ class ReportModelImpl(ReportModel):
         else:
             where_str = ''
 
-        sql = 'SELECT * FROM %s {}'.format(where_str)
-        results = self.db.select(sql, Report.table_name, *values)
+        sql = f'SELECT * FROM {Report.table_name} {where_str}'
+        results = self.db.select(sql, *values)
         ret = []
         if results:
             for result in results:
@@ -110,30 +102,31 @@ class ReportModelImpl(ReportModel):
         return ret
 
     def delete_by_report_no(self, report_no) -> bool:
-        sql = '''
-        DELETE FROM %s WHERE %s = %s
+        sql = f'''
+        DELETE FROM {Report.table_name} WHERE {Report.report_no_key} = %s
         '''
-        return self.db.delete(sql, Report.table_name, Report.report_no_key, report_no)
+        return self.db.delete(sql, report_no)
 
     def get_reports(self, stop_time: str, report_duration: str):
         if report_duration.lower() not in ['day', 'month', 'week']:
             raise ValueError('report duraion should in [day, month, week]')
-        sql = '''
-        SELECT * FROM %s
-        WHERE %s BETWEEN 
-        date_sub(%s, interval 1 %s) AND %s
+        sql = f'''
+        SELECT * FROM {Report.table_name}
+        WHERE {Report.stop_time_key} BETWEEN 
+        date_sub(%s, interval 1 {report_duration}) AND %s
         '''
-        results = self.db.select(sql, Report.table_name, Report.stop_time_key, 
-                                 stop_time, report_duration, stop_time)
+        results = self.db.select(sql, stop_time, stop_time)
         ret = []
-        if results:
+        if results is not None:
             for result in results:
                 r = Report()
                 r.report_no, r.room_id, r.start_time, r.stop_time, \
                 r.start_temperature, r.end_temperature,\
                 r.energy, r.cost = result
                 ret.append(r)
-        return ret
+            return ret
+        else:
+            return None
 
 
 if __name__ == '__main__':
