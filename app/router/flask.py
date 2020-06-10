@@ -65,6 +65,10 @@ class RouteController(object):
     def bind_json(self, req_type):
         pass
 
+    @abstractmethod
+    def bind(self, req_type):
+        pass
+
 
 class FlaskRouteController(RouteController):
     def __init__(self, inj: Injector):
@@ -90,6 +94,12 @@ class FlaskRouteController(RouteController):
         req.bind_dict(request.get_json())
         return req
 
+    def bind(self, req_type):
+        req = req_type()
+        req.bind_dict(request.get_json())
+        req.bind_header(request.headers)
+        return req
+
 
 option_context.arguments.append(OptionArgument(
     long_opt='host', help_msg='host_name', default_value='127.0.0.1'))
@@ -106,12 +116,10 @@ class FlaskRouter(object):
 
     def apply_ctl(self, ctl, specs):
         for spec in specs:
-            serve_func = getattr(ctl, spec.ctl_prop)
-            flow_label = spec.label
-
-            def label_middleware(*args, **kwargs):
+            def label_middleware(*args, capture_serve_func=getattr(ctl, spec.ctl_prop), flow_label=spec.label,
+                                 **kwargs):
                 request.environ['_m_lbl'] = flow_label
-                return serve_func(*args, **kwargs)
+                return capture_serve_func(*args, **kwargs)
 
             label_middleware.__name__ = type(ctl).__name__ + '.' + spec.ctl_prop
 

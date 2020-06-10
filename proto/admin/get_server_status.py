@@ -6,6 +6,9 @@ class AdminGetServerStatusRequest(Request):
         super().__init__()
         self.jwt_token = ''  # type: str
 
+    def bind_header(self, h):
+        self.jwt_token = h['Authorization']
+
 
 class AdminGetServerStatusResponse(Response):
     def __init__(self):

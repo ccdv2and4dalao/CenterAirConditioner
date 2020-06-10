@@ -6,8 +6,13 @@ class AdminLoginRequest(Request):
         super().__init__()
         self.admin_token = ''  # type: str
 
+    def bind_dict(self, d: dict):
+        if d is None:
+            return
+        self.admin_token = d['admin_token']
+
 
 class AdminLoginResponse(Response):
-    def __init__(self):
+    def __init__(self, jwt_token=''):
         super().__init__()
-        self.jwt_token = ''  # type: str
+        self.jwt_token = jwt_token  # type: str

@@ -15,6 +15,8 @@ def load_admin_configuration_from_dict(d: dict):
 
 
 def load_database_configuration_from_dict(d: dict):
+    if d is None:
+        return Configuration.Database()
     return Configuration.Database(
         connection_type=d.get(Configuration.Database.connection_type_key),
         user=d.get(Configuration.Database.user_key),
@@ -29,12 +31,16 @@ def load_database_configuration_from_dict(d: dict):
 
 
 def load_master_default_configuration_from_dict(d: dict):
+    if d is None:
+        return Configuration.MasterDefault()
     return Configuration.MasterDefault(
         default_temperature=d.get(Configuration.MasterDefault.default_temperature_key),
         mode=d.get(Configuration.MasterDefault.mode_key))
 
 
 def load_slave_default_configuration_from_dict(d: dict):
+    if d is None:
+        return Configuration.SlaveDefault()
     return Configuration.SlaveDefault(
         metric_delay=d.get(Configuration.SlaveDefault.metric_delay_key),
         update_delay=d.get(Configuration.SlaveDefault.update_delay_key))

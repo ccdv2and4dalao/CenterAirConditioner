@@ -1,18 +1,21 @@
 import lib.functional
-from abstract.component import OptionProvider, Logger, ConfigurationProvider
+from abstract.component import OptionProvider, Logger, ConfigurationProvider, SystemEntropyProvider
 from abstract.component.jwt import JWT
 from abstract.controller import PingController, DaemonAdminController
+from abstract.service.admin import AdminLoginService, AdminBootMasterService, AdminShutdownMasterService
 from abstract.singleton import register_singletons
 from app.config import APPVersion, APPDescription
 from app.controller.admin import FlaskDaemonAdminControllerImpl
 from app.controller.ping import PingControllerFlaskImpl
 from app.router.flask import DaemonFlaskRouter, FlaskRouteController, RouteController
+from app.service.admin import AdminLoginServiceImpl, AdminBootMasterServiceImpl, AdminShutdownMasterServiceImpl
 from lib import std_logging
 from lib.arg_parser import StdArgParser
 from lib.file_configuration import FileConfigurationProvider
 from lib.injector import Injector
 from lib.py_jwt import PyJWTImpl
 from lib.serializer import JSONSerializer, Serializer
+from lib.system_entropy_provider import SystemEntropyProviderImpl
 
 
 def inject_global_vars(inj: Injector):
@@ -24,6 +27,9 @@ def inject_global_vars(inj: Injector):
 def inject_external_dependency(inj: Injector):
     # 无依赖接口
     inj.provide(Serializer, JSONSerializer())
+
+    # system接口
+    inj.provide(SystemEntropyProvider, SystemEntropyProviderImpl())
 
     # 日志
     logger = std_logging.StdLoggerImpl()
@@ -42,6 +48,10 @@ def inject_middleware(inj: Injector):
 
 
 def inject_service(inj: Injector):
+    inj.build(AdminLoginService, AdminLoginServiceImpl)
+    inj.build(AdminBootMasterService, AdminBootMasterServiceImpl)
+    inj.build(AdminShutdownMasterService, AdminShutdownMasterServiceImpl)
+
     return inj
 
 
