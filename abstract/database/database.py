@@ -12,26 +12,32 @@ class SQLDatabase(object):
         pass
 
     @abstractmethod
-    def select(self, sql: str) -> List[tuple]:
+    def connect(self, host='', port=0, user='', password='', database=''):
         pass
 
     @abstractmethod
-    def insert(self, sql: str) -> bool:
+    def select(self, sql: str, *args) -> List[tuple]:
         pass
 
     @abstractmethod
-    def create(self, sql: str) -> bool:
+    def insert(self, sql: str, *args) -> int:
         pass
 
     @abstractmethod
-    def delete(self, sql: str) -> bool:
+    def create(self, sql: str, *args) -> bool:
         pass
 
     @abstractmethod
-    def update(self, sql: str) -> bool:
+    def delete(self, sql: str, *args) -> bool:
         pass
 
-    
+    @abstractmethod
+    def update(self, sql: str, *args) -> bool:
+        pass
+
+    @abstractmethod
+    def get_last_error(self) -> Exception:
+        pass
 
 
 
