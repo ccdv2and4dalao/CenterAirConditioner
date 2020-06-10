@@ -18,9 +18,9 @@ class BootableImpl(Bootable, threading.Thread):
         self.setDaemon(daemonic)
 
     def boot_up(self):
-        '''
+        """
         在第一次调用时创建线程，之后调用时恢复线程
-        '''
+        """
         if self.running is None:
             self.running = threading.Event()
             self.running.set()
@@ -28,9 +28,15 @@ class BootableImpl(Bootable, threading.Thread):
         else:
             self.running.set()
 
-    def shut_down(self, timeout=0):
-        '''
+    def pause(self, timeout=0):
+        """
         暂停线程
-        '''
+        """
         if self.running is not None:
             self.running.clear()
+
+    def shut_down(self, timeout=0):
+        """
+        停止线程，不必做任何事
+        """
+        pass

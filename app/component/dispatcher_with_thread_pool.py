@@ -43,46 +43,21 @@ class QueueDispatcherWithThreadPool(BasicThreadDispatcher):
         self.active_size = active_size
         self.fallback_threshold = fallback_threshold
         self.control_precision = 0.1
-        # self.block_timeout = 0.2
 
         self.waiting_queue = queue.Queue()
 
-        # self.thread_pool = ThreadPoolExecutor(max_workers=active_size)
-        self.thread_pool = []
-
-    def shut_down(self, timeout=0):
-        """
-        暂停线程
-        """
-        # self.thread_pool.shutdown(wait=False)
-        ddl = time.perf_counter() + timeout
-        for t in self.thread_pool:
-            t.join(ddl - time.perf_counter())
-        super().shut_down(ddl - time.perf_counter())
+    def boot_up(self, timeout=0):
+        for i in range(self.active_size):
+            t = Thread(target=self._pop_guard, daemon=True)
+            t.start()
 
     def push(self, opaque, tag):
         self.waiting_queue.put((opaque, tag))  # append is atomic
 
     def _schedule(self):
-        for i in range(self.active_size):
-            t = Thread(target=self._pop_guard, daemon=True)
-            t.start()
-            self.thread_pool.append(t)
-
-        while True:
-            if self.waiting_queue.qsize() > self.fallback_threshold:
-                self.on_fallback_func(*self.waiting_queue.get())
-            else:
-                time.sleep(self.control_precision)
-            # try:
-            #     while True:
-            #         if self.active_count.value >= self.active_size:
-            #             time.sleep(self.control_precision)
-            #         else:
-            #             self.thread_pool.submit(self._pop_guard, self.waiting_queue.get(timeout=self.block_timeout))
-            # except queue.Empty:
-            #     while self.waiting_queue.qsize() > self.fallback_threshold:
-            #         self.on_fallback_func(*self.waiting_queue.get())
+        while self.waiting_queue.qsize() > self.fallback_threshold:
+            self.on_fallback_func(*self.waiting_queue.get())
+        time.sleep(self.control_precision)
 
     def _pop_guard(self, *args):
         while True:
@@ -97,21 +72,18 @@ class SuspendableQueueDispatcherWithThreadPool(QueueDispatcherWithThreadPool):
         self.active_size = active_size
         self.fallback_threshold = fallback_threshold
         self.control_precision = 0.1
-        # self.block_timeout = 0.2
 
         self.waiting_queue = queue.Queue()
-
-        # self.thread_pool = ThreadPoolExecutor(max_workers=active_size)
         self.thread_pool = []
 
-    def boot_up(self):
+    def boot_up(self, timeout=0):
         for i in range(self.active_size - len(self.thread_pool)):
             e = Event()
             t = Thread(target=self._pop_guard, args=(e,), daemon=True)
             t.start()
             self.thread_pool.append((e, t))
 
-    def shut_down(self, timeout=0):
+    def pause(self, timeout=0):
         """
         暂停线程
         """
@@ -122,17 +94,7 @@ class SuspendableQueueDispatcherWithThreadPool(QueueDispatcherWithThreadPool):
             t.join(ddl - time.perf_counter())
 
         self.thread_pool.clear()
-        super(QueueDispatcherWithThreadPool, self).shut_down(ddl - time.perf_counter())
-
-    def push(self, opaque, tag):
-        self.waiting_queue.put((opaque, tag))
-
-    def _schedule(self):
-        while True:
-            if self.waiting_queue.qsize() > self.fallback_threshold:
-                self.on_fallback_func(*self.waiting_queue.get())
-            else:
-                time.sleep(self.control_precision)
+        super(BasicThreadDispatcher, self).shut_down(ddl - time.perf_counter())
 
     def _pop_guard(self, context: Event):
         while True:
