@@ -12,11 +12,15 @@ class SQLDatabase(object):
         pass
 
     @abstractmethod
+    def connect(self, host='', port=0, user='', password='', database=''):
+        pass
+
+    @abstractmethod
     def select(self, sql: str, *args) -> List[tuple]:
         pass
 
     @abstractmethod
-    def insert(self, sql: str, *args) -> bool:
+    def insert(self, sql: str, *args) -> int:
         pass
 
     @abstractmethod
@@ -31,7 +35,9 @@ class SQLDatabase(object):
     def update(self, sql: str, *args) -> bool:
         pass
 
-    
+    @abstractmethod
+    def get_last_error(self) -> Exception:
+        pass
 
 
 
