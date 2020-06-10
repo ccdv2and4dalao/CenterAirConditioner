@@ -1,5 +1,5 @@
-from .database import *
+from .database import sqlDatabase
 
 __all__ = [
-    'SQLDatabase', 'KVDatabase'
+    'sqlDatabase', 'KVDatabase'
 ]
