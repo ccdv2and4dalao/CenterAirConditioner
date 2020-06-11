@@ -1,5 +1,9 @@
 
 from .receive_request import *
+from .payment import PaymentMiddleware
 
-__all__ = ['ReceiveRequestMiddleware']
+__all__ = [
+    'ReceiveRequestMiddleware',
+    'PaymentMiddleware'
+    ]
 

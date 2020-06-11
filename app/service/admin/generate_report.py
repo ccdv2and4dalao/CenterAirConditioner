@@ -17,9 +17,11 @@ class AdminGenerateReportServiceImpl(AdminGenerateReportService):
         for report in reports:
             if report.room_id not in d.keys():
                 d[report.room_id] = {'room_id': report.room_id, 
+                                     'count': 0,
                                      'items': [], 
                                      'total_energy': 0.0, 
                                      'total_cost': 0.0}
+            d[report.room_id]['count'] += 1
             d[report.room_id]['items'].append(report)
             d[report.room_id]['total_energy'] += report.energy
             d[report.room_id]['total_cost'] += report.cost
