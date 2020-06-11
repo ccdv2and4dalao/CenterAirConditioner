@@ -4,7 +4,6 @@ from proto import Request, Response
 class ConnectionRequest(Request):
     def __init__(self):
         super().__init__()
-        self.room_id = ''  # type: str
         self.id = ''  # type: str
         self.app_key = ''  # type: str
 

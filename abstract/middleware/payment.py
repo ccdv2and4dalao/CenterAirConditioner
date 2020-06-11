@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 
 from abstract.middleware.abstract import Middleware
+from proto.metrics import MetricsRequest
+from proto.generate_statistics import GenerateStatisticRequest
+from proto.stop_state_control import StopStateControlRequest
 
 
 # 10.系统中央空调部分具备计费功能：可根据中央空调对从控机的请求时长及高中低风速的供风量进行费用计算；
