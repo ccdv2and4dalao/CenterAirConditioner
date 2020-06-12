@@ -26,11 +26,11 @@ class UserInRoomRelationshipModel(Model):
         pass
 
     @abstractmethod
-    def insert(self, user_id: int, room_id: int) -> bool:
+    def insert(self, user_id: int, room_id: int) -> int:
         """
         :param user_id: 用户id
         :param room_id: 房间id
-        :return: 插入是否成功
+        :return: 最后id值
         """
         pass
 
