@@ -1,23 +1,27 @@
-﻿from abstract.model.model import Model
-from abc import abstractmethod
+﻿from abc import abstractmethod
 from typing import List
 
+from abstract.model.model import Model
+
+
 class Metric:
-    '''
+    """
     8.	中央空调能够实时监测各房间的温度和状态，并要求实时刷新的频率能够进行配置
-    '''
+    """
     table_name = 'metric'
-    metric_id_key = 'metric_id'
+    id_key = 'id'
     room_id_key = 'room_id'
-    timestamp_key = 'timestamp'
+    checkpoint_key = 'checkpoint'
     fan_speed_key = 'fan_speed'
     temperature_key = 'temperature'
+
     def __init__(self):
-        self.metric_id = 0 # type: int
-        self.room_id = '' # type: str
-        self.timestamp = '' # type: str
-        self.fan_speed = '' # type: str
-        self.temperature = 0.0 # type: float
+        self.id = 0  # type: int
+        self.room_id = ''  # type: str
+        self.checkpoint = ''  # type: str
+        self.fan_speed = ''  # type: str
+        self.temperature = 0.0  # type: float
+
 
 class MetricModel(Model):
     @abstractmethod
@@ -25,10 +29,9 @@ class MetricModel(Model):
         pass
 
     @abstractmethod
-    def insert(self, metric: Metric) -> int:
+    def insert(self, room_id: str, fan_speed: str, temperature: float, checkpoint=None) -> int:
         pass
 
     @abstractmethod
-    def query_by_time_interval(self, room_id, start_time: str, stop_time: str) -> List[Metric]:
+    def query_by_time_interval(self, room_id: str, start_time: str, stop_time: str) -> List[Metric]:
         pass
-
