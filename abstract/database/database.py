@@ -30,6 +30,8 @@ class SQLConnection(object):
 
 
 class SQLDatabase(SQLConnection):
+    placeholder: str
+
     @abstractmethod
     def __init__(self):
         pass

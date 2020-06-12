@@ -32,16 +32,16 @@ class ReportModelImpl(SQLModel, ReportModel):
         {Report.start_temperature_key}, {Report.end_temperature_key}, 
         {Report.energy_key}, {Report.cost_key}) 
         VALUES
-        (%s, %s, %s,
-        %s, %s, %s, %s)
+        ({self.db.placeholder}, {self.db.placeholder}, {self.db.placeholder},
+        {self.db.placeholder}, {self.db.placeholder}, {self.db.placeholder}, {self.db.placeholder})
         '''
         return self.db.insert(sql,
-                          report.room_id, report.start_time, report.stop_time,
-                          report.start_temperature, report.end_temperature, report.energy, report.cost)
+                              report.room_id, report.start_time, report.stop_time,
+                              report.start_temperature, report.end_temperature, report.energy, report.cost)
 
     def query_by_report_no(self, report_no: int):
         sql = f'''
-        SELECT * FROM {Report.table_name} WHERE {Report.report_no_key} = %s
+        SELECT * FROM {Report.table_name} WHERE {Report.report_no_key} = {self.db.placeholder}
         '''
         result = self.db.select(sql, report_no)
         if result:
@@ -54,24 +54,24 @@ class ReportModelImpl(SQLModel, ReportModel):
     def query_by_conditions(self, room_id='', start_time='', stop_time='') -> List[Report]:
         values = []
         if room_id != '':
-            room_id_str = f'{Report.room_id_key} = %s'
+            room_id_str = f'{Report.room_id_key} = {self.db.placeholder}'
             values.append(room_id)
         else:
             room_id_str = None
 
         time_str = None
         if start_time != '':
-            start_time_str = f'{Report.start_time_key} >= %s'
+            start_time_str = f'{Report.start_time_key} >= {self.db.placeholder}'
             values.append(start_time)
         else:
             start_time_str = None
 
         if stop_time != '':
-            stop_time_str = '{Report.stop_time_key} <= %s'
+            stop_time_str = '{Report.stop_time_key} <= {self.db.placeholder}'
             values.append(stop_time)
         else:
             stop_time_str = None
-            
+
         if start_time_str and stop_time_str:
             time_str = '{} AND {}'.format(start_time_str, stop_time_str)
         elif start_time_str:
@@ -98,14 +98,14 @@ class ReportModelImpl(SQLModel, ReportModel):
             for result in results:
                 r = Report()
                 r.report_no, r.room_id, r.start_time, r.stop_time, \
-                r.start_temperature, r.end_temperature,\
+                r.start_temperature, r.end_temperature, \
                 r.energy, r.cost = result
                 ret.append(r)
         return ret
 
     def delete_by_report_no(self, report_no) -> bool:
         sql = f'''
-        DELETE FROM {Report.table_name} WHERE {Report.report_no_key} = %s
+        DELETE FROM {Report.table_name} WHERE {Report.report_no_key} = {self.db.placeholder}
         '''
         return self.db.delete(sql, report_no)
 
@@ -115,7 +115,7 @@ class ReportModelImpl(SQLModel, ReportModel):
         sql = f'''
         SELECT * FROM {Report.table_name}
         WHERE {Report.stop_time_key} BETWEEN 
-        date_sub(%s, interval 1 {report_duration}) AND %s
+        date_sub({self.db.placeholder}, interval 1 {report_duration}) AND {self.db.placeholder}
         '''
         results = self.db.select(sql, stop_time, stop_time)
         ret = []
@@ -123,7 +123,7 @@ class ReportModelImpl(SQLModel, ReportModel):
             for result in results:
                 r = Report()
                 r.report_no, r.room_id, r.start_time, r.stop_time, \
-                r.start_temperature, r.end_temperature,\
+                r.start_temperature, r.end_temperature, \
                 r.energy, r.cost = result
                 ret.append(r)
             return ret
@@ -132,22 +132,24 @@ class ReportModelImpl(SQLModel, ReportModel):
 
 
 if __name__ == '__main__':
-    import sys
-    r = ReportModelImpl()
-    r.db.connect(host=sys.argv[1], port=int(sys.argv[2]), user=sys.argv[3], password=sys.argv[4], database='backend')
-    print('create table\n', r.create())
-    repo = Report()
-    repo.cost = 998
-    id = r.insert(repo)
-    print('insert id\n', id)
-    print('delete id\n', r.delete_by_report_no(id))
-    print('delete id + 1\n', r.delete_by_report_no(id + 1))
-    repo.stop_time = '1999-01-01 00:00:00'
-    r.insert(repo)
-    repo.stop_time = '1999-01-05 00:01:00'
-    r.insert(repo)
-    repo.stop_time = '1999-01-05 00:02:00'
-    r.insert(repo)
+    pass
+    # import sys
 
-    print('day repo\n', r.get_reports('1999-01-06', 'day'))
-    print('month repo\n', r.get_reports('1999-01-06', 'month'))
+    # r = ReportModelImpl(inj)
+    # r.db.connect(host=sys.argv[1], port=int(sys.argv[2]), user=sys.argv[3], password=sys.argv[4], database='backend')
+    # print('create table\n', r.create())
+    # repo = Report()
+    # repo.cost = 998
+    # id = r.insert(repo)
+    # print('insert id\n', id)
+    # print('delete id\n', r.delete_by_report_no(id))
+    # print('delete id + 1\n', r.delete_by_report_no(id + 1))
+    # repo.stop_time = '1999-01-01 00:00:00'
+    # r.insert(repo)
+    # repo.stop_time = '1999-01-05 00:01:00'
+    # r.insert(repo)
+    # repo.stop_time = '1999-01-05 00:02:00'
+    # r.insert(repo)
+    #
+    # print('day repo\n', r.get_reports('1999-01-06', 'day'))
+    # print('month repo\n', r.get_reports('1999-01-06', 'month'))

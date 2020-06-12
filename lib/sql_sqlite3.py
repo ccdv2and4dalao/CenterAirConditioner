@@ -21,6 +21,7 @@ class SQLite3(AsyncContext, SQLDatabase):
     def __init__(self, connection_string='', memory=False):
         super().__init__(SqliteLastErrorRef, ref_name='sqlite_last_error')
         self.db = None
+        self.placeholder = "?"
         if memory:
             self.db = sqlite3.connect(':memory:')
         else:
@@ -49,7 +50,16 @@ class SQLite3(AsyncContext, SQLDatabase):
         return res
 
     def insert(self, sql: str, *args) -> bool:
-        return self.do(sql, *args)
+        cur = self.db.cursor()
+        try:
+            cur.execute(sql, args)
+            inc_id = cur.lastrowid
+        except sqlite3.DatabaseError as e:
+            self.sqlite_last_error.get().err = e
+            inc_id = None
+        finally:
+            cur.close()
+        return inc_id
 
     def create(self, sql: str, *args) -> bool:
         return self.do(sql, *args)

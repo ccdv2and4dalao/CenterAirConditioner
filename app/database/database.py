@@ -23,6 +23,7 @@ class BaseSQLDatabaseImpl(AsyncContext, SQLDatabase):
     def __init__(self):
         super().__init__(SqlLastErrorRef, ref_name='sql_last_error')
         self.db_lock = Lock()
+        self.placeholder = "%s"
         self.db = None
 
     def __del__(self):

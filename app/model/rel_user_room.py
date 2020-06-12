@@ -18,19 +18,22 @@ class UserInRoomRelationshipModelImpl(SQLModel, UserInRoomRelationshipModel):
         {UserInRoomRelationship.user_id_key},
         {UserInRoomRelationship.room_id_key})
         values
-        (%s, %s)
+        ({self.db.placeholder}, {self.db.placeholder})
         ''', user_id, room_id)
 
-    def query(self, user_id: int, room_id: int) -> bool:
-        return self.db.select(f'''
-        select * from {UserInRoomRelationship.table_name} where
-            {UserInRoomRelationship.user_id_key} = %s and {UserInRoomRelationship.room_id_key} = %s
-        ''', user_id, room_id) is not None
+    def query(self, user_id: int, room_id: int):
+        data = self.db.select(f'''
+        select 1 from {UserInRoomRelationship.table_name} where
+            {UserInRoomRelationship.user_id_key} = {self.db.placeholder} and {UserInRoomRelationship.room_id_key} = {self.db.placeholder}
+        ''', user_id, room_id)
+        if data is None:
+            return
+        return len(data) != 0
 
     def query_by_room_id(self, room_id: int):
         data = self.db.select(f'''
         select {UserInRoomRelationship.user_id_key} from {UserInRoomRelationship.table_name} where
-            {UserInRoomRelationship.room_id_key} = %s
+            {UserInRoomRelationship.room_id_key} = {self.db.placeholder}
         ''', room_id)
         if data is None:
             return
@@ -40,7 +43,7 @@ class UserInRoomRelationshipModelImpl(SQLModel, UserInRoomRelationshipModel):
     def query_by_user_id(self, user_id: int):
         data = self.db.select(f'''
         select {UserInRoomRelationship.room_id_key} from {UserInRoomRelationship.table_name} where
-            {UserInRoomRelationship.user_id_key} = %s
+            {UserInRoomRelationship.user_id_key} = {self.db.placeholder}
         ''', user_id)
         if data is None:
             return
@@ -50,5 +53,5 @@ class UserInRoomRelationshipModelImpl(SQLModel, UserInRoomRelationshipModel):
     def delete(self, user_id: int, room_id: int) -> bool:
         return self.db.delete(f'''
         delete from {UserInRoomRelationship.table_name} where
-            {UserInRoomRelationship.user_id_key} = %s and {UserInRoomRelationship.room_id_key} = %s
+            {UserInRoomRelationship.user_id_key} = {self.db.placeholder} and {UserInRoomRelationship.room_id_key} = {self.db.placeholder}
         ''', user_id, room_id)

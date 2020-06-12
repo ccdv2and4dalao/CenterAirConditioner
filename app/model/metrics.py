@@ -16,7 +16,7 @@ class MetricsModelImpl(SQLModel, MetricModel):
     def create(self, *args) -> bool:
         return self.db.create(f"""
         create table if not exists {Metric.table_name} (
-            {Metric.id_key} integer autoincrement primary key,
+            {Metric.id_key} integer primary key autoincrement,
             {Metric.room_id_key} varchar(19),
             {Metric.checkpoint_key} timestamp default CURRENT_TIMESTAMP,
             {Metric.fan_speed_key} varchar(5),
@@ -31,7 +31,7 @@ class MetricsModelImpl(SQLModel, MetricModel):
             {Metric.fan_speed_key}, 
             {Metric.temperature_key})
             values
-            (%s, %s, %s)
+            ({self.db.placeholder}, {self.db.placeholder}, {self.db.placeholder})
             ''', room_id, fan_speed, temperature)
         return self.db.insert(f'''
         insert into {Metric.table_name} (
@@ -40,13 +40,13 @@ class MetricsModelImpl(SQLModel, MetricModel):
         {Metric.fan_speed_key}, 
         {Metric.temperature_key})
         values
-        (%s, %s, %s, %s)
+        ({self.db.placeholder}, {self.db.placeholder}, {self.db.placeholder}, {self.db.placeholder})
         ''', room_id, checkpoint, fan_speed, temperature)
 
     def query_by_time_interval(self, room_id: str, start_time: str, stop_time: str):
         data = self.db.select(f'''
         select * from {Metric.table_name} where
-            {Metric.room_id_key} = %s and {Metric.checkpoint_key} between %s and %s
+            {Metric.room_id_key} = {self.db.placeholder} and {Metric.checkpoint_key} between {self.db.placeholder} and {self.db.placeholder}
         ''', room_id, start_time, stop_time)
         if data is None:
             return None

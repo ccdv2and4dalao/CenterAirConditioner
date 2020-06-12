@@ -39,9 +39,9 @@ class StatisticModel(Model):
         pass
 
     @abstractmethod
-    def query_by_time_interval(self, room_id, start_time: str, stop_time: str) -> List[Statistic]:
+    def query_by_time_interval(self, room_id, start_time, stop_time) -> List[Statistic]:
         pass
 
     @abstractmethod
-    def query_sum_by_time_interval(self, room_id, start_time: str, stop_time: str) -> Tuple[CurrentEnergy, CurrentCost]:
+    def query_sum_by_time_interval(self, room_id, start_time, stop_time) -> Tuple[CurrentEnergy, CurrentCost]:
         pass
