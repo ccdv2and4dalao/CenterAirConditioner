@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List
+from typing import List, Optional
 
 from abstract.model.model import Model
 
@@ -50,4 +50,8 @@ class EventModel(Model):
 
     @abstractmethod
     def query_by_time_interval(self, room_id, start_time: str, stop_time: str) -> List[Event]:
+        pass
+
+    @abstractmethod
+    def query_last_connect_event(self, room_id) -> Optional[Event]:
         pass

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from abstract.model.event import EventModel, Event, EventType
 from app.model.model import SQLModel
@@ -114,23 +114,40 @@ class EventModelImpl(SQLModel, EventModel):
             return self.db.insert(sql, room_id, EventType.StartControl, checkpoint, fan_speed)
 
     def query_by_time_interval(self, room_id, start_time, stop_time) -> List[Event]:
+        if type(start_time) is not str:
+            start_time = lib.dateutil.to_utc(start_time)
+        if type(stop_time) is not str:
+            stop_time = lib.dateutil.to_utc(stop_time)
         if room_id is None:
             sql = f'''
             SELECT * FROM {Event.table_name}
             WHERE {Event.checkpoint_key} BETWEEN {self.db.placeholder} AND {self.db.placeholder}
             '''
-            data = self.db.select(sql, lib.dateutil.to_utc(start_time), lib.dateutil.to_utc(stop_time))
+            data = self.db.select(sql, start_time, stop_time)
         else:
             sql = f'''
             SELECT * FROM {Event.table_name}
             WHERE {Event.checkpoint_key} BETWEEN {self.db.placeholder} AND {self.db.placeholder}
             AND {Event.room_id_key} = {self.db.placeholder}
             '''
-            data = self.db.select(sql, lib.dateutil.to_utc(start_time), lib.dateutil.to_utc(stop_time), room_id)
+            data = self.db.select(sql, start_time, stop_time, room_id)
         if data is None:
             return None
 
         return list(map(EventTupleProxy, data))
+
+    def query_last_connect_event(self, room_id) -> Optional[Event]:
+        if type(start_time) is not str:
+            start_time = lib.dateutil.to_utc(start_time)
+        if type(stop_time) is not str:
+            stop_time = lib.dateutil.to_utc(stop_time)
+        sql = f'''
+        SELECT * FROM {Event.table_name}
+        WHERE {Event.event_type_key} = {self.db.placeholder} 
+        AND {Event.room_id_key} = {self.db.placeholder}
+        '''
+        data = self.db.select(sql, EventType.Connect, room_id)
+        return EventTupleProxy(data[-1][0]) if data is not None else None
 
 
 if __name__ == '__main__':
