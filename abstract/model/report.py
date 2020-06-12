@@ -1,13 +1,15 @@
 ﻿from abc import abstractmethod
 from typing import List
+
 from .model import Model
 
+
 class Report:
-    '''
+    """
     日报表结构和内容应至少包含：房间号、从控机开关机的次数、
     温控请求起止时间（列出所有记录）、温控请求的起止温度及风量消耗大小（列出所有记录）、
     每次温控请求所需费用、当日所需总费用。
-    '''
+    """
     table_name = 'report'
     report_no_key = 'report_no'
     room_id_key = 'room_id'

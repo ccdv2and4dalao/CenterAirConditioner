@@ -1,10 +1,12 @@
-﻿from abstract.model import Report, ReportModel
-from app.database import sqlDatabase
-from typing import List
+﻿from typing import List
 
-class ReportModelImpl(ReportModel):
-    def __init__(self):
-        self.db = sqlDatabase
+from abstract.model import Report, ReportModel
+from app.model.model import SQLModel
+
+
+class ReportModelImpl(SQLModel, ReportModel):
+    def __init__(self, inj):
+        super().__init__(inj)
 
     def create(self):
         sql = f"""
@@ -36,18 +38,18 @@ class ReportModelImpl(ReportModel):
         return self.db.insert(sql,
                           report.room_id, report.start_time, report.stop_time,
                           report.start_temperature, report.end_temperature, report.energy, report.cost)
-    
-    def query_by_report_no(self, report_no: int) -> Report or None:
+
+    def query_by_report_no(self, report_no: int):
         sql = f'''
         SELECT * FROM {Report.table_name} WHERE {Report.report_no_key} = %s
         '''
         result = self.db.select(sql, report_no)
         if result:
             r = Report()
-            r.report_no, r.room_id, r.start_time, r.stop_time, r.start_temperature, r.end_temperature,\
+            r.report_no, r.room_id, r.start_time, r.stop_time, r.start_temperature, r.end_temperature, \
             r.energy, r.cost = result[0]
         else:
-            return None
+            return
 
     def query_by_conditions(self, room_id='', start_time='', stop_time='') -> List[Report]:
         values = []

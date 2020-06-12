@@ -13,6 +13,6 @@ __all__ = [
     'RoomModel',
     'UserInRoomRelationship',
     'UserInRoomRelationshipModel',
-    'Report'
-    'ReportModel'
+    'Report',
+    'ReportModel',
 ]
