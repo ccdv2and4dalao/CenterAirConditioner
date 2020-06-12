@@ -10,9 +10,9 @@ class User:
     # 身份证号
     id_card_number_key = "id_card_number"
 
-    def __init__(self):
-        self.id = 0  # type: int
-        self.id_card_number = ''  # type: str
+    def __init__(self, user_id=0, id_card_number=''):
+        self.id = user_id  # type: int
+        self.id_card_number = id_card_number  # type: str
 
 
 class UserModel(Model):
