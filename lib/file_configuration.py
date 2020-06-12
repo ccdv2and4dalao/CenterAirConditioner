@@ -14,6 +14,13 @@ def load_admin_configuration_from_dict(d: dict):
         admin_password=d.get(Configuration.Admin.admin_password_key))
 
 
+def load_server_configuration_from_dict(d: dict):
+    if d is None:
+        return Configuration.Server()
+    return Configuration.Server(
+        bcrypt_salt=d.get(Configuration.Server.bcrypt_salt_key))
+
+
 def load_database_configuration_from_dict(d: dict):
     if d is None:
         return Configuration.Database()
@@ -51,6 +58,7 @@ def load_configuration_from_dict(d: dict):
         return Configuration()
     return Configuration(
         admin_config=load_admin_configuration_from_dict(d.get(Configuration.admin_config_key)),
+        server_config=load_server_configuration_from_dict(d.get(Configuration.server_config_key)),
         database_config=load_database_configuration_from_dict(d.get(Configuration.database_config_key)),
         master_default=load_master_default_configuration_from_dict(d.get(Configuration.master_default_config_key)),
         slave_default=load_slave_default_configuration_from_dict(d.get(Configuration.slave_default_config_key)))

@@ -35,6 +35,12 @@ class ServiceCode(enum.Enum):
     InvalidFanSpeedValue = 4
     WrongPassword = 5
     AuthJWTFailed = 6
+    DatabaseError = 7
+
+
+class DatabaseError(FailedResponse):
+    def __init__(self, data: str):
+        super().__init__(ServiceCode.DatabaseError.value, data)
 
 
 class NotFound(FailedResponse):

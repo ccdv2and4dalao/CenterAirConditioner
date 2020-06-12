@@ -18,7 +18,7 @@ master_http_spec = MasterServerHTTPSpec(
         HTTPSpecItem('ping', '/ping', ['GET'], FlowLabel.Ping)
     ],
     [
-        HTTPSpecItem('connect', 'v1/connect', ['POST'], FlowLabel.Connect)
+        HTTPSpecItem('connect', '/v1/connect', ['POST'], FlowLabel.Connect)
     ],
     [
         HTTPSpecItem('set_mode', '/v1/admin/mode', ['POST'], FlowLabel.AdminSetMode),
