@@ -49,6 +49,8 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
         response.mode = response.mode.value
         response.metric_delay = cfg.slave_default.metric_delay
         response.update_delay = cfg.slave_default.update_delay
+        response.room_id = ap[1]
+        response.user_id = ap[2]
         return response
 
     def authenticate(self, room_id: str, identifier: IDCardNumber):

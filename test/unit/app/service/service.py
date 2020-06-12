@@ -59,6 +59,8 @@ class ConnectionServiceTest(BasicServiceTest):
         self.assertEqual(resp.mode, mode)
         self.assertEqual(resp.metric_delay, metric_delay)
         self.assertEqual(resp.update_delay, update_delay)
+        self.assertEqual(resp.user_id, self.user1_id)
+        self.assertEqual(resp.room_id, self.room1_id)
 
         req = ConnectionRequest()
         req.room_id = 'room1_id'
