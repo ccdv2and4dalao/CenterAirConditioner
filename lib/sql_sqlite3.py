@@ -1,14 +1,26 @@
+import contextvars
 import sqlite3
 from typing import List
 
 from abstract.database import SQLDatabase
+from lib.async_context import AsyncContext
 
 
-class SQLite3(SQLDatabase):
+class SqliteLastErrorRef(object):
+
+    def __init__(self):
+        self.err = None
+
+
+class SQLite3(AsyncContext, SQLDatabase):
+    sqlite_last_error: contextvars.ContextVar
+
+    def connect(self, host='', port=0, user='', password='', database=''):
+        pass
+
     def __init__(self, connection_string='', memory=False):
-        super().__init__()
+        super().__init__(SqliteLastErrorRef, ref_name='sqlite_last_error')
         self.db = None
-        self.last_error = None
         if memory:
             self.db = sqlite3.connect(':memory:')
         else:
@@ -17,9 +29,12 @@ class SQLite3(SQLDatabase):
     def __del__(self):
         self.db.close()
 
+    def get_last_error(self) -> Exception:
+        return self.sqlite_last_error.get().err
+
     @property
     def last_error_lazy(self):
-        return self.last_error
+        return self.sqlite_last_error.get().err
 
     def select(self, sql: str, *args) -> List[tuple]:
         cur = self.db.cursor()
@@ -27,7 +42,7 @@ class SQLite3(SQLDatabase):
             cur.execute(sql, args)
             res = cur.fetchall()
         except sqlite3.DatabaseError as e:
-            self.last_error = e
+            self.sqlite_last_error.get().err = e
             res = None
         finally:
             cur.close()
@@ -51,7 +66,7 @@ class SQLite3(SQLDatabase):
             cur.execute(sql, args)
             res = True
         except sqlite3.DatabaseError as e:
-            self.last_error = e
+            self.sqlite_last_error.get().err = e
             res = False
         finally:
             cur.close()

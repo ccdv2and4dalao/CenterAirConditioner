@@ -2,18 +2,7 @@ from abc import abstractmethod
 from typing import List
 
 
-class SQLDatabase(object):
-    @abstractmethod
-    def __init__(self):
-        pass
-
-    @abstractmethod
-    def __del__(self):
-        pass
-
-    @abstractmethod
-    def connect(self, host='', port=0, user='', password='', database=''):
-        pass
+class SQLConnection(object):
 
     @abstractmethod
     def select(self, sql: str, *args) -> List[tuple]:
@@ -40,6 +29,23 @@ class SQLDatabase(object):
         pass
 
 
+class SQLDatabase(SQLConnection):
+    @abstractmethod
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def __del__(self):
+        pass
+
+    @abstractmethod
+    def connect(self, host='', port=0, user='', password='', database=''):
+        pass
+
+    @abstractmethod
+    def async_context(self):
+        pass
+
 
 class KVDatabase(object):
     @abstractmethod
@@ -49,5 +55,3 @@ class KVDatabase(object):
     @abstractmethod
     def set(self, k: str) -> bool:
         pass
-
-

@@ -1,15 +1,29 @@
-from typing import List, Dict, Union
-
-from abstract.database import SQLDatabase, KVDatabase
-from enum import Enum
-import pymysql
+import contextvars
 from threading import Lock
+from typing import List
 
-class BaseSQLDatabaseImpl(SQLDatabase):
+import pymysql
+
+from abstract.database import SQLDatabase, KVDatabase, Connection
+from lib.async_context import AsyncContext
+
+
+class SqlLastErrorRef(object):
+
     def __init__(self):
+        self.err = None
+
+
+class BaseSQLDatabaseImpl(AsyncContext, SQLDatabase):
+    sql_last_error: contextvars.ContextVar
+
+    def async_context(self):
+        pass
+
+    def __init__(self):
+        super().__init__(SqlLastErrorRef, ref_name='sql_last_error')
         self.db_lock = Lock()
         self.db = None
-        self.exception = None
 
     def __del__(self):
         if self.db is not None:
@@ -18,10 +32,16 @@ class BaseSQLDatabaseImpl(SQLDatabase):
     def connect(self, host='', port=0, user='', password='', database=''):
         with self.db_lock:
             if self.db is None:
-                self.db = pymysql.connect(host=host, port=port, user=user, 
+                self.db = pymysql.connect(host=host, port=port, user=user,
                                           password=password, database=database)
             else:
                 raise RuntimeError('database has been connected')
+
+    def get(self) -> Connection:
+        return self
+
+    def get_last_error(self) -> Exception:
+        return self.sql_last_error.get().err
 
     def select(self, sql: str, *args) -> List[tuple] or None:
         if self.db is None:
@@ -33,7 +53,7 @@ class BaseSQLDatabaseImpl(SQLDatabase):
                 results = cursor.fetchall()
             except Exception as e:
                 results = None
-                self.exception = e
+                self.sql_last_error.get().err = e
         return results
 
     def insert(self, sql: str, *args) -> int:
@@ -47,10 +67,9 @@ class BaseSQLDatabaseImpl(SQLDatabase):
                 id = cursor.lastrowid
             except Exception as e:
                 self.db.rollback()
-                self.exception = e
+                self.sql_last_error.get().err = e
                 id = -1
         return id
-
 
     def create(self, sql: str, *args) -> bool:
         if self.db is None:
@@ -63,7 +82,7 @@ class BaseSQLDatabaseImpl(SQLDatabase):
                 flag = True
             except Exception as e:
                 self.db.rollback()
-                self.exception = e
+                self.sql_last_error.get().err = e
                 flag = False
         return flag
 
@@ -78,7 +97,7 @@ class BaseSQLDatabaseImpl(SQLDatabase):
                 flag = True
             except Exception as e:
                 self.db.rollback()
-                self.exception = e
+                self.sql_last_error.get().err = e
                 flag = False
         return flag
 
@@ -93,22 +112,17 @@ class BaseSQLDatabaseImpl(SQLDatabase):
                 flag = True
             except Exception as e:
                 self.db.rollback()
-                self.exception = e
+                self.sql_last_error.get().err = e
                 flag = False
         return flag
-
-    @property
-    def last_error(self) -> Exception:
-        return self.exception
 
 
 sqlDatabase = BaseSQLDatabaseImpl()
 
+
 class KVDatabaseImpl(KVDatabase):
     def get(self, k: str) -> object:
         pass
-
-
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 from .database import *
 
 __all__ = [
-    'SQLDatabase', 'KVDatabase'
+    'SQLDatabase', 'KVDatabase', 'Connection'
 ]
