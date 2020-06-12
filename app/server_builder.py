@@ -2,20 +2,32 @@ import lib.functional
 from abstract.component import ConfigurationProvider, OptionProvider, Logger, MasterAirCond, SystemEntropyProvider, \
     UUIDGenerator, Dispatcher, ConnectionPool
 # abstract layer
+from abstract.component.jwt import JWT
 from abstract.component.password_verifier import PasswordVerifier
 from abstract.controller import PingController, ConnectController
 from abstract.database import SQLDatabase
+from abstract.middleware.auth import AuthAdminMiddleware
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel, MetricModel, StatisticModel, \
     ReportModel, EventModel
 from abstract.service import ConnectionService, StartStateControlService, StopStateControlService
+from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
+    AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
+    AdminGenerateReportService
 from abstract.singleton import register_singletons
 # implementations
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
 from app.config import APPVersion, APPDescription
 from app.controller import PingControllerFlaskImpl, ConnectControllerFlaskImpl
+from app.middleware.auth import AuthAdminMiddlewareImpl
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, MetricsModelImpl, \
     StatisticModelImpl, ReportModelImpl, EventModelImpl
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
+from app.service.admin import AdminGenerateReportServiceImpl
+from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl
+from app.service.admin.get_server_status import AdminGetServerStatusServiceImpl
+from app.service.admin.get_slave_statistics import AdminGetSlaveStatisticsServiceImpl
+from app.service.admin.set_current_temperature import AdminSetCurrentTemperatureServiceImpl
+from app.service.admin.set_mode import AdminSetModeServiceImpl
 from app.service.connect import ConnectionServiceImpl
 from app.service.start_state_control import StartStateControlServiceImpl
 from app.service.stop_state_control import StopStateControlServiceImpl
@@ -26,6 +38,7 @@ from lib.bcrypt_password_verifier import BCryptPasswordVerifier
 from lib.file_configuration import FileConfigurationProvider
 from lib.injector import Injector
 from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl
+from lib.py_jwt import PyJWTImpl
 from lib.serializer import JSONSerializer, Serializer
 from lib.sql_sqlite3 import SQLite3
 from lib.system_entropy_provider import SystemEntropyProviderImpl
@@ -87,6 +100,7 @@ class ServerBuilder:
     def build_external_dependency(self, inj: Injector):
         # 无依赖接口
         inj.provide(Serializer, JSONSerializer())
+        inj.build(RouteController, FlaskRouteController)
 
         # system接口
         inj.provide(SystemEntropyProvider, SystemEntropyProviderImpl())
@@ -110,6 +124,7 @@ class ServerBuilder:
         inj.build(UUIDGenerator, SystemEntropyUUIDGeneratorImpl)
         inj.build(PasswordVerifier, BCryptPasswordVerifier)
         inj.build(MasterAirCond, MasterAirCondImpl)
+        inj.build(JWT, PyJWTImpl)
 
         inj.provide(ConnectionPool, SafeMemoryConnectionPoolImpl())
 
@@ -140,6 +155,7 @@ class ServerBuilder:
     def build_middleware(self, inj: Injector = None):
         inj = inj or self.injector
         # inj.build(ReceiveRequestMiddleware, ReceiveRequestMiddlewareImpl)
+        inj.build(AuthAdminMiddleware, AuthAdminMiddlewareImpl)
         return inj
 
     def build_service(self, inj: Injector = None):
@@ -147,10 +163,15 @@ class ServerBuilder:
         inj.build(ConnectionService, ConnectionServiceImpl)
         inj.build(StartStateControlService, StartStateControlServiceImpl)
         inj.build(StopStateControlService, StopStateControlServiceImpl)
+        inj.build(AdminGenerateReportService, AdminGenerateReportServiceImpl)
+        inj.build(AdminGetConnectedSlavesService, AdminGetConnectedSlavesServiceImpl)
+        inj.build(AdminGetServerStatusService, AdminGetServerStatusServiceImpl)
+        inj.build(AdminGetSlaveStatisticsService, AdminGetSlaveStatisticsServiceImpl)
+        inj.build(AdminSetCurrentTemperatureService, AdminSetCurrentTemperatureServiceImpl)
+        inj.build(AdminSetModeService, AdminSetModeServiceImpl)
         return inj
 
     def build_controller(self, inj: Injector = None):
-        inj.build(RouteController, FlaskRouteController)
         inj.build(ConnectController, ConnectControllerFlaskImpl)
         inj.build(PingController, PingControllerFlaskImpl)
         return inj
