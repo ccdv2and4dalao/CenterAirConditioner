@@ -1,4 +1,5 @@
 from abstract.database import SQLDatabase
+from lib.serializer import Serializer
 from abstract.model import Model
 
 

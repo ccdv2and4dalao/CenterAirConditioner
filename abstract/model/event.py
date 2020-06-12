@@ -12,7 +12,7 @@ class EventType:
 
 
 class Event:
-    table_name = ''
+    table_name = 'event'
     id_key = 'id'
     room_id_key = 'room_id'
     checkpoint_key = 'checkpoint'

@@ -10,7 +10,10 @@ class Serializer(object):
 
 
 def to_json_std(obj: object) -> str:
-    return json.dumps(obj.__dict__, ensure_ascii=False)
+    if type(obj) is dict: 
+        return json.dumps(obj, ensure_ascii=False)
+    else: 
+        return json.dumps(obj.__dict__, ensure_ascii=False)
 
 
 class JSONSerializer(Serializer):

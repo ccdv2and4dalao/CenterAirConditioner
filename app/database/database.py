@@ -4,7 +4,7 @@ from typing import List
 
 import pymysql
 
-from abstract.database import SQLDatabase, KVDatabase, Connection
+from abstract.database import SQLDatabase, KVDatabase, SQLConnection
 from lib.async_context import AsyncContext
 
 
@@ -38,7 +38,7 @@ class BaseSQLDatabaseImpl(AsyncContext, SQLDatabase):
             else:
                 raise RuntimeError('database has been connected')
 
-    def get(self) -> Connection:
+    def get(self) -> SQLConnection:
         return self
 
     def get_last_error(self) -> Exception:
