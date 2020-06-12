@@ -2,11 +2,14 @@ import unittest
 import unittest.mock
 
 from abstract.component import ConnectionPool
+from abstract.component.password_verifier import PasswordVerifier
 from abstract.model import UserModel, RoomModel, UserInRoomRelationshipModel
 from app.server_builder import ServerBuilder
 from app.service.connect import ConnectionServiceImpl
+from app.service.start_state_control import StartStateControlServiceImpl
 from proto import WrongPassword, ServiceCode
 from proto.connection import ConnectionRequest
+from proto.start_state_control import StartStateControlRequest
 
 
 class BasicServiceTest(unittest.TestCase):
@@ -14,33 +17,34 @@ class BasicServiceTest(unittest.TestCase):
         self.builder = ServerBuilder(use_test_database=True)
         self.builder.build_base()
         self.builder.build_model()
+        self.user1_id = None
+        self.room1_id = None
 
     def tearDown(self) -> None:
         self.builder.close()
 
-
-class ConnectionServiceTest(BasicServiceTest):
-    def setUp(self) -> None:
-        super().setUp()
-        self.service = ConnectionServiceImpl(self.builder.injector)
-        self.user1_id = None
-        self.room1_id = None
-        self.builder.create_table()
-
     def init_database_case(self):
         user_model = self.builder.injector.require(UserModel)  # type: UserModel
         room_model = self.builder.injector.require(RoomModel)  # type: RoomModel
+        password_verifier = self.builder.injector.require(PasswordVerifier)  # type: PasswordVerifier
         user_in_room_model = self.builder.injector.require(
             UserInRoomRelationshipModel)  # type: UserInRoomRelationshipModel
 
         self.user1_id = user_model.insert(id_card_number='user1_id')
         self.assertIsNotNone(self.user1_id, user_model.why())
 
-        self.room1_id = room_model.insert(room_id='room1_id', app_key=self.service.password_verifier.create('1234'))
+        self.room1_id = room_model.insert(room_id='room1_id', app_key=password_verifier.create('1234'))
         self.assertIsNotNone(self.room1_id, room_model.why())
 
         x = user_in_room_model.insert(self.user1_id, self.room1_id)
         self.assertIsNotNone(x, user_in_room_model.why())
+
+
+class ConnectionServiceTest(BasicServiceTest):
+    def setUp(self) -> None:
+        super().setUp()
+        self.service = ConnectionServiceImpl(self.builder.injector)
+        self.builder.create_table()
 
     def test_connect(self):
         self.init_database_case()
@@ -95,3 +99,23 @@ class ConnectionServiceTest(BasicServiceTest):
         resp = self.service.serve(req)
         self.assertIsInstance(resp, WrongPassword)
         self.assertEqual(resp.code, ServiceCode.WrongPassword.value)
+
+
+class StartStateControlServiceImplTest(BasicServiceTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.service = StartStateControlServiceImpl(self.builder.injector)
+        self.builder.create_table()
+
+    def test_start_state_control(self):
+        req = StartStateControlRequest()
+
+        # assuming connection is in pool
+        connection_pool = self.builder.injector.require(ConnectionPool)  # type: ConnectionPool
+        connection_pool.put('1234', self.user1_id, self.room1_id, False)
+
+        req.token = '1234'
+        req.mode = 'cool'
+        req.speed = 'high'
+        resp = self.service.serve(req)
