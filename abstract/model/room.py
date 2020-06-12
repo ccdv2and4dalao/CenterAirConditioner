@@ -12,10 +12,10 @@ class Room:
     # 房间的app key
     app_key_key = "app_key"
 
-    def __init__(self):
-        self.id = 0  # type: int
-        self.room_id = ''  # type: str
-        self.app_key = ''  # type: str
+    def __init__(self, inc_id=0, room_id='', app_key=''):
+        self.id = inc_id  # type: int
+        self.room_id = room_id  # type: str
+        self.app_key = app_key  # type: str
 
 
 class RoomModel(Model):
