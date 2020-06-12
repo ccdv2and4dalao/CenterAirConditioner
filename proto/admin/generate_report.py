@@ -24,7 +24,8 @@ class AdminGenerateReportResponse(Response):
             room_id: 'A123',
             items: [Report, ...]
             total_energy: 0.0,
-            total_cost: 0.0
+            total_cost: 0.0,
+            events: [Event, ...]
         }
         '''
         super().__init__()

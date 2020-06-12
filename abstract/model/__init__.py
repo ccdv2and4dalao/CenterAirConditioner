@@ -1,4 +1,4 @@
-from .event import Event, EventModel
+from .event import Event, EventModel, EventType
 from .metric import Metric, MetricModel
 from .model import Model
 from .rel_user_room import UserInRoomRelationship, UserInRoomRelationshipModel
@@ -15,5 +15,5 @@ __all__ = [
     'Statistic', 'StatisticModel',
     'Metric', 'MetricModel',
     'Report', 'ReportModel',
-    'Event', 'EventModel',
+    'Event', 'EventModel', 'EventType'
 ]

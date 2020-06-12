@@ -1,14 +1,22 @@
-﻿from typing import List
+﻿from typing import List, Dict, Tuple
 
 from abstract.model import Report, ReportModel
 from app.model.model import SQLModel
-
+from lib.injector import Injector
+from abstract.model import EventModel, StatisticModel, Event, EventType, RoomModel, MetricModel
+import datetime
 
 class ReportModelImpl(SQLModel, ReportModel):
-    def __init__(self, inj):
+    def __init__(self, inj: Injector):
         super().__init__(inj)
+        self.event_model = inj.require(EventModel)
+        self.statistic_model = inj.require(StatisticModel)
+        self.metric_model = inj.require(MetricModel)
+        self.room_model = inj.require(RoomModel)
+
 
     def create(self):
+        raise DeprecationWarning('this model could only use get_reports')
         sql = f"""
         CREATE TABLE IF NOT EXISTS {Report.table_name} (
             {Report.report_no_key} INT AUTO_INCREMENT PRIMARY KEY,
@@ -25,6 +33,7 @@ class ReportModelImpl(SQLModel, ReportModel):
         return self.db.create(sql)
 
     def insert(self, report: Report) -> int:
+        raise DeprecationWarning('this model could only use get_reports')
         sql = f'''
         INSERT INTO {Report.table_name} (
         {Report.room_id_key}, 
@@ -40,6 +49,7 @@ class ReportModelImpl(SQLModel, ReportModel):
                               report.start_temperature, report.end_temperature, report.energy, report.cost)
 
     def query_by_report_no(self, report_no: int):
+        raise DeprecationWarning('this model could only use get_reports')
         sql = f'''
         SELECT * FROM {Report.table_name} WHERE {Report.report_no_key} = {self.db.placeholder}
         '''
@@ -52,6 +62,7 @@ class ReportModelImpl(SQLModel, ReportModel):
             return
 
     def query_by_conditions(self, room_id='', start_time='', stop_time='') -> List[Report]:
+        raise DeprecationWarning('this model could only use get_reports')
         values = []
         if room_id != '':
             room_id_str = f'{Report.room_id_key} = {self.db.placeholder}'
@@ -104,31 +115,58 @@ class ReportModelImpl(SQLModel, ReportModel):
         return ret
 
     def delete_by_report_no(self, report_no) -> bool:
+        raise DeprecationWarning('this model could only use get_reports')
         sql = f'''
         DELETE FROM {Report.table_name} WHERE {Report.report_no_key} = {self.db.placeholder}
         '''
         return self.db.delete(sql, report_no)
 
-    def get_reports(self, stop_time: str, report_duration: str):
+    def get_reports(self, stop_time: datetime.datetime, report_duration: str) -> Tuple[List[Report], List[Event], Dict[int, str]]:
         if report_duration.lower() not in ['day', 'month', 'week']:
-            raise ValueError('report duraion should in [day, month, week]')
-        sql = f'''
-        SELECT * FROM {Report.table_name}
-        WHERE {Report.stop_time_key} BETWEEN 
-        date_sub({self.db.placeholder}, interval 1 {report_duration}) AND {self.db.placeholder}
-        '''
-        results = self.db.select(sql, stop_time, stop_time)
-        ret = []
-        if results is not None:
-            for result in results:
-                r = Report()
-                r.report_no, r.room_id, r.start_time, r.stop_time, \
-                r.start_temperature, r.end_temperature, \
-                r.energy, r.cost = result
-                ret.append(r)
-            return ret
-        else:
-            return None
+            raise ValueError('report duration should in [day, month, week]')
+        
+        days = 1 if day else 7 if week else 30
+        start_time = stop_time - datetime.timedelta(days=days)
+        events = self.event_model.query_by_time_interval(None, start_time, stop_time) 
+
+        room_event = {}
+        for event in events:
+            if event.room_id not in room_event.keys():
+                room_event[event.room_id] = []
+            room_event[event.room_id].append(event)
+
+        events = []
+        for e in room_event.values():
+            while e[0].event_type != EventType.Connect:
+                e.pop(0)
+            while e[-1].event_type != EventType.Disconnect:
+                e.pop()
+            events.extend(e)
+
+
+        reports = []
+        id2room_id = {}
+        for room, l in room_event.keys():
+            room_name = self.room_model.query_by_room_id(room).room_id 
+            id2room_id[room] = room_name
+            left, right = 0, 1
+            while left < len(l):
+                while l[right].event_type != EventType.Disconnect: right += 1
+                for i in (left + 1, right, 2):
+                    r = Report()
+                    r.room_id = room_name
+                    r.start_time, r.stop_time = l[i].checkpoint, l[i + 1].checkpoint
+                    if l[i].event_type != EventType.StartControl:
+                        raise ValueError('event mismatch: missing {}'.format(EventType.StartControl), l[i])
+                    if l[i + 1].event_type != EventType.StopControl:
+                        raise ValueError('event mismatch: missing {}'.format(EventType.StopControl), l[i + 1])
+                    r.energy, r.cost = self.statistic_model.query_sum_by_time_interval(room, l[i][0], l[i + 1][0])
+                    metrics = self.metric_model.query_by_time_interval(room, l[i][0], l[i + 1][0])
+                    r.start_temperature, r.end_temperature = metrics[0].temperature, metrics[-1].temperature
+                    reports.append(r)
+                left, right = right + 1, right + 2
+        return reports, events, id2roomid
+
 
 
 if __name__ == '__main__':
