@@ -12,7 +12,7 @@ MetricsTupleProxy = namedtuple('MetricsTupleProxy', [
 ])
 
 
-class MetricsModel(SQLModel, MetricModel):
+class MetricsModelImpl(SQLModel, MetricModel):
     def create(self, *args) -> bool:
         return self.db.create(f"""
         create table if not exists {Metric.table_name} (
