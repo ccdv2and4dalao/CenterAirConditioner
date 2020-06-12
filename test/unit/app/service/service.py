@@ -1,5 +1,7 @@
 import unittest
+import unittest.mock
 
+from abstract.component import ConnectionPool
 from abstract.model import UserModel, RoomModel, UserInRoomRelationshipModel
 from app.server_builder import ServerBuilder
 from app.service.connect import ConnectionServiceImpl
@@ -43,10 +45,26 @@ class ConnectionServiceTest(BasicServiceTest):
     def test_connect(self):
         self.init_database_case()
 
+        # example 1
+
         req = ConnectionRequest()
         req.room_id = 'room1_id'
         req.id = 'user1_id'
         req.app_key = '1234'
+
+        connection_pool = unittest.mock.Mock(spec=ConnectionPool)
+        self.service.connection_pool = connection_pool
+
+        # self.connection_pool.put(token, room_id, user_id, False)
+
+        def good_put(token: str, room_id: int, user_id: int, need_fan: bool):
+            self.assertEqual(token, '1234')
+            self.assertEqual(room_id, self.user1_id)
+            self.assertEqual(user_id, self.room1_id)
+            self.assertFalse(need_fan)
+            return None
+
+        connection_pool.put = unittest.mock.Mock(side_effect=good_put)
 
         resp = self.service.serve(req)
         mode, default_temperature = self.service.master_air_cond.get_md_pair()
@@ -62,10 +80,17 @@ class ConnectionServiceTest(BasicServiceTest):
         self.assertEqual(resp.user_id, self.user1_id)
         self.assertEqual(resp.room_id, self.room1_id)
 
+        # example 2
+
         req = ConnectionRequest()
         req.room_id = 'room1_id'
         req.id = 'user1_id'
         req.app_key = '1233'
+
+        def bad_put(*_):
+            self.fail('should not put connection pool')
+
+        connection_pool.put = unittest.mock.Mock(side_effect=bad_put)
 
         resp = self.service.serve(req)
         self.assertIsInstance(resp, WrongPassword)
