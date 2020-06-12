@@ -38,8 +38,15 @@ class FlaskDaemonAdminControllerImpl(DaemonAdminController):
 
 class FlaskAdminControllerImpl(AdminController):
 
-    def __init__(self, _: Injector):
-        pass
+    def __init__(self, inj: Injector):
+        self.rc = inj.require(RouteController)  # type: RouteController
+        self.jwt = inj.require(JWT)  # type: JWT
+
+    def auth(self, req):
+        auth = self.jwt.authenticate(req.jwt_token)
+        if isinstance(auth, Exception):
+            return self.rc.err(AuthJWTFailed(f'AuthJWTFailed: {type(auth)}: {auth}'))
+        return None
 
     def set_mode(self, *args, **kwargs):
         pass
@@ -66,4 +73,13 @@ class FlaskAdminControllerImpl(AdminController):
         pass
 
     def get_server_status(self, *args, **kwargs):
+        pass
+
+    def get_slave_statistics(self, *args, **kwargs):
+        pass
+
+    def get_report(self, *args, **kwargs):
+        pass
+
+    def get_connected_slaves(self, *args, **kwargs):
         pass
