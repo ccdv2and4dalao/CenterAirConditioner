@@ -1,5 +1,4 @@
+from .connect import ConnectControllerFlaskImpl
+from .ping import PingControllerFlaskImpl
 
-from .ping import PingController
-
-__all__ = ['PingController']
-
+__all__ = ['PingControllerFlaskImpl', 'ConnectControllerFlaskImpl']

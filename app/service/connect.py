@@ -3,10 +3,11 @@ from abc import abstractmethod, ABC
 from abstract.component import ConfigurationProvider
 from abstract.component.air import MasterAirCond
 from abstract.component.connection_pool import ConnectionPool
+from abstract.component.password_verifier import PasswordVerifier
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel
 from abstract.service import ConnectionService
 from lib.injector import Injector
-from proto import FailedResponse, NotFound
+from proto import FailedResponse, NotFound, DatabaseError, WrongPassword
 from proto.connection import ConnectionRequest, ConnectionResponse
 
 IDCardNumber = str
@@ -31,24 +32,31 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
         self.cfg_provider = inj.require(ConfigurationProvider)  # type: ConfigurationProvider
         self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
         self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
+        self.password_verifier = inj.require(PasswordVerifier)  # type: PasswordVerifier
 
     def serve(self, req: ConnectionRequest) -> ConnectionResponse or FailedResponse:
         ap = self.authenticate(req.room_id, req.id)
-        if ap:
-            self.update_connection_pool(req.app_key, *ap)
-            response = ConnectionResponse()
-            cfg = self.cfg_provider.get()
-            response.mode, response.default_temperature = self.master_air_cond.get_md_pair()
-            response.mode = response.mode.value
-            response.metric_delay = cfg.slave_default.metric_delay
-            response.update_delay = cfg.slave_default.update_delay
-            return response
-        return NotFound(f'relationship(room_id, id_card_number) ({req.room_id}, {req.id}) not found')
+        if ap is None:
+            return DatabaseError(f"database error: {self.user_in_room_model.why()}")
+        if not ap:
+            return NotFound(f'relationship(room_id, id_card_number) ({req.room_id}, {req.id}) not found')
+        if not self.password_verifier.verify(req.app_key, ap[0]):
+            return WrongPassword()
+        self.update_connection_pool(req.app_key, ap[1], ap[2])
+        response = ConnectionResponse()
+        cfg = self.cfg_provider.get()
+        response.mode, response.default_temperature = self.master_air_cond.get_md_pair()
+        response.mode = response.mode.value
+        response.metric_delay = cfg.slave_default.metric_delay
+        response.update_delay = cfg.slave_default.update_delay
+        response.room_id = ap[1]
+        response.user_id = ap[2]
+        return response
 
     def authenticate(self, room_id: str, identifier: IDCardNumber):
         user = self.user_model.query_by_id_card_number(identifier)
         room = user and self.room_model.query_by_room_id(room_id)
-        return room and self.user_in_room_model.query(user.id, room.id) and (room.id, user.id)
+        return room and self.user_in_room_model.query(user.id, room.id) and (room.app_key, room.id, user.id)
 
     def update_connection_pool(self, token: str, room_id: int, user_id: int):
         self.connection_pool.put(token, room_id, user_id, False)

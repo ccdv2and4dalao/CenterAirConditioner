@@ -46,6 +46,9 @@ class QueueDispatcherWithThreadPool(BasicThreadDispatcher):
 
         self.waiting_queue = queue.Queue()
 
+    def is_idle(self) -> bool:
+        return self.waiting_queue.empty()
+
     def boot_up(self, timeout=0):
         for i in range(self.active_size):
             t = Thread(target=self._pop_guard, daemon=True)

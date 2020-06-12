@@ -1,16 +1,26 @@
 from abc import ABC, abstractmethod
 
 from abstract.middleware.abstract import Middleware
+from proto import Response
 
 
-class AuthMiddleware(Middleware, ABC):
+class AuthAdminMiddleware(Middleware, ABC):
     """
-    鉴权中间件
+    鉴权中间件 (管理员)
     """
     pass
 
-    # todo: design auth middleware
-    # noinspection PyUnusedLocal
     @abstractmethod
-    def __init__(self, entity: str, mask: int):
+    def __call__(self, jwt_token: str) -> Response:
+        pass
+
+
+class AuthSlaveMiddleware(Middleware, ABC):
+    """
+    鉴权中间件（从控）
+    """
+    pass
+
+    @abstractmethod
+    def __call__(self, app_key: str) -> Response:
         pass

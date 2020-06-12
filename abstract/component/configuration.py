@@ -4,6 +4,7 @@ from abstract.consensus import AirMode
 
 Millisecond = int
 
+
 # 2.中央空调是冷暖两用，根据季节进行工作模式调整。
 #     a)当设置为供暖时，供暖温度控制在25°C～30°C之间；
 #     b)当设置为制冷时，制冷温度控制在18°C～25°C之间。
@@ -13,6 +14,7 @@ Millisecond = int
 
 class Configuration(object):
     admin_config_key = 'admin'
+    server_config_key = 'server'
     database_config_key = 'database'
     master_default_config_key = 'master-default'
     slave_default_config_key = 'slave-default'
@@ -46,6 +48,12 @@ class Configuration(object):
                      update_delay=None):
             self.metric_delay = metric_delay or 100  # type: Millisecond
             self.update_delay = update_delay or 100  # type: Millisecond
+
+    class Server:
+        bcrypt_salt_key = 'bcrypt-salt'
+
+        def __init__(self, bcrypt_salt=None):
+            self.bcrypt_salt = (bcrypt_salt or '$2b$12$LJh77o2qdckmSf0kZNjude').encode()  # type: bytes
 
     class Database:
         connection_type_key = 'connection-type'
@@ -81,8 +89,10 @@ class Configuration(object):
             self.escape = escape or '`'  # type: str
             self.location = location or 'Local'  # type: str
 
-    def __init__(self, admin_config=None, database_config=None, master_default=None, slave_default=None):
+    def __init__(self, admin_config=None, server_config=None, database_config=None, master_default=None,
+                 slave_default=None):
         self.admin_config = admin_config or Configuration.Admin()  # type: Configuration.Admin
+        self.server_config = server_config or Configuration.Server()  # type: Configuration.Server
         self.database_config = database_config or Configuration.Database()  # type: Configuration.Database
         self.master_default = master_default or Configuration.MasterDefault()  # type: Configuration.MasterDefault
         self.slave_default = slave_default or Configuration.SlaveDefault()  # type: Configuration.SlaveDefault

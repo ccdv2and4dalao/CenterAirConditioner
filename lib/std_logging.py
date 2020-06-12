@@ -31,26 +31,26 @@ def create_program_friendly_msg(skip: int = 1, filename=False, function=False, l
 class StdLoggerImpl(Logger):
 
     def __init__(self, name='air_conditional',
-                 level=logging.NOTSET, filename=False, function=False, lineno=False):
+                 level=logging.NOTSET, filename=True, function=True, lineno=True):
         self.logger = logging.Logger(name=name, level=level)
         self.serializer = create_program_friendly_msg(
             2,
             filename=filename, function=function, lineno=lineno)
 
-    def info(self, msg: str, args: dict):
-        self.logger.info(self.serializer(msg, args))
+    def info(self, msg: str, args: dict = None):
+        self.logger.info(self.serializer(msg, args or {}))
 
-    def warn(self, msg: str, args: dict):
-        self.logger.warning(self.serializer(msg, args))
+    def warn(self, msg: str, args: dict = None):
+        self.logger.warning(self.serializer(msg, args or {}))
 
-    def debug(self, msg: str, args: dict):
-        self.logger.debug(self.serializer(msg, args))
+    def debug(self, msg: str, args: dict = None):
+        self.logger.debug(self.serializer(msg, args or {}))
 
-    def error(self, msg: str, args: dict):
-        self.logger.error(self.serializer(msg, args))
+    def error(self, msg: str, args: dict = None):
+        self.logger.error(self.serializer(msg, args or {}))
 
-    def fatal(self, msg: str, args: dict):
-        self.logger.critical(self.serializer(msg, args))
+    def fatal(self, msg: str, args: dict = None):
+        self.logger.critical(self.serializer(msg, args or {}))
 
 
 if __name__ == '__main__':

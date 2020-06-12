@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import List
 
-from abstract.model import Model
+from abstract.model.model import Model
 
 
 class EventType:
