@@ -1,25 +1,33 @@
-﻿from abstract.model.model import Model
-from abc import abstractmethod
-from typing import List
+﻿from abc import abstractmethod
+from typing import List, Tuple
+
+from abstract.model.model import Model
+
 
 class Statistic:
-    '''
+    """
     详单结构和内容应至少包含：房间号、记录起止时间、起止时间内风速、起止时间内风量大小等。
-    '''
+    """
     table_name = 'statistic'
-    metric_id_key = 'statistic_id'
+    id_key = 'id'
     room_id_key = 'room_id'
-    timestamp_key = 'timestamp'
-    current_fan_speed_key = 'current_fan_speed'
+    checkpoint_key = 'checkpoint'
+    # current_fan_speed_key = 'current_fan_speed'
     current_energy_key = 'current_energy'
     current_cost_key = 'current_cost'
+
     def __init__(self):
-        self.metric_id = 0 # type: int
-        self.room_id = '' # type: str
-        self.timestamp = '' # type: str
-        self.current_fan_speed = '' # type: str
-        self.current_energy = 0.0 # type: float
-        self.current_cost = 0.0 # type: float
+        self.id = 0  # type: int
+        self.room_id = 0  # type: int
+        self.checkpoint = ''  # type: str
+        # self.current_fan_speed = ''  # type: str
+        self.current_energy = 0.0  # type: float
+        self.current_cost = 0.0  # type: float
+
+
+CurrentEnergy = float
+CurrentCost = float
+
 
 class StatisticModel(Model):
     @abstractmethod
@@ -27,10 +35,13 @@ class StatisticModel(Model):
         pass
 
     @abstractmethod
-    def insert(self, metric: Metric) -> int:
+    def insert(self, room_id: int, energy: float, cost: float) -> int:
         pass
 
     @abstractmethod
-    def query_by_time_interval(self, room_id, start_time: str, stop_time: str) -> List[Metric]:
+    def query_by_time_interval(self, room_id, start_time: str, stop_time: str) -> List[Statistic]:
         pass
 
+    @abstractmethod
+    def query_sum_by_time_interval(self, room_id, start_time: str, stop_time: str) -> Tuple[CurrentEnergy, CurrentCost]:
+        pass

@@ -16,21 +16,21 @@ class UserModelImpl(SQLModel, UserModel):
         return self.db.create(f"""
         create table if not exists {User.table_name} (
             {User.id_key} integer autoincrement primary key,
-            {User.id_card_number_key} VARCHAR(19),
+            {User.id_card_number_key} VARCHAR(19)
         )
         """)
 
     def insert(self, id_card_number: str) -> int:
         return self.db.insert(f'''
-        INSERT INTO {User.table_name} (
+        insert into {User.table_name} (
         {User.id_card_number_key})
-        VALUES
+        values
         (%s)
         ''', id_card_number)
 
     def query_by_id_card_number(self, id_card_number: str):
         data = self.db.select(f'''
-        SELECT * FROM {User.table_name} WHERE {User.id_card_number_key} = %s
+        select * from {User.table_name} where {User.id_card_number_key} = %s
         ''', id_card_number)
         if data is None:
             return None
@@ -40,5 +40,5 @@ class UserModelImpl(SQLModel, UserModel):
 
     def delete_by_id_card_number(self, id_card_number: str) -> bool:
         return self.db.delete(f'''
-        DELETE FROM {User.table_name} WHERE {User.id_card_number_key} = %s
+        delete from {User.table_name} where {User.id_card_number_key} = %s
         ''', id_card_number)
