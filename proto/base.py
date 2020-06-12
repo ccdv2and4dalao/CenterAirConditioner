@@ -8,7 +8,11 @@ class Request(object):
         self.timestamp = 0 # type: int
 
     def bind_dict(self, d: dict):
-        pass
+        if d is None:
+            return
+        self.label = d.get('label', 0)
+        self.room_id = d.get('room_id', '')
+        self.timestamp = d.get('timestamp', 0)
 
     def bind_header(self, h):
         pass
