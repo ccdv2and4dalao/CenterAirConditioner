@@ -39,7 +39,7 @@ class EventModelImpl(SQLModel, EventModel):
     def create(self, *args) -> bool:
         sql = f'''
         CREATE TABLE IF NOT EXISTS {Event.table_name} (
-        {Event.id_key}          INT AUTO_INCREMENT PRIMARY KEY,
+        {Event.id_key}          INT {self.db.auto_increment} PRIMARY KEY,
         {Event.room_id_key}     INT,
         {Event.checkpoint_key}  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         {Event.event_type_key}  VARCHAR(5), 

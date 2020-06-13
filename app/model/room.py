@@ -7,7 +7,7 @@ class RoomModelImpl(SQLModel, RoomModel):
     def create(self) -> bool:
         return self.db.create(f"""
         create table if not exists {Room.table_name} (
-            {Room.id_key} integer primary key autoincrement,
+            {Room.id_key} integer primary key {self.db.auto_increment},
             {Room.room_id_key} VARCHAR(19),
             {Room.app_key_key} VARCHAR(65)
         )""")

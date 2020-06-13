@@ -3,7 +3,7 @@ from proto import FailedResponse
 from proto.admin.generate_report import AdminGenerateReportRequest, AdminGenerateReportResponse
 from abstract.model import ReportModel, Report, EventType
 from lib.injector import Injector
-import time
+import datetime
 
 class AdminGenerateReportServiceImpl(AdminGenerateReportService):
     def __init__(self, inj: Injector):
@@ -11,7 +11,9 @@ class AdminGenerateReportServiceImpl(AdminGenerateReportService):
 
     def serve(self, req: AdminGenerateReportRequest) -> AdminGenerateReportResponse or FailedResponse:
         if req.stop_time == '':
-            req.stop_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            req.stop_time = datetime.datetime.now()
+        else:
+            req.stop_time = datetime.datetime.strptime(req.stop_time, '%Y-%m-%d %H:%M:%S')
         reports, events, id2roomid = self.report_model.get_reports(req.stop_time, req.type)
         d = {}
         for report in reports:

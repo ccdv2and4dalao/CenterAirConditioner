@@ -16,7 +16,7 @@ class MetricsModelImpl(SQLModel, MetricModel):
     def create(self, *args) -> bool:
         return self.db.create(f"""
         create table if not exists {Metric.table_name} (
-            {Metric.id_key} integer primary key autoincrement,
+            {Metric.id_key} integer primary key {self.db.auto_increment},
             {Metric.room_id_key} varchar(19),
             {Metric.checkpoint_key} timestamp default CURRENT_TIMESTAMP,
             {Metric.fan_speed_key} varchar(5),

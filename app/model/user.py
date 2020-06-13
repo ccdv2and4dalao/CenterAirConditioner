@@ -15,7 +15,7 @@ class UserModelImpl(SQLModel, UserModel):
     def create(self) -> bool:
         return self.db.create(f"""
         create table if not exists {User.table_name} (
-            {User.id_key} integer primary key autoincrement,
+            {User.id_key} integer primary key {self.db.auto_increment},
             {User.id_card_number_key} VARCHAR(19)
         )
         """)

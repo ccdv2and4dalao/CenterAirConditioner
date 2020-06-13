@@ -168,7 +168,7 @@ class ReportModelImpl(SQLModel, ReportModel):
                     r.start_temperature, r.end_temperature = metrics[0].temperature, metrics[-1].temperature
                     reports.append(r)
                 left, right = right + 1, right + 2
-        return reports, events, id2roomid
+        return reports, events, id2room_id
 
 
 

@@ -22,6 +22,7 @@ from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatu
 
 from abstract.singleton import register_singletons
 # implementations
+from app.database import sqlDatabase
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
 from app.component.fan_pipe import MasterFanPipeImpl
 from app.config import APPVersion, APPDescription, APPName
@@ -134,6 +135,9 @@ class ServerBuilder:
             self.db_conn = SQLite3(memory=True)
             inj.provide(SQLDatabase, self.db_conn)
         else:
+            self.db_conn = sqlDatabase
+            self.db_conn.connect()
+            inj.provide(SQLDatabase, self.db_conn)
             self.logger.warn("no database is connected")
 
         # 配置
@@ -170,7 +174,7 @@ class ServerBuilder:
     def create_table(self, inj: Injector = None):
         inj = inj or self.injector
         for model_prototype in [UserModel, RoomModel, UserInRoomRelationshipModel, MetricModel, StatisticModel,
-                                ReportModel]:
+                                EventModel]:
             model_instance = inj.require(model_prototype)
             created = model_instance.create()
             if not created:

@@ -39,7 +39,7 @@ class StatisticModelImpl(SQLModel, StatisticModel):
     def create(self, *args) -> bool:
         return self.db.create(f"""
         create table if not exists {Statistic.table_name} (
-            {Statistic.id_key} integer primary key autoincrement,
+            {Statistic.id_key} integer primary key {self.db.auto_increment},
             {Statistic.room_id_key} integer,
             {Statistic.checkpoint_key} timestamp default CURRENT_TIMESTAMP,
             {Statistic.current_energy_key} decimal(15, 2),
