@@ -2,8 +2,9 @@ import enum
 
 
 class FanSpeed(enum.Enum):
-    low = 'low'
-    mid = 'mid'
-    high = 'high'
-    none = 'none'
+    High = 'high'
+    Mid = 'mid'
+    Low = 'low'
+    Non = 'non'
+
     underlying_type = str
