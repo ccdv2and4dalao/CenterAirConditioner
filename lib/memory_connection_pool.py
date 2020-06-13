@@ -10,6 +10,7 @@ class ConnectionImpl:
         self.current_temperature = current_temperature
         self.need_fan = need_fan
         self.fan_speed = fan_speed
+        self.session_id = ''
 
 
 class MemoryConnectionPoolImpl(ConnectionPool):
@@ -23,6 +24,12 @@ class MemoryConnectionPoolImpl(ConnectionPool):
 
     def put_need_fan(self, room_id: int, need_fan: bool):
         self.cache[room_id].need_fan = need_fan
+
+    def put_session_id(self, room_id: int, session_id: str):
+        self.cache[room_id].session_id = session_id
+
+    def close_session_connection(self, room_id: int):
+        self.cache[room_id].session_id = None
 
     def delete(self, room_id: int):
         self.cache.pop(room_id)
@@ -45,6 +52,16 @@ class SafeMemoryConnectionPoolImpl(MemoryConnectionPoolImpl):
     def put_need_fan(self, room_id: int, need_fan: bool):
         self.mutex.acquire()
         super().put_need_fan(room_id, need_fan)
+        self.mutex.release()
+
+    def put_session_id(self, room_id: int, session_id: str):
+        self.mutex.acquire()
+        super().put_session_id(room_id, session_id)
+        self.mutex.release()
+
+    def close_session_connection(self, room_id: int):
+        self.mutex.acquire()
+        super().close_session_connection(room_id)
         self.mutex.release()
 
     def delete(self, room_id: int):
