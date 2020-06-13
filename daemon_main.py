@@ -5,7 +5,7 @@ from abstract.controller import PingController, DaemonAdminController
 from abstract.middleware.auth import AuthAdminMiddleware
 from abstract.service.admin import AdminLoginService, AdminBootMasterService, AdminShutdownMasterService
 from abstract.singleton import register_singletons
-from app.config import APPVersion, APPDescription
+from app.config import APPVersion, APPDescription, APPName
 from app.controller.admin import FlaskDaemonAdminControllerImpl
 from app.controller.ping import PingControllerFlaskImpl
 from app.middleware.auth import AuthAdminMiddlewareImpl
@@ -23,6 +23,7 @@ from lib.system_entropy_provider import SystemEntropyProviderImpl
 def inject_global_vars(inj: Injector):
     inj.provide(APPVersion, 'v0.1.0')
     inj.provide(APPDescription, 'center air conditioner daemon base on flask')
+    inj.provide(APPName, 'center-air-conditioner-daemon')
     return inj
 
 

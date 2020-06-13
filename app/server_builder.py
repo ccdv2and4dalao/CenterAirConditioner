@@ -1,9 +1,13 @@
+from flask import Flask
+
 import lib.functional
 from abstract.component import ConfigurationProvider, OptionProvider, Logger, MasterAirCond, SystemEntropyProvider, \
-    UUIDGenerator, Dispatcher, ConnectionPool, MasterFanPipe
+    UUIDGenerator, Dispatcher, ConnectionPool
 # abstract layer
+from abstract.component.fan_pipe import MasterFanPipe
 from abstract.component.jwt import JWT
 from abstract.component.password_verifier import PasswordVerifier
+from abstract.component.websocket_conn import WebsocketConn
 from abstract.controller import PingController, ConnectController, AdminController, MetricsController, \
     StatisticsController, SlaveStateControlController
 from abstract.database import SQLDatabase
@@ -17,14 +21,14 @@ from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatu
     AdminGenerateReportService
 from abstract.singleton import register_singletons
 # implementations
-from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl, MasterFanPipeImpl
-from app.config import APPVersion, APPDescription
+from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
+from app.component.fan_pipe import MasterFanPipeImpl
+from app.config import APPVersion, APPDescription, APPName
 from app.controller import PingControllerFlaskImpl, ConnectControllerFlaskImpl
 from app.controller.admin import AdminControllerFlaskImpl
 from app.controller.metrics import MetricsControllerFlaskImpl
 from app.controller.slave_state_control import SlaveStateControlControllerFlaskImpl
 from app.controller.statistics import StatisticsControllerFlaskImpl
-from app.database import sqlDatabase
 from app.middleware.auth import AuthAdminMiddlewareImpl
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, MetricsModelImpl, \
     StatisticModelImpl, ReportModelImpl, EventModelImpl
@@ -49,6 +53,7 @@ from lib.injector import Injector
 from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl
 from lib.py_jwt import PyJWTImpl
 from lib.serializer import JSONSerializer, Serializer
+from lib.socket_io import functional_flask_socket_io_connection_impl
 from lib.sql_sqlite3 import SQLite3
 from lib.system_entropy_provider import SystemEntropyProviderImpl
 from lib.system_entropy_uuid import SystemEntropyUUIDGeneratorImpl
@@ -104,6 +109,7 @@ class ServerBuilder:
     def build_global_vars(self, inj: Injector):
         inj.provide(APPVersion, 'v0.1.0')
         inj.provide(APPDescription, 'center air conditioner base on flask')
+        inj.provide(APPName, 'center-air-conditioner-server')
         return inj
 
     def build_external_dependency(self, inj: Injector):
@@ -124,8 +130,7 @@ class ServerBuilder:
             self.db_conn = SQLite3(memory=True)
             inj.provide(SQLDatabase, self.db_conn)
         else:
-            inj.provide(SQLDatabase, sqlDatabase)
-            #self.logger.warn("no database is connected")
+            self.logger.warn("no database is connected")
 
         # 配置
         inj.build(OptionProvider, StdArgParser)
@@ -133,7 +138,6 @@ class ServerBuilder:
 
         inj.build(UUIDGenerator, SystemEntropyUUIDGeneratorImpl)
         inj.build(PasswordVerifier, BCryptPasswordVerifier)
-        inj.build(MasterFanPipe, MasterFanPipeImpl)
         inj.build(MasterAirCond, MasterAirCondImpl)
         inj.build(JWT, PyJWTImpl)
 
@@ -141,6 +145,10 @@ class ServerBuilder:
 
         # todo: should provide parameters later
         inj.provide(Dispatcher, QueueDispatcherWithThreadPool())
+        inj.provide(Flask, Flask(APPName))
+
+        inj.provide(WebsocketConn, functional_flask_socket_io_connection_impl(inj))
+        inj.build(MasterFanPipe, MasterFanPipeImpl)
         return inj
 
     # noinspection DuplicatedCode
@@ -202,9 +210,6 @@ class ServerBuilder:
         dispatcher.boot_up()
         self.create_table(inj)
         return inj
-
-    def build_console(self, inj: Injector = None):
-        pass
 
     def expose_service(self, inj: Injector = None):
         inj = inj or self.injector
