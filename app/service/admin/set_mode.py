@@ -14,5 +14,5 @@ class AdminSetModeServiceImpl(AdminSetModeService):
         if req.mode not in AirMode._value2member_map_:
             return InvalidModeValue(f'invalid mode enum value: {req.mode}')
 
-        self.master_air_cond.mode = req.mode
+        self.master_air_cond.mode = AirMode(req.mode)
         return AdminSetModeResponse()

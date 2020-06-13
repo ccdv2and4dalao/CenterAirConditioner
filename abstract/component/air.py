@@ -11,7 +11,7 @@ class AirCond(object):
 
     @abstractmethod
     def __init__(self):
-        self.mode = AirMode.Cool.value  # type: AirMode
+        self.mode = AirMode.Cool  # type: AirMode
         self.current_temperature = 0.0  # type: float
         # todo: ?
         self.status = {}

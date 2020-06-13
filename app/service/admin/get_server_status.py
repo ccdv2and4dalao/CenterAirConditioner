@@ -14,6 +14,7 @@ class AdminGetServerStatusServiceImpl(AdminGetServerStatusService):
         resp = AdminGetServerStatusResponse()
         cfg = self.cfg_provider.get()
         resp.mode, resp.current_temperature = self.master_air_cond.get_md_pair()
+        resp.mode = resp.mode.value
         resp.update_delay = cfg.slave_default.update_delay
         resp.metric_delay = cfg.slave_default.metric_delay
         if self.dispatcher.is_idle():
