@@ -8,16 +8,18 @@ class MainConsoleImpl(MainConsole, Thread):
         self.m = {}
         self.m['help'] = self.help
         self.logger = StdLoggerImpl()
-        self.setDaemon(False)
+        self.setDaemon(True)
 
     def parse(self, cmd: str):
         args = cmd.split(' ')
         try:
-            self.m[args[0].lower()](args[1 : ])
+            self.m[args[0].lower()](*args[1 : ])
         except KeyError as e:
-            self.logger.warn('Unexpected command {}\ninput help for all available command'.format(e))
+            #self.logger.warn('Unexpected command {}\ninput help for all available command'.format(e))
+            print('Unexpected command {}\ninput help for all available command'.format(e))
         except Exception as e:
-            self.logger.error(e)
+            #self.logger.error(e)
+            print(e)
 
     def run(self):
         print('Welcome to MasterAirConditioner V0.0.1')
@@ -34,6 +36,8 @@ class MainConsoleImpl(MainConsole, Thread):
 
 
 if __name__ == '__main__':
+    pass
+'''
     from lib.injector import Injector
     from abstract.console import BootConsole, MetricConsole, ReportConsole, \
         SetMetricFrequencyConsole, SetModeConsole, SetStatisticFrequencyConsole, \
@@ -55,3 +59,4 @@ if __name__ == '__main__':
     inj.build(StatusConsole, StatusConsoleImpl)
 
     m.start()
+'''

@@ -17,6 +17,7 @@ class ReportConsoleImpl(ReportConsole, BaseSubConsoleImpl):
         if duration not in ['day', 'week', 'month']:
             raise ValueError('report type should in [day, week, month]')
         r = AdminGenerateReportRequest()
+        r.type = duration
         ret = self.report_service.serve(r)
         if type(ret) is AdminGenerateReportResponse:
             for d in ret.room_list:
