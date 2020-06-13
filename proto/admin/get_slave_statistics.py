@@ -23,3 +23,5 @@ class AdminGetSlaveStatisticsRequest(Request):
 class AdminGetSlaveStatisticsResponse(Response):
     def __init__(self):
         super().__init__()
+        self.energy = 0.0
+        self.cost = 0.0

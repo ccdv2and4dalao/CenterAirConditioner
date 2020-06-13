@@ -1,11 +1,9 @@
 from abstract.service.admin.get_slave_statistics import AdminGetSlaveStatisticsService
-from proto import FailedResponse
-from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsRequest, AdminGetSlaveStatisticsResponse
+from app.service.generate_statistics import GenerateStatisticServiceImpl
+from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsResponse
 
 
-class AdminGetSlaveStatisticsServiceImpl(AdminGetSlaveStatisticsService):
+class AdminGetSlaveStatisticsServiceImpl(GenerateStatisticServiceImpl, AdminGetSlaveStatisticsService):
     def __init__(self, inj):
-        pass
-
-    def serve(self, req: AdminGetSlaveStatisticsRequest) -> AdminGetSlaveStatisticsResponse or FailedResponse:
-        pass
+        super().__init__(inj)
+        self.response_factory = AdminGetSlaveStatisticsResponse
