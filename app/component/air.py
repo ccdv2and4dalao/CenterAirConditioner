@@ -14,6 +14,7 @@ class MasterAirCondImpl(StoppableThread, MasterAirCond):
         self.mode = AirMode(cfg.master_default.mode)  # type: AirMode
         self.default_temperature = cfg.master_default.default_temperature  # type: float
         self.mutex = Lock()  # type: Lock
+        self.fan_pipe = inj.require(MasterFanPipe) # type: MasterFanPipe
 
     def get_md_pair(self) -> Tuple[AirMode, float]:
         self.mutex.acquire()
@@ -22,7 +23,7 @@ class MasterAirCondImpl(StoppableThread, MasterAirCond):
         return p
 
     def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode):
-        pass
+        self.fan_pipe.start_supply(room_id, speed, mode)
 
     def stop_supply(self, room_id: int):
-        pass
+        self.fan_pipe.stop_supply(room_id)
