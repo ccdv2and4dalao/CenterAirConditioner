@@ -1,7 +1,7 @@
 ﻿from queue import Queue, PriorityQueue
 from threading import Thread, Lock
 from abstract.consensus import FanSpeed
-from abstract.model import Roo
+from abstract.model import RoomModel
 import time
 
 from app.component.basic_thread_dispatcher import BasicThreadDispatcher
