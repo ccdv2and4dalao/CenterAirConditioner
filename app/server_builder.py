@@ -137,6 +137,7 @@ class ServerBuilder:
         inj.provide(ConnectionPool, SafeMemoryConnectionPoolImpl())
 
         # todo: should provide parameters later
+        # inj.build(Dispatcher, PriQueueDispatcher())
         inj.provide(Dispatcher, QueueDispatcherWithThreadPool())
         return inj
 
