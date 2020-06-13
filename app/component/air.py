@@ -26,4 +26,4 @@ class MasterAirCondImpl(StoppableThread, MasterAirCond):
         self.fan_pipe.start_supply(room_id, speed, mode)
 
     def stop_supply(self, room_id: int):
-        self.fan_pipe.start_supply(room_id, FanSpeed.none, AirMode.Stop)
+        self.fan_pipe.stop_supply(room_id)
