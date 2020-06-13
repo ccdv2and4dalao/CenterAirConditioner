@@ -13,19 +13,19 @@ class BasicStateControlServiceImpl(object):
         self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
         self.logger = inj.require(Logger)  # type: Logger
 
-    def push_start_request(self, token, room_id, speed_fan, mode, tag):
+    def push_start_request(self, room_id, speed_fan, mode, tag):
         return self.dispatcher.push(
-            {'token': token, 'room_id': room_id, 'need_fan': True, 'speed_fan': speed_fan, 'mode': mode}, tag)
+            {'room_id': room_id, 'need_fan': True, 'speed_fan': speed_fan, 'mode': mode}, tag)
 
-    def push_stop_request(self, token, room_id, tag: str) -> bool:
+    def push_stop_request(self, room_id, tag: str) -> bool:
         return self.dispatcher.push(
-            {'token': token, 'room_id': room_id, 'need_fan': False}, tag)
+            {'room_id': room_id, 'need_fan': False}, tag)
 
     def generate_tag(self) -> str:
         return self.uuid_provider.generate_uuid()
 
     def _pop_request(self, req: dict, tag: str) -> None:
-        room_info = req['need_fan'] and self.connection_pool.get(req['token'])
+        room_info = req['need_fan'] and self.connection_pool.get(req['room_id'])
         if not room_info or not room_info.need_fan:
             # fast forward
             resp = self.master_air_cond.stop_supply(req['room_id'])

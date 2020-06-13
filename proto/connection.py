@@ -17,6 +17,7 @@ class ConnectionRequest(Request):
 class ConnectionResponse(Response):
     def __init__(self):
         super().__init__()
+        self.token = ''  # type: str
         self.user_id = 0  # type: int
         self.room_id = 0  # type: int
         self.default_temperature = 0.0  # type: float

@@ -1,10 +1,11 @@
-﻿from typing import List, Dict, Tuple
+﻿import datetime
+from typing import List, Dict, Tuple
 
+from abstract.model import EventModel, StatisticModel, Event, EventType, RoomModel, MetricModel
 from abstract.model import Report, ReportModel
 from app.model.model import SQLModel
 from lib.injector import Injector
-from abstract.model import EventModel, StatisticModel, Event, EventType, RoomModel, MetricModel
-import datetime
+
 
 class ReportModelImpl(SQLModel, ReportModel):
     def __init__(self, inj: Injector):
@@ -16,6 +17,7 @@ class ReportModelImpl(SQLModel, ReportModel):
 
 
     def create(self):
+        return True
         raise DeprecationWarning('this model could only use get_reports')
         sql = f"""
         CREATE TABLE IF NOT EXISTS {Report.table_name} (

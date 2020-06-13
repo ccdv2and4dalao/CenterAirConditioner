@@ -11,11 +11,11 @@ class StopStateControlServiceImpl(BasicStateControlServiceImpl, StopStateControl
         super().__init__(inj)
 
     def serve(self, req: StopStateControlRequest) -> StopStateControlResponse or FailedResponse:
-        return self.stop_supply(req.token)
+        return self.stop_supply(req.room_id)
 
-    def stop_supply(self, token: str):
-        room_info = self.connection_pool.get(token)
+    def stop_supply(self, room_id: int):
+        room_info = self.connection_pool.get(room_id)
         if room_info.need_fan:
-            self.connection_pool.put_need_fan(token, False)
-        self.push_stop_request(token, room_info.room_id, self.generate_tag())
+            self.connection_pool.put_need_fan(room_id, False)
+        self.push_stop_request(room_info.room_id, self.generate_tag())
         return StopStateControlResponse()

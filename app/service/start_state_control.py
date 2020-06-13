@@ -29,12 +29,12 @@ class StartStateControlServiceImpl(BasicStateControlServiceImpl, StartStateContr
             return ConflictMode(f'conflict with current mode: want {current_mode}, got {req.mode}')
         return None
 
-    def start_supply(self, token: str, speed: FanSpeed, mode: AirMode) -> StartStateControlResponse or None:
-        room_info = self.connection_pool.get(token)
+    def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode) -> StartStateControlResponse or None:
+        room_info = self.connection_pool.get(room_id)
         if not room_info.need_fan:
-            self.connection_pool.put_need_fan(token, True)
+            self.connection_pool.put_need_fan(room_id, True)
 
-        self.push_start_request(token, room_info.room_id, speed, mode, self.generate_tag())
+        self.push_start_request(room_info.room_id, speed, mode, self.generate_tag())
         return StartStateControlResponse()
 
 

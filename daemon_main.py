@@ -2,11 +2,13 @@ import lib.functional
 from abstract.component import OptionProvider, Logger, ConfigurationProvider, SystemEntropyProvider
 from abstract.component.jwt import JWT
 from abstract.controller import PingController, DaemonAdminController
+from abstract.middleware.auth import AuthAdminMiddleware
 from abstract.service.admin import AdminLoginService, AdminBootMasterService, AdminShutdownMasterService
 from abstract.singleton import register_singletons
 from app.config import APPVersion, APPDescription
 from app.controller.admin import FlaskDaemonAdminControllerImpl
 from app.controller.ping import PingControllerFlaskImpl
+from app.middleware.auth import AuthAdminMiddlewareImpl
 from app.router.flask import DaemonFlaskRouter, FlaskRouteController, RouteController
 from app.service.admin import AdminLoginServiceImpl, AdminBootMasterServiceImpl, AdminShutdownMasterServiceImpl
 from lib import std_logging
@@ -38,12 +40,14 @@ def inject_external_dependency(inj: Injector):
 
     inj.build(OptionProvider, StdArgParser)
     inj.build(ConfigurationProvider, FileConfigurationProvider)
+    inj.build(RouteController, FlaskRouteController)
     inj.build(JWT, PyJWTImpl)
 
     return inj
 
 
 def inject_middleware(inj: Injector):
+    inj.build(AuthAdminMiddleware, AuthAdminMiddlewareImpl)
     return inj
 
 
@@ -56,7 +60,6 @@ def inject_service(inj: Injector):
 
 
 def inject_controller(inj: Injector):
-    inj.build(RouteController, FlaskRouteController)
     inj.build(PingController, PingControllerFlaskImpl)
     inj.build(DaemonAdminController, FlaskDaemonAdminControllerImpl)
     return inj

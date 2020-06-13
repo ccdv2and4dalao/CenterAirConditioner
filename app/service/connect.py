@@ -1,8 +1,10 @@
+import datetime
 from abc import abstractmethod, ABC
 
-from abstract.component import ConfigurationProvider
+from abstract.component import ConfigurationProvider, SystemEntropyProvider
 from abstract.component.air import MasterAirCond
 from abstract.component.connection_pool import ConnectionPool
+from abstract.component.jwt import JWT
 from abstract.component.password_verifier import PasswordVerifier
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel
 from abstract.service import ConnectionService
@@ -20,7 +22,7 @@ class BaseConnectionServiceImpl(ConnectionService, ABC):
         pass
 
     @abstractmethod
-    def update_connection_pool(self, token: str, room_id: str, identifier: IDCardNumber):
+    def update_connection_pool(self, room_id: str, identifier: IDCardNumber):
         pass
 
 
@@ -33,6 +35,9 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
         self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
         self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
         self.password_verifier = inj.require(PasswordVerifier)  # type: PasswordVerifier
+        self.jwt = inj.require(JWT)  # type: JWT
+        self.random_source = inj.require(SystemEntropyProvider)  # type: SystemEntropyProvider
+        self.expire_time = datetime.timedelta(hours=1)
 
     def serve(self, req: ConnectionRequest) -> ConnectionResponse or FailedResponse:
         ap = self.authenticate(req.room_id, req.id)
@@ -42,9 +47,12 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
             return NotFound(f'relationship(room_id, id_card_number) ({req.room_id}, {req.id}) not found')
         if not self.password_verifier.verify(req.app_key, ap[0]):
             return WrongPassword()
-        self.update_connection_pool(req.app_key, ap[1], ap[2])
+        self.update_connection_pool(ap[1], ap[2])
         response = ConnectionResponse()
         cfg = self.cfg_provider.get()
+        response.token = self.jwt.create_jwt_token(
+            {'room_id': ap[1], 'exp': datetime.datetime.now() + self.expire_time,
+             'pd': self.random_source.get_entropy(8)})
         response.mode, response.default_temperature = self.master_air_cond.get_md_pair()
         response.mode = response.mode.value
         response.metric_delay = cfg.slave_default.metric_delay
@@ -58,5 +66,5 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
         room = user and self.room_model.query_by_room_id(room_id)
         return room and self.user_in_room_model.query(user.id, room.id) and (room.app_key, room.id, user.id)
 
-    def update_connection_pool(self, token: str, room_id: int, user_id: int):
-        self.connection_pool.put(token, room_id, user_id, False)
+    def update_connection_pool(self, room_id: int, user_id: int):
+        self.connection_pool.put(room_id, user_id, False)

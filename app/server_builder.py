@@ -139,8 +139,8 @@ class ServerBuilder:
         inj.build(UserInRoomRelationshipModel, UserInRoomRelationshipModelImpl)
         inj.build(MetricModel, MetricsModelImpl)
         inj.build(StatisticModel, StatisticModelImpl)
-        inj.build(ReportModel, ReportModelImpl)
         inj.build(EventModel, EventModelImpl)
+        inj.build(ReportModel, ReportModelImpl)
         return inj
 
     def create_table(self, inj: Injector = None):
