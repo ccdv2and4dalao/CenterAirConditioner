@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List
+from typing import List, Optional
 
 from abstract.model.model import Model
 
@@ -12,11 +12,14 @@ class Room:
     room_id_key = "room_id"
     # 房间的app key
     app_key_key = "app_key"
+    # 房间的特权级
+    room_privilege = "room_privilege"
 
-    def __init__(self, inc_id=0, room_id='', app_key=''):
+    def __init__(self, inc_id=0, room_id='', app_key='', privilege=0):
         self.id = inc_id  # type: int
         self.room_id = room_id  # type: str
         self.app_key = app_key  # type: str
+        self.room_privilege = privilege  # type: int
 
 
 class RoomModel(Model):
@@ -68,4 +71,8 @@ class RoomModel(Model):
         :param room_id: 房间号（墙上的名字）
         :return: 删除是否成功
         """
+        pass
+
+    @abstractmethod
+    def query_by_id(self, _id: int) -> Optional[Room]:
         pass

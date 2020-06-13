@@ -35,7 +35,7 @@ class StatisticModel(Model):
         pass
 
     @abstractmethod
-    def insert(self, room_id: int, energy: float, cost: float) -> int:
+    def insert(self, room_id: int, energy: float, cost: float, checkpoint=None) -> int:
         pass
 
     @abstractmethod

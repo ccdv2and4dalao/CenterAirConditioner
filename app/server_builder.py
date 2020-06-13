@@ -19,9 +19,8 @@ from abstract.service import ConnectionService, StartStateControlService, StopSt
     GenerateStatisticService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
-    AdminGenerateReportService
+    AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService
 from abstract.singleton import register_singletons
-# implementations
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
 from app.component.fan_pipe import MasterFanPipeImpl
 from app.config import APPVersion, APPDescription, APPName
@@ -30,16 +29,20 @@ from app.controller.admin import AdminControllerFlaskImpl
 from app.controller.metrics import MetricsControllerFlaskImpl
 from app.controller.slave_state_control import SlaveStateControlControllerFlaskImpl
 from app.controller.statistics import StatisticsControllerFlaskImpl
+# implementations
+from app.database import sqlDatabase
 from app.middleware.auth import AuthAdminMiddlewareImpl
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, MetricsModelImpl, \
     StatisticModelImpl, ReportModelImpl, EventModelImpl
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
 from app.service.admin import AdminGenerateReportServiceImpl
+from app.service.admin.boot import AdminBootMasterServiceImpl
 from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl
 from app.service.admin.get_server_status import AdminGetServerStatusServiceImpl
 from app.service.admin.get_slave_statistics import AdminGetSlaveStatisticsServiceImpl
 from app.service.admin.set_current_temperature import AdminSetCurrentTemperatureServiceImpl
 from app.service.admin.set_mode import AdminSetModeServiceImpl
+from app.service.admin.shutdown import AdminShutdownMasterServiceImpl
 from app.service.connect import ConnectionServiceImpl
 from app.service.generate_statistics import GenerateStatisticServiceImpl
 from app.service.metrics import MetricsServiceImpl
@@ -131,6 +134,9 @@ class ServerBuilder:
             self.db_conn = SQLite3(memory=True)
             inj.provide(SQLDatabase, self.db_conn)
         else:
+            self.db_conn = sqlDatabase
+            self.db_conn.connect()
+            inj.provide(SQLDatabase, self.db_conn)
             self.logger.warn("no database is connected")
 
         # 配置
@@ -145,6 +151,7 @@ class ServerBuilder:
         inj.provide(ConnectionPool, SafeMemoryConnectionPoolImpl())
 
         # todo: should provide parameters later
+        # inj.build(Dispatcher, PriQueueDispatcher())
         inj.provide(Dispatcher, QueueDispatcherWithThreadPool())
 
         inj.provide(WebsocketConn, functional_flask_socket_io_connection_impl(inj))
@@ -167,7 +174,7 @@ class ServerBuilder:
     def create_table(self, inj: Injector = None):
         inj = inj or self.injector
         for model_prototype in [UserModel, RoomModel, UserInRoomRelationshipModel, MetricModel, StatisticModel,
-                                ReportModel]:
+                                EventModel]:
             model_instance = inj.require(model_prototype)
             created = model_instance.create()
             if not created:
@@ -194,6 +201,8 @@ class ServerBuilder:
         inj.build(AdminGetSlaveStatisticsService, AdminGetSlaveStatisticsServiceImpl)
         inj.build(AdminSetCurrentTemperatureService, AdminSetCurrentTemperatureServiceImpl)
         inj.build(AdminSetModeService, AdminSetModeServiceImpl)
+        inj.build(AdminBootMasterService, AdminBootMasterServiceImpl)
+        inj.build(AdminShutdownMasterService, AdminShutdownMasterServiceImpl)
         return inj
 
     # noinspection DuplicatedCode

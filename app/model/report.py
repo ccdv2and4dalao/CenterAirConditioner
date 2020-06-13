@@ -123,13 +123,15 @@ class ReportModelImpl(SQLModel, ReportModel):
         '''
         return self.db.delete(sql, report_no)
 
-    def get_reports(self, stop_time: datetime.datetime, report_duration: str) -> Tuple[List[Report], List[Event], Dict[int, str]]:
-        if report_duration.lower() not in ['day', 'month', 'week']:
+    def get_reports(self, stop_time: datetime.datetime, report_duration: str) -> Tuple[
+        List[Report], List[Event], Dict[int, str]]:
+        report_duration = report_duration.lower()
+        if report_duration not in ['day', 'month', 'week']:
             raise ValueError('report duration should in [day, month, week]')
-        
-        days = 1 if day else 7 if week else 30
+
+        days = 1 if report_duration == 'day' else 7 if report_duration == 'week' else 30
         start_time = stop_time - datetime.timedelta(days=days)
-        events = self.event_model.query_by_time_interval(None, start_time, stop_time) 
+        events = self.event_model.query_by_time_interval(None, start_time, stop_time)
 
         room_event = {}
         for event in events:
@@ -145,16 +147,15 @@ class ReportModelImpl(SQLModel, ReportModel):
                 e.pop()
             events.extend(e)
 
-
         reports = []
         id2room_id = {}
-        for room, l in room_event.keys():
-            room_name = self.room_model.query_by_room_id(room).room_id 
+        for room, l in room_event.items():
+            room_name = self.room_model.query_by_id(room).room_id
             id2room_id[room] = room_name
             left, right = 0, 1
             while left < len(l):
                 while l[right].event_type != EventType.Disconnect: right += 1
-                for i in (left + 1, right, 2):
+                for i in range(left + 1, right - 1, 2):
                     r = Report()
                     r.room_id = room_name
                     r.start_time, r.stop_time = l[i].checkpoint, l[i + 1].checkpoint
@@ -162,12 +163,17 @@ class ReportModelImpl(SQLModel, ReportModel):
                         raise ValueError('event mismatch: missing {}'.format(EventType.StartControl), l[i])
                     if l[i + 1].event_type != EventType.StopControl:
                         raise ValueError('event mismatch: missing {}'.format(EventType.StopControl), l[i + 1])
-                    r.energy, r.cost = self.statistic_model.query_sum_by_time_interval(room, l[i][0], l[i + 1][0])
-                    metrics = self.metric_model.query_by_time_interval(room, l[i][0], l[i + 1][0])
+                    r.energy, r.cost = self.statistic_model.query_sum_by_time_interval(room, l[i].checkpoint,
+                                                                                       l[i + 1].checkpoint)
+                    if type(r.energy) is not float:
+                        r.energy, r.cost = float(r.energy), float(r.cost)
+                    metrics = self.metric_model.query_by_time_interval(room, l[i].checkpoint, l[i + 1].checkpoint)
                     r.start_temperature, r.end_temperature = metrics[0].temperature, metrics[-1].temperature
+                    if type(r.start_temperature) is not float:
+                        r.start_temperature, r.end_temperature = float(r.start_temperature), float(r.end_temperature)
                     reports.append(r)
                 left, right = right + 1, right + 2
-        return reports, events, id2roomid
+        return reports, events, id2room_id
 
 
 

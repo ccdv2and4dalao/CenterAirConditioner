@@ -1,17 +1,21 @@
-﻿from abstract.service.admin import AdminGenerateReportService
+﻿import datetime
+
+from abstract.model import ReportModel, EventType
+from abstract.service.admin import AdminGenerateReportService
+from lib.injector import Injector
 from proto import FailedResponse
 from proto.admin.generate_report import AdminGenerateReportRequest, AdminGenerateReportResponse
-from abstract.model import ReportModel, Report, EventType
-from lib.injector import Injector
-import time
+
 
 class AdminGenerateReportServiceImpl(AdminGenerateReportService):
     def __init__(self, inj: Injector):
-        self.report_model = inj.require(ReportModel) # type: ReportModel
+        self.report_model = inj.require(ReportModel)  # type: ReportModel
 
     def serve(self, req: AdminGenerateReportRequest) -> AdminGenerateReportResponse or FailedResponse:
         if req.stop_time == '':
-            req.stop_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            req.stop_time = datetime.datetime.now()
+        else:
+            req.stop_time = datetime.datetime.strptime(req.stop_time, '%Y-%m-%d %H:%M:%S')
         reports, events, id2roomid = self.report_model.get_reports(req.stop_time, req.type)
         d = {}
         for report in reports:

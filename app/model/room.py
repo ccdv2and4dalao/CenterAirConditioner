@@ -7,9 +7,10 @@ class RoomModelImpl(SQLModel, RoomModel):
     def create(self) -> bool:
         return self.db.create(f"""
         create table if not exists {Room.table_name} (
-            {Room.id_key} integer primary key autoincrement,
+            {Room.id_key} integer primary key {self.db.auto_increment},
             {Room.room_id_key} VARCHAR(19),
-            {Room.app_key_key} VARCHAR(65)
+            {Room.app_key_key} VARCHAR(65),
+            {Room.room_privilege} integer
         )""")
 
     def insert(self, room_id: str, app_key: str):
@@ -31,9 +32,13 @@ class RoomModelImpl(SQLModel, RoomModel):
 
     def query_by_room_id(self, room_id: str):
         data = self.select_1(Room.table_name, Room.room_id_key, room_id)
-        return data and Room(inc_id=data[0][0], room_id=data[0][1], app_key=data[0][2])
+        return data and Room(inc_id=data[0][0], room_id=data[0][1], app_key=data[0][2], privilege=data[0][3])
 
     def delete_by_room_id(self, room_id: str):
         return self.db.delete(f'''
         delete from {Room.table_name} where {Room.room_id_key} = {self.db.placeholder}
         ''', room_id)
+
+    def query_by_id(self, _id: int):
+        data = self.select_1(Room.table_name, Room.id_key, _id)
+        return data and Room(*data[0])

@@ -39,7 +39,7 @@ class StatisticModelImpl(SQLModel, StatisticModel):
     def create(self, *args) -> bool:
         return self.db.create(f"""
         create table if not exists {Statistic.table_name} (
-            {Statistic.id_key} integer primary key autoincrement,
+            {Statistic.id_key} integer primary key {self.db.auto_increment},
             {Statistic.room_id_key} integer,
             {Statistic.checkpoint_key} timestamp default CURRENT_TIMESTAMP,
             {Statistic.current_energy_key} decimal(15, 2),
@@ -71,7 +71,7 @@ class StatisticModelImpl(SQLModel, StatisticModel):
         data = self.db.select(f'''
         select * from {Statistic.table_name} where
             {Statistic.room_id_key} = {self.db.placeholder} and {Statistic.checkpoint_key} between {self.db.placeholder} and {self.db.placeholder}
-        ''', room_id, lib.dateutil.to_utc(start_time), lib.dateutil.to_utc(stop_time))
+        ''', room_id, lib.dateutil.to_local(start_time), lib.dateutil.to_local(stop_time))
         if data is None:
             return None
 
@@ -81,7 +81,7 @@ class StatisticModelImpl(SQLModel, StatisticModel):
         data = self.db.select(f'''
         select sum({Statistic.current_energy_key}), sum({Statistic.current_cost_key}) from {Statistic.table_name} where
             {Statistic.room_id_key} = {self.db.placeholder} and {Statistic.checkpoint_key} between {self.db.placeholder} and {self.db.placeholder}
-        ''', room_id, lib.dateutil.to_utc(start_time), lib.dateutil.to_utc(stop_time))
+        ''', room_id, lib.dateutil.to_local(start_time), lib.dateutil.to_local(stop_time))
         if data is None:
             return None
         return data[0]

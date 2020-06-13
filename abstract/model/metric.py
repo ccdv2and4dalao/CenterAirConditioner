@@ -17,7 +17,7 @@ class Metric:
 
     def __init__(self):
         self.id = 0  # type: int
-        self.room_id = ''  # type: str
+        self.room_id = 0  # type: int
         self.checkpoint = ''  # type: str
         self.fan_speed = ''  # type: str
         self.temperature = 0.0  # type: float
@@ -29,9 +29,9 @@ class MetricModel(Model):
         pass
 
     @abstractmethod
-    def insert(self, room_id: str, fan_speed: str, temperature: float, checkpoint=None) -> int:
+    def insert(self, room_id: int, fan_speed: str, temperature: float, checkpoint=None) -> int:
         pass
 
     @abstractmethod
-    def query_by_time_interval(self, room_id: str, start_time: str, stop_time: str) -> List[Metric]:
+    def query_by_time_interval(self, room_id: int, start_time: str, stop_time: str) -> List[Metric]:
         pass

@@ -16,14 +16,14 @@ class MetricsModelImpl(SQLModel, MetricModel):
     def create(self, *args) -> bool:
         return self.db.create(f"""
         create table if not exists {Metric.table_name} (
-            {Metric.id_key} integer primary key autoincrement,
-            {Metric.room_id_key} varchar(19),
+            {Metric.id_key} integer primary key {self.db.auto_increment},
+            {Metric.room_id_key} integer,
             {Metric.checkpoint_key} timestamp default CURRENT_TIMESTAMP,
             {Metric.fan_speed_key} varchar(5),
             {Metric.temperature_key} decimal(15, 2)
         )""")
 
-    def insert(self, room_id: str, fan_speed: str, temperature: float, checkpoint=None) -> int:
+    def insert(self, room_id: int, fan_speed: str, temperature: float, checkpoint=None) -> int:
         if checkpoint is None:
             return self.db.insert(f'''
             insert into {Metric.table_name} (
@@ -43,7 +43,7 @@ class MetricsModelImpl(SQLModel, MetricModel):
         ({self.db.placeholder}, {self.db.placeholder}, {self.db.placeholder}, {self.db.placeholder})
         ''', room_id, checkpoint, fan_speed, temperature)
 
-    def query_by_time_interval(self, room_id: str, start_time: str, stop_time: str):
+    def query_by_time_interval(self, room_id: int, start_time: str, stop_time: str):
         data = self.db.select(f'''
         select * from {Metric.table_name} where
             {Metric.room_id_key} = {self.db.placeholder} and {Metric.checkpoint_key} between {self.db.placeholder} and {self.db.placeholder}
@@ -51,4 +51,4 @@ class MetricsModelImpl(SQLModel, MetricModel):
         if data is None:
             return None
 
-        return list(map(MetricsTupleProxy, data))
+        return [MetricsTupleProxy(*d) for d in data]
