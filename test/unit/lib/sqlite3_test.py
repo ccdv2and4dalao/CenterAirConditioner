@@ -112,3 +112,7 @@ class Sqlite3Test(BasicSQLTest):
             await t2
 
         asyncio.run(main(self))
+
+
+if __name__ == '__main__':
+    unittest.main()
