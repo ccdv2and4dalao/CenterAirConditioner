@@ -3,35 +3,15 @@ from typing import List, Optional
 from abstract.model.event import EventModel, Event, EventType
 from app.model.model import SQLModel
 import lib.dateutil
+from collections import namedtuple
 
-class EventTupleProxy:
-    def __init__(self, tup):
-        self.tup = tup
-        #self.id = 0  # type: int
-        #self.room_id = 0  # type: int
-        #self.checkpoint = ''  # type: str
-        #self.event_type = ''  # type: str
-        #self.str_arg = ''  # type: str
-
-    @property
-    def id():
-        return self.tup[0]
-
-    @property
-    def room_id():
-        return self.tup[1]
-
-    @property
-    def checkpoint():
-        return self.tup[2]
-
-    @property
-    def event_type():
-        return self.tup[3]
-
-    @property
-    def str_arg():
-        return self.tup[4]
+EventTupleProxy = namedtuple('MetricsTupleProxy', [
+    Event.id_key,
+    Event.room_id_key,
+    Event.checkpoint_key,
+    Event.event_type_key,
+    Event.str_arg_key,
+])
 
 
 
@@ -115,9 +95,9 @@ class EventModelImpl(SQLModel, EventModel):
 
     def query_by_time_interval(self, room_id, start_time, stop_time) -> List[Event]:
         if type(start_time) is not str:
-            start_time = lib.dateutil.to_utc(start_time)
+            start_time = lib.dateutil.to_local(start_time)
         if type(stop_time) is not str:
-            stop_time = lib.dateutil.to_utc(stop_time)
+            stop_time = lib.dateutil.to_local(stop_time)
         if room_id is None:
             sql = f'''
             SELECT * FROM {Event.table_name}
@@ -134,20 +114,20 @@ class EventModelImpl(SQLModel, EventModel):
         if data is None:
             return None
 
-        return list(map(EventTupleProxy, data))
+        return [EventTupleProxy(*d) for d in data]
 
     def query_last_connect_event(self, room_id) -> Optional[Event]:
         if type(start_time) is not str:
-            start_time = lib.dateutil.to_utc(start_time)
+            start_time = lib.dateutil.to_local(start_time)
         if type(stop_time) is not str:
-            stop_time = lib.dateutil.to_utc(stop_time)
+            stop_time = lib.dateutil.to_local(stop_time)
         sql = f'''
         SELECT * FROM {Event.table_name}
         WHERE {Event.event_type_key} = {self.db.placeholder} 
         AND {Event.room_id_key} = {self.db.placeholder}
         '''
         data = self.db.select(sql, EventType.Connect, room_id)
-        return EventTupleProxy(data[-1][0]) if data is not None else None
+        return EventTupleProxy(*data[-1]) if data is not None else None
 
 
 if __name__ == '__main__':

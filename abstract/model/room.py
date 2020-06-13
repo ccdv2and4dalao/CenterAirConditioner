@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List
+from typing import List, Optional
 
 from abstract.model.model import Model
 
@@ -71,4 +71,8 @@ class RoomModel(Model):
         :param room_id: 房间号（墙上的名字）
         :return: 删除是否成功
         """
+        pass
+
+    @abstractmethod
+    def query_by_id(self, _id: int) -> Optional[Room]:
         pass

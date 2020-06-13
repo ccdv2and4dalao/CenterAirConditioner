@@ -38,3 +38,7 @@ class RoomModelImpl(SQLModel, RoomModel):
         return self.db.delete(f'''
         delete from {Room.table_name} where {Room.room_id_key} = {self.db.placeholder}
         ''', room_id)
+
+    def query_by_id(self, _id: int):
+        data = self.select_1(Room.table_name, Room.id_key, _id)
+        return data and Room(*data[0])
