@@ -12,11 +12,14 @@ class Room:
     room_id_key = "room_id"
     # 房间的app key
     app_key_key = "app_key"
+    # 房间的特权级
+    room_privilege = "room_privilege"
 
-    def __init__(self, inc_id=0, room_id='', app_key=''):
+    def __init__(self, inc_id=0, room_id='', app_key='', privilege=0):
         self.id = inc_id  # type: int
         self.room_id = room_id  # type: str
         self.app_key = app_key  # type: str
+        self.room_privilege = privilege # type: int
 
 
 class RoomModel(Model):
