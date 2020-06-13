@@ -1,5 +1,5 @@
-from .database import BaseSQLDatabaseImpl, KVDatabase
+from .database import BaseSQLDatabaseImpl, KVDatabase, sqlDatabase
 
 __all__ = [
-    'BaseSQLDatabaseImpl', 'KVDatabase'
+    'BaseSQLDatabaseImpl', 'KVDatabase', 'sqlDatabase'
 ]

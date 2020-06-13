@@ -1,6 +1,6 @@
 import lib.functional
 from abstract.component import ConfigurationProvider, OptionProvider, Logger, MasterAirCond, SystemEntropyProvider, \
-    UUIDGenerator, Dispatcher, ConnectionPool
+    UUIDGenerator, Dispatcher, ConnectionPool, MasterFanPipe
 # abstract layer
 from abstract.component.jwt import JWT
 from abstract.component.password_verifier import PasswordVerifier
@@ -17,13 +17,14 @@ from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatu
     AdminGenerateReportService
 from abstract.singleton import register_singletons
 # implementations
-from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
+from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl, MasterFanPipeImpl
 from app.config import APPVersion, APPDescription
 from app.controller import PingControllerFlaskImpl, ConnectControllerFlaskImpl
 from app.controller.admin import AdminControllerFlaskImpl
 from app.controller.metrics import MetricsControllerFlaskImpl
 from app.controller.slave_state_control import SlaveStateControlControllerFlaskImpl
 from app.controller.statistics import StatisticsControllerFlaskImpl
+from app.database import sqlDatabase
 from app.middleware.auth import AuthAdminMiddlewareImpl
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, MetricsModelImpl, \
     StatisticModelImpl, ReportModelImpl, EventModelImpl
@@ -123,7 +124,8 @@ class ServerBuilder:
             self.db_conn = SQLite3(memory=True)
             inj.provide(SQLDatabase, self.db_conn)
         else:
-            self.logger.warn("no database is connected")
+            inj.provide(SQLDatabase, sqlDatabase)
+            #self.logger.warn("no database is connected")
 
         # 配置
         inj.build(OptionProvider, StdArgParser)
@@ -131,6 +133,7 @@ class ServerBuilder:
 
         inj.build(UUIDGenerator, SystemEntropyUUIDGeneratorImpl)
         inj.build(PasswordVerifier, BCryptPasswordVerifier)
+        inj.build(MasterFanPipe, MasterFanPipeImpl)
         inj.build(MasterAirCond, MasterAirCondImpl)
         inj.build(JWT, PyJWTImpl)
 
@@ -199,6 +202,9 @@ class ServerBuilder:
         dispatcher.boot_up()
         self.create_table(inj)
         return inj
+
+    def build_console(self, inj: Injector = None):
+        pass
 
     def expose_service(self, inj: Injector = None):
         inj = inj or self.injector
