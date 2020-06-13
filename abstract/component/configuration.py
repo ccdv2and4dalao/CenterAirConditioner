@@ -32,6 +32,8 @@ class Configuration(object):
     class MasterDefault:
         default_temperature_key = 'default-temperature'
         mode_key = 'mode'
+        temp_contraint = {AirMode.Cool.value: range(18, 25+1),
+                          AirMode.Heat.value: range(25, 30+1)}
 
         def __init__(self,
                      default_temperature=None,

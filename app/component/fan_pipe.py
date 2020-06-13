@@ -7,6 +7,7 @@ from abstract.consensus import FanSpeed, AirMode
 class MasterFanPipeImpl(MasterFanPipe):
     def __init__(self, inj):
         self.socket_conn = inj.require(WebsocketConn)  # type: WebsocketConn
+
         self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
 
     def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode):

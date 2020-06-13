@@ -113,7 +113,8 @@ class StartStateControlServiceImplTest(BasicServiceTest):
 
         # assuming connection is in pool
         connection_pool = self.builder.injector.require(ConnectionPool)  # type: ConnectionPool
-        connection_pool.put('1234', self.user1_id, self.room1_id, False)
+        # connection_pool.put('1234', self.user1_id, self.room1_id, False)
+        connection_pool.put(self.user1_id, self.room1_id, False)
 
         req.token = '1234'
         req.mode = 'cool'

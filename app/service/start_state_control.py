@@ -27,6 +27,7 @@ class StartStateControlServiceImpl(BasicStateControlServiceImpl, StartStateContr
         current_mode = self.master_air_cond.mode.value
         if req.mode != current_mode:
             return ConflictMode(f'conflict with current mode: want {current_mode}, got {req.mode}')
+
         return None
 
     def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode) -> StartStateControlResponse or None:
