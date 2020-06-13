@@ -5,29 +5,41 @@ from flask import Flask, make_response
 from flask import request
 
 from abstract.consensus import FlowLabel
-from abstract.controller import PingController, ConnectController, DaemonAdminController
+from abstract.controller import PingController, ConnectController, DaemonAdminController, AdminController, \
+    MetricsController, StatisticsController, SlaveStateControlController
 from abstract.singleton import option_context, OptionArgument
 from lib import Serializer
 from lib.injector import Injector
 
 HTTPSpecItem = namedtuple('HTTPSpecItem', ['ctl_prop', 'path', 'methods', 'label'])
-MasterServerHTTPSpec = namedtuple('MasterServerHTTPSpec', ['ping', 'connect', 'admin'])
+MasterServerHTTPSpec = namedtuple(
+    'MasterServerHTTPSpec',
+    ['ping', 'connect', 'admin', 'metrics', 'slave_state_control', 'statistics'])
 DaemonServerHTTPSpec = namedtuple('DaemonServerHTTPSpec', ['ping', 'admin'])
 master_http_spec = MasterServerHTTPSpec(
     [
-        HTTPSpecItem('ping', '/ping', ['GET'], FlowLabel.Ping)
+        HTTPSpecItem('ping', '/ping', ['GET'], FlowLabel.Ping),
     ],
     [
-        HTTPSpecItem('connect', '/v1/connect', ['POST'], FlowLabel.Connect)
+        HTTPSpecItem('connect', '/v1/connect', ['POST'], FlowLabel.Connect),
     ],
     [
         HTTPSpecItem('set_mode', '/v1/admin/mode', ['POST'], FlowLabel.AdminSetMode),
         HTTPSpecItem('set_current_temperature', '/v1/admin/current-temp', ['POST'],
                      FlowLabel.AdminSetCurrentTemperature),
-        HTTPSpecItem('get_server_status', '/v1/admin/status', ['GET'], FlowLabel.AdminGetServerStatus),
-    ]
+        HTTPSpecItem('get_server_status', '/v1/admin/status', ['GET'], FlowLabel.GetServerStatus),
+    ],
+    [
+        HTTPSpecItem('update_metrics', '/v1/metrics', ['POST'], FlowLabel.UpdateMetrics),
+    ],
+    [
+        HTTPSpecItem('start_state_control', '/v1/state_control/start', ['POST'], FlowLabel.StartStateControl),
+        HTTPSpecItem('stop_state_control', '/v1/state_control/stop', ['POST'], FlowLabel.StopStateControl),
+    ],
+    [
+        HTTPSpecItem('generate_statistics', '/v1/statistics', ['GET'], FlowLabel.GenerateStatistics),
+    ],
 )
-
 daemon_http_spec = DaemonServerHTTPSpec(
     [
         HTTPSpecItem('ping', '/ping', ['GET'], FlowLabel.Ping)
@@ -132,7 +144,11 @@ class MasterFlaskRouter(FlaskRouter):
     def __init__(self, injector: Injector):
         super().__init__('center-air-conditioner-server')
         self.apply_ctl(injector.require(PingController), master_http_spec.ping)
+        self.apply_ctl(injector.require(AdminController), master_http_spec.admin)
         self.apply_ctl(injector.require(ConnectController), master_http_spec.connect)
+        self.apply_ctl(injector.require(MetricsController), master_http_spec.metrics)
+        self.apply_ctl(injector.require(StatisticsController), master_http_spec.statistics)
+        self.apply_ctl(injector.require(SlaveStateControlController), master_http_spec.slave_state_control)
 
 
 class DaemonFlaskRouter(FlaskRouter):

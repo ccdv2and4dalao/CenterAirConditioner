@@ -8,6 +8,8 @@ class FlowLabel(enum.Enum):
     StopStateControl = 4
     Metrics = 5
     GenerateStatistics = 6
+    GetServerStatus = 7
+    UpdateMetrics = 8
 
     AdminSetMode = 7
     AdminSetCurrentTemperature = 8

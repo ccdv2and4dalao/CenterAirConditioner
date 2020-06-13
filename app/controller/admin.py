@@ -39,12 +39,11 @@ class FlaskDaemonAdminControllerImpl(DaemonAdminController):
         return self.auth_admin(req.jwt_token) or self.rc.ok(self.shutdown_service.serve(req))
 
 
-class FlaskAdminControllerImpl(AdminController):
+class AdminControllerFlaskImpl(AdminController):
 
     def __init__(self, inj: Injector):
         self.rc = inj.require(RouteController)  # type: RouteController
         self.auth_admin = inj.require(AuthAdminMiddleware)  # type: AuthAdminMiddleware
-        self.shutdown_service = inj.require(AdminShutdownMasterService)
         self.generate_report_service = inj.require(AdminGenerateReportService)  # type: AdminGenerateReportService
         self.get_connectedSlaves_service = inj.require(
             AdminGetConnectedSlavesService)  # type: AdminGetConnectedSlavesService

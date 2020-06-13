@@ -1,11 +1,12 @@
 ﻿from proto import Request, Response
-from typing import Dict
+
 
 class AdminGenerateReportRequest(Request):
     def __init__(self):
         super().__init__()
-        self.type = '' # type: str ['day', 'week' 'month']
-        self.stop_time = '' # type: str
+        self.jwt_token = ''  # type: str
+        self.type = ''  # type: str # one of ['day', 'week' 'month']
+        self.stop_time = ''  # type: str
 
     def bind_dict(self, d: dict):
         if d is None:
@@ -15,6 +16,7 @@ class AdminGenerateReportRequest(Request):
 
     def bind_header(self, h):
         self.jwt_token = h['Authorization']
+
 
 class AdminGenerateReportResponse(Response):
     def __init__(self):
@@ -30,4 +32,3 @@ class AdminGenerateReportResponse(Response):
         '''
         super().__init__()
         self.room_list = []
-

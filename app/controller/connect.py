@@ -1,5 +1,3 @@
-from abc import abstractmethod
-
 from abstract.controller.connect import ConnectController
 from abstract.service import ConnectionService
 from app.router.flask import RouteController
@@ -13,6 +11,5 @@ class ConnectControllerFlaskImpl(ConnectController):
         self.rc = inj.require(RouteController)  # type: RouteController
         self.s = inj.require(ConnectionService)  # type: ConnectionService
 
-    @abstractmethod
     def connect(self, *args, **kwargs):
         return self.rc.ok(self.s.serve(self.rc.bind_json(ConnectionRequest)))

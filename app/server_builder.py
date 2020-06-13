@@ -4,12 +4,14 @@ from abstract.component import ConfigurationProvider, OptionProvider, Logger, Ma
 # abstract layer
 from abstract.component.jwt import JWT
 from abstract.component.password_verifier import PasswordVerifier
-from abstract.controller import PingController, ConnectController
+from abstract.controller import PingController, ConnectController, AdminController, MetricsController, \
+    StatisticsController, SlaveStateControlController
 from abstract.database import SQLDatabase
 from abstract.middleware.auth import AuthAdminMiddleware
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel, MetricModel, StatisticModel, \
     ReportModel, EventModel
-from abstract.service import ConnectionService, StartStateControlService, StopStateControlService
+from abstract.service import ConnectionService, StartStateControlService, StopStateControlService, MetricsService, \
+    GenerateStatisticService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
     AdminGenerateReportService
@@ -18,6 +20,10 @@ from abstract.singleton import register_singletons
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
 from app.config import APPVersion, APPDescription
 from app.controller import PingControllerFlaskImpl, ConnectControllerFlaskImpl
+from app.controller.admin import AdminControllerFlaskImpl
+from app.controller.metrics import MetricsControllerFlaskImpl
+from app.controller.slave_state_control import SlaveStateControlControllerFlaskImpl
+from app.controller.statistics import StatisticsControllerFlaskImpl
 from app.middleware.auth import AuthAdminMiddlewareImpl
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, MetricsModelImpl, \
     StatisticModelImpl, ReportModelImpl, EventModelImpl
@@ -29,6 +35,8 @@ from app.service.admin.get_slave_statistics import AdminGetSlaveStatisticsServic
 from app.service.admin.set_current_temperature import AdminSetCurrentTemperatureServiceImpl
 from app.service.admin.set_mode import AdminSetModeServiceImpl
 from app.service.connect import ConnectionServiceImpl
+from app.service.generate_statistics import GenerateStatisticServiceImpl
+from app.service.metrics import MetricsServiceImpl
 from app.service.start_state_control import StartStateControlServiceImpl
 from app.service.stop_state_control import StopStateControlServiceImpl
 # external dependencies
@@ -132,6 +140,7 @@ class ServerBuilder:
         inj.provide(Dispatcher, QueueDispatcherWithThreadPool())
         return inj
 
+    # noinspection DuplicatedCode
     def build_model(self, inj: Injector = None):
         inj = inj or self.injector
         inj.build(UserModel, UserModelImpl)
@@ -158,11 +167,14 @@ class ServerBuilder:
         inj.build(AuthAdminMiddleware, AuthAdminMiddlewareImpl)
         return inj
 
+    # noinspection DuplicatedCode
     def build_service(self, inj: Injector = None):
         inj = inj or self.injector
         inj.build(ConnectionService, ConnectionServiceImpl)
         inj.build(StartStateControlService, StartStateControlServiceImpl)
         inj.build(StopStateControlService, StopStateControlServiceImpl)
+        inj.build(MetricsService, MetricsServiceImpl)
+        inj.build(GenerateStatisticService, GenerateStatisticServiceImpl)
         inj.build(AdminGenerateReportService, AdminGenerateReportServiceImpl)
         inj.build(AdminGetConnectedSlavesService, AdminGetConnectedSlavesServiceImpl)
         inj.build(AdminGetServerStatusService, AdminGetServerStatusServiceImpl)
@@ -171,9 +183,14 @@ class ServerBuilder:
         inj.build(AdminSetModeService, AdminSetModeServiceImpl)
         return inj
 
+    # noinspection DuplicatedCode
     def build_controller(self, inj: Injector = None):
         inj.build(ConnectController, ConnectControllerFlaskImpl)
         inj.build(PingController, PingControllerFlaskImpl)
+        inj.build(AdminController, AdminControllerFlaskImpl)
+        inj.build(MetricsController, MetricsControllerFlaskImpl)
+        inj.build(StatisticsController, StatisticsControllerFlaskImpl)
+        inj.build(SlaveStateControlController, SlaveStateControlControllerFlaskImpl)
         return inj
 
     def boot_server(self, inj: Injector = None):
