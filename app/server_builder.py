@@ -1,9 +1,13 @@
+from flask import Flask
+
 import lib.functional
 from abstract.component import ConfigurationProvider, OptionProvider, Logger, MasterAirCond, SystemEntropyProvider, \
     UUIDGenerator, Dispatcher, ConnectionPool
 # abstract layer
+from abstract.component.fan_pipe import MasterFanPipe
 from abstract.component.jwt import JWT
 from abstract.component.password_verifier import PasswordVerifier
+from abstract.component.websocket_conn import WebsocketConn
 from abstract.controller import PingController, ConnectController, AdminController, MetricsController, \
     StatisticsController, SlaveStateControlController
 from abstract.database import SQLDatabase
@@ -14,11 +18,13 @@ from abstract.service import ConnectionService, StartStateControlService, StopSt
     GenerateStatisticService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
-    AdminGenerateReportService
+    AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService
+
 from abstract.singleton import register_singletons
 # implementations
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
-from app.config import APPVersion, APPDescription
+from app.component.fan_pipe import MasterFanPipeImpl
+from app.config import APPVersion, APPDescription, APPName
 from app.controller import PingControllerFlaskImpl, ConnectControllerFlaskImpl
 from app.controller.admin import AdminControllerFlaskImpl
 from app.controller.metrics import MetricsControllerFlaskImpl
@@ -34,11 +40,14 @@ from app.service.admin.get_server_status import AdminGetServerStatusServiceImpl
 from app.service.admin.get_slave_statistics import AdminGetSlaveStatisticsServiceImpl
 from app.service.admin.set_current_temperature import AdminSetCurrentTemperatureServiceImpl
 from app.service.admin.set_mode import AdminSetModeServiceImpl
+from app.service.admin.boot import AdminBootMasterServiceImpl
+from app.service.admin.shutdown import AdminShutdownMasterServiceImpl
 from app.service.connect import ConnectionServiceImpl
 from app.service.generate_statistics import GenerateStatisticServiceImpl
 from app.service.metrics import MetricsServiceImpl
 from app.service.start_state_control import StartStateControlServiceImpl
 from app.service.stop_state_control import StopStateControlServiceImpl
+
 # external dependencies
 from lib import std_logging
 from lib.arg_parser import StdArgParser
@@ -48,6 +57,7 @@ from lib.injector import Injector
 from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl
 from lib.py_jwt import PyJWTImpl
 from lib.serializer import JSONSerializer, Serializer
+from lib.socket_io import functional_flask_socket_io_connection_impl
 from lib.sql_sqlite3 import SQLite3
 from lib.system_entropy_provider import SystemEntropyProviderImpl
 from lib.system_entropy_uuid import SystemEntropyUUIDGeneratorImpl
@@ -103,6 +113,7 @@ class ServerBuilder:
     def build_global_vars(self, inj: Injector):
         inj.provide(APPVersion, 'v0.1.0')
         inj.provide(APPDescription, 'center air conditioner base on flask')
+        inj.provide(APPName, 'center-air-conditioner-server')
         return inj
 
     def build_external_dependency(self, inj: Injector):
@@ -131,7 +142,6 @@ class ServerBuilder:
 
         inj.build(UUIDGenerator, SystemEntropyUUIDGeneratorImpl)
         inj.build(PasswordVerifier, BCryptPasswordVerifier)
-        inj.build(MasterAirCond, MasterAirCondImpl)
         inj.build(JWT, PyJWTImpl)
 
         inj.provide(ConnectionPool, SafeMemoryConnectionPoolImpl())
@@ -139,6 +149,11 @@ class ServerBuilder:
         # todo: should provide parameters later
         # inj.build(Dispatcher, PriQueueDispatcher())
         inj.provide(Dispatcher, QueueDispatcherWithThreadPool())
+        inj.provide(Flask, Flask(APPName))
+
+        inj.provide(WebsocketConn, functional_flask_socket_io_connection_impl(inj))
+        inj.build(MasterFanPipe, MasterFanPipeImpl)
+        inj.build(MasterAirCond, MasterAirCondImpl)
         return inj
 
     # noinspection DuplicatedCode
@@ -182,6 +197,8 @@ class ServerBuilder:
         inj.build(AdminGetSlaveStatisticsService, AdminGetSlaveStatisticsServiceImpl)
         inj.build(AdminSetCurrentTemperatureService, AdminSetCurrentTemperatureServiceImpl)
         inj.build(AdminSetModeService, AdminSetModeServiceImpl)
+        inj.build(AdminBootMasterService, AdminBootMasterServiceImpl)
+        inj.build(AdminShutdownMasterService, AdminShutdownMasterServiceImpl)
         return inj
 
     # noinspection DuplicatedCode

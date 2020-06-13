@@ -24,3 +24,7 @@ class ConnectionResponse(Response):
         self.metric_delay = 0  # type: int
         self.update_delay = 0  # type: int
         self.mode = ''  # type: str
+        self.cool_min = 0
+        self.cool_max = 0
+        self.heat_min = 0
+        self.heat_max = 0

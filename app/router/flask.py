@@ -120,8 +120,8 @@ option_context.arguments.append(OptionArgument(
 
 
 class FlaskRouter(object):
-    def __init__(self, name):
-        self.app = Flask(name)
+    def __init__(self, inj):
+        self.app = inj.require(Flask)  # type: Flask
 
     def run(self, host: str, port: str, debug: bool = True):
         self.app.run(host, port, debug=debug)
@@ -142,7 +142,7 @@ class FlaskRouter(object):
 
 class MasterFlaskRouter(FlaskRouter):
     def __init__(self, injector: Injector):
-        super().__init__('center-air-conditioner-server')
+        super().__init__(injector)
         self.apply_ctl(injector.require(PingController), master_http_spec.ping)
         self.apply_ctl(injector.require(AdminController), master_http_spec.admin)
         self.apply_ctl(injector.require(ConnectController), master_http_spec.connect)
@@ -153,6 +153,6 @@ class MasterFlaskRouter(FlaskRouter):
 
 class DaemonFlaskRouter(FlaskRouter):
     def __init__(self, injector: Injector):
-        super().__init__('center-air-conditioner-daemon')
+        super().__init__(injector)
         self.apply_ctl(injector.require(PingController), master_http_spec.ping)
         self.apply_ctl(injector.require(DaemonAdminController), daemon_http_spec.admin)

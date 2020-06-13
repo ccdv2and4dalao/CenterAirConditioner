@@ -124,10 +124,11 @@ class ReportModelImpl(SQLModel, ReportModel):
         return self.db.delete(sql, report_no)
 
     def get_reports(self, stop_time: datetime.datetime, report_duration: str) -> Tuple[List[Report], List[Event], Dict[int, str]]:
-        if report_duration.lower() not in ['day', 'month', 'week']:
+        report_duration = report_duration.lower()
+        if report_duration not in ['day', 'month', 'week']:
             raise ValueError('report duration should in [day, month, week]')
         
-        days = 1 if day else 7 if week else 30
+        days = 1 if report_duration == 'day' else 7 if report_duration == 'week' else 30
         start_time = stop_time - datetime.timedelta(days=days)
         events = self.event_model.query_by_time_interval(None, start_time, stop_time) 
 
