@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import List
 
 from abstract.model.model import Model
 
@@ -45,6 +46,15 @@ class RoomModel(Model):
         """
         :param room_id: 房间号（墙上的名字）
         :return: room或返回None
+        """
+        pass
+
+    @abstractmethod
+    def query_page(self, page_size: int = None, page_number: int = None) -> List[Room]:
+        """
+        :param page_size: 页大小
+        :param page_number: 页偏移
+        :return: List[Room]或返回None
         """
         pass
 

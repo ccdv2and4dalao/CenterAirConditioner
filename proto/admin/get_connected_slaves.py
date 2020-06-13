@@ -18,6 +18,19 @@ class AdminGetConnectedSlavesRequest(Request):
         self.jwt_token = h['Authorization']
 
 
+# 按照从机所在不同房间，每个房间至少显示：房间号(从机号或IP等)、开关状态、当前温度、送风状态、当前风速
+class AdminGetConnectedSlaveResponse(object):
+    def __init__(self, inc_id: int = 0, room_id: str = '', connected=False, current_temperature=0.0, need_fan=False,
+                 fan_speed=''):
+        self.id = inc_id  # type: int
+        self.room_id = room_id  # type: str
+        self.connected = connected  # type: bool
+        self.current_temperature = current_temperature  # type: float
+        self.need_fan = need_fan  # type: bool
+        self.fan_speed = fan_speed  # type: str
+
+
 class AdminGetConnectedSlavesResponse(Response):
-    def __init__(self):
+    def __init__(self, data=None):
         super().__init__()
+        self.data = data or []  # type: list

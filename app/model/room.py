@@ -19,6 +19,16 @@ class RoomModelImpl(SQLModel, RoomModel):
         values
         ({self.db.placeholder}, {self.db.placeholder})''', room_id, app_key)
 
+    def query_page(self, page_size: int = 10, page_number: int = 1):
+        # assuming MySQL Impl
+        data = self.db.select(f'''
+        select * from {Room.table_name} limit {self.db.placeholder}, {self.db.placeholder}
+        ''', page_size * (page_number - 1), page_size * page_number)
+        if data is None:
+            return None
+
+        return list(map(lambda d: Room(*d), data))
+
     def query_by_room_id(self, room_id: str):
         data = self.select_1(Room.table_name, Room.room_id_key, room_id)
         return data and Room(inc_id=data[0][0], room_id=data[0][1], app_key=data[0][2])
