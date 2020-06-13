@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Union
 
 
 class Connection(object):
@@ -20,6 +21,10 @@ class Connection(object):
         return False
 
     @property
+    def session_id(self) -> Union[str, None]:
+        return None
+
+    @property
     def fan_speed(self) -> str:
         return ''
 
@@ -32,6 +37,14 @@ class ConnectionPool(object):
 
     @abstractmethod
     def put_need_fan(self, room_id: int, need_fan: bool):
+        pass
+
+    @abstractmethod
+    def put_session_id(self, room_id: int, session_id: str):
+        pass
+
+    @abstractmethod
+    def close_session_connection(self, room_id: int):
         pass
 
     @abstractmethod
