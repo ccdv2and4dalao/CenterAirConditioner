@@ -1,13 +1,13 @@
-from socket import SocketIO
 
 from flask import Flask, request
+from flask_socketio import SocketIO
 
 from abstract.component import ConnectionPool
 from abstract.component.websocket_conn import WebsocketConn
 
 
 def functional_flask_socket_io_connection_impl(inj):
-    app = inj.Require(Flask)  # type: Flask
+    app = inj.require(Flask)  # type: Flask
     sio = SocketIO(app, cors_allowed_origins='*')
 
     class FunctionalSocketIOConnectionImpl(WebsocketConn):

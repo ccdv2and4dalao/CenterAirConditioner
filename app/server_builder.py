@@ -1,9 +1,13 @@
+from flask import Flask
+
 import lib.functional
 from abstract.component import ConfigurationProvider, OptionProvider, Logger, MasterAirCond, SystemEntropyProvider, \
     UUIDGenerator, Dispatcher, ConnectionPool
 # abstract layer
+from abstract.component.fan_pipe import MasterFanPipe
 from abstract.component.jwt import JWT
 from abstract.component.password_verifier import PasswordVerifier
+from abstract.component.websocket_conn import WebsocketConn
 from abstract.controller import PingController, ConnectController, AdminController, MetricsController, \
     StatisticsController, SlaveStateControlController
 from abstract.database import SQLDatabase
@@ -18,7 +22,8 @@ from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatu
 from abstract.singleton import register_singletons
 # implementations
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
-from app.config import APPVersion, APPDescription
+from app.component.fan_pipe import MasterFanPipeImpl
+from app.config import APPVersion, APPDescription, APPName
 from app.controller import PingControllerFlaskImpl, ConnectControllerFlaskImpl
 from app.controller.admin import AdminControllerFlaskImpl
 from app.controller.metrics import MetricsControllerFlaskImpl
@@ -48,6 +53,7 @@ from lib.injector import Injector
 from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl
 from lib.py_jwt import PyJWTImpl
 from lib.serializer import JSONSerializer, Serializer
+from lib.socket_io import functional_flask_socket_io_connection_impl
 from lib.sql_sqlite3 import SQLite3
 from lib.system_entropy_provider import SystemEntropyProviderImpl
 from lib.system_entropy_uuid import SystemEntropyUUIDGeneratorImpl
@@ -103,6 +109,7 @@ class ServerBuilder:
     def build_global_vars(self, inj: Injector):
         inj.provide(APPVersion, 'v0.1.0')
         inj.provide(APPDescription, 'center air conditioner base on flask')
+        inj.provide(APPName, 'center-air-conditioner-server')
         return inj
 
     def build_external_dependency(self, inj: Injector):
@@ -138,6 +145,10 @@ class ServerBuilder:
 
         # todo: should provide parameters later
         inj.provide(Dispatcher, QueueDispatcherWithThreadPool())
+        inj.provide(Flask, Flask(APPName))
+
+        inj.provide(WebsocketConn, functional_flask_socket_io_connection_impl(inj))
+        inj.build(MasterFanPipe, MasterFanPipeImpl)
         return inj
 
     # noinspection DuplicatedCode
