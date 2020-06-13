@@ -23,9 +23,9 @@ class SQLite3(AsyncContext, SQLDatabase):
         self.db = None
         self.placeholder = "?"
         if memory:
-            self.db = sqlite3.connect(':memory:')
+            self.db = sqlite3.connect(':memory:', check_same_thread=False)
         else:
-            self.db = sqlite3.connect(connection_string)
+            self.db = sqlite3.connect(connection_string, check_same_thread=False)
 
     def __del__(self):
         self.db.close()

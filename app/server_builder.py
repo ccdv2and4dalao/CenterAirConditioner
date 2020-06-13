@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 
 import lib.functional
 from abstract.component import ConfigurationProvider, OptionProvider, Logger, MasterAirCond, SystemEntropyProvider, \
@@ -138,17 +139,17 @@ class ServerBuilder:
 
         inj.build(UUIDGenerator, SystemEntropyUUIDGeneratorImpl)
         inj.build(PasswordVerifier, BCryptPasswordVerifier)
-        inj.build(MasterAirCond, MasterAirCondImpl)
         inj.build(JWT, PyJWTImpl)
+        inj.provide(Flask, Flask(APPName))
 
         inj.provide(ConnectionPool, SafeMemoryConnectionPoolImpl())
 
         # todo: should provide parameters later
         inj.provide(Dispatcher, QueueDispatcherWithThreadPool())
-        inj.provide(Flask, Flask(APPName))
 
         inj.provide(WebsocketConn, functional_flask_socket_io_connection_impl(inj))
         inj.build(MasterFanPipe, MasterFanPipeImpl)
+        inj.build(MasterAirCond, MasterAirCondImpl)
         return inj
 
     # noinspection DuplicatedCode
@@ -176,6 +177,7 @@ class ServerBuilder:
         inj = inj or self.injector
         # inj.build(ReceiveRequestMiddleware, ReceiveRequestMiddlewareImpl)
         inj.build(AuthAdminMiddleware, AuthAdminMiddlewareImpl)
+        CORS(inj.require(Flask))
         return inj
 
     # noinspection DuplicatedCode
@@ -209,6 +211,10 @@ class ServerBuilder:
         dispatcher = inj.require(Dispatcher)  # type: Dispatcher
         dispatcher.boot_up()
         self.create_table(inj)
+        if self.cfg.use_test_database:
+            rm = inj.require(RoomModel)  # type: RoomModel
+            rm.insert('A-101', '1234')
+            rm.insert('A-102', '1234')
         return inj
 
     def expose_service(self, inj: Injector = None):

@@ -11,8 +11,8 @@ class AdminGetConnectedSlavesRequest(Request):
     def bind_dict(self, d: dict):
         if d is None:
             return
-        self.page_number = d['page_number']
-        self.page_size = d['page_size']
+        self.page_number = int(d['page_number'])
+        self.page_size = int(d['page_size'])
 
     def bind_header(self, h):
         self.jwt_token = h['Authorization']

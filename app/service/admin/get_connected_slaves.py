@@ -23,7 +23,7 @@ class AdminGetConnectedSlavesServiceImpl(AdminGetConnectedSlavesService):
                     inc_id=room.id,
                     room_id=room.room_id,
                     connected=False,
-                )
+                ).__dict__
             else:
                 rooms[i] = AdminGetConnectedSlaveResponse(
                     inc_id=room.id,
@@ -32,5 +32,5 @@ class AdminGetConnectedSlavesServiceImpl(AdminGetConnectedSlavesService):
                     current_temperature=conn.current_temperature,
                     need_fan=conn.need_fan,
                     fan_speed=conn.fan_speed,
-                )
+                ).__dict__
         return AdminGetConnectedSlavesResponse(data=rooms)

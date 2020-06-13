@@ -2,6 +2,7 @@ from threading import Lock
 from typing import Tuple
 
 from abstract.component import MasterAirCond, ConfigurationProvider, Configuration
+from abstract.component.fan_pipe import MasterFanPipe
 from abstract.consensus import FanSpeed, AirMode
 from lib.stoppable_thread import StoppableThread
 
