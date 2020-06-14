@@ -13,7 +13,7 @@ class Room:
     # 房间的app key
     app_key_key = "app_key"
     # 房间的特权级
-    room_privilege = "room_privilege"
+    room_privilege_key = "room_privilege"
 
     def __init__(self, inc_id=0, room_id='', app_key='', privilege=0):
         self.id = inc_id  # type: int
