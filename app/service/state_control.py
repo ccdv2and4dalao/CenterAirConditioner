@@ -1,7 +1,9 @@
 from abstract.component import Logger, Dispatcher, UUIDGenerator, MasterAirCond
 from abstract.component.connection_pool import ConnectionPool
-from abstract.model import EventModel
+from abstract.model import EventModel, StatisticModel
 from lib.injector import Injector
+from threading import Thread
+import time
 
 
 class BasicStateControlServiceImpl(object):
@@ -14,6 +16,8 @@ class BasicStateControlServiceImpl(object):
         self.dispatcher.on_fallback(self._fallback_request)
         self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
         self.logger = inj.require(Logger)  # type: Logger
+        self.statistic_model = inj.require(StatisticModel) # type: StatisticModel
+        self.active_map = {}
 
     def push_start_request(self, room_id, speed_fan, mode, tag):
         return self.dispatcher.push(
@@ -42,10 +46,13 @@ class BasicStateControlServiceImpl(object):
             self.logger.warn('failed supply', d)
             # self._update_statistics(failed response, tag)
         else:
-            self._update_statistics(req, tag)
             if is_stop:
+                self.active_map.pop(req['room_id'])
                 self.event_model.insert_stop_state_control_event(req['room_id'])
             else:
+                speed = req['speed']
+                self.active_map[req['room_id']] = 5 if speed == 'high' else 4 if speed == 'mid' else 3
+                Thread(target=self._update_statistics, args=(req, tag)).start()
                 self.event_model.insert_start_state_control_event(req['room_id'], req['speed_fan'])
 
     def _fallback_request(self, req: dict, tag: str) -> None:
@@ -53,4 +60,14 @@ class BasicStateControlServiceImpl(object):
         self.logger.warn('abort request', req)
 
     def _update_statistics(self, opaque: dict, tag: str) -> None:
-        pass
+        rid = opaque['room_id']
+        t = time.clock()
+        while rid in self.active_map.keys():
+            cur = time.clock()
+            self.statistic_model.insert(rid, (cur - t) * self.active_map[rid] / 5, 
+                                        (cur - t) * self.active_map[rid])
+            t = cur
+            sleep(1.0)
+        cur = time.clock()
+        self.statistic_model.insert(rid, (cur - t) * self.active_map[rid] / 5, 
+                                    (cur - t) * self.active_map[rid])
