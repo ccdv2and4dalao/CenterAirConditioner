@@ -13,9 +13,10 @@ class FlowLabel(enum.Enum):
     GetConnectedSlaves = 9
     GetConnectedSlave = 10
 
-    AdminSetMode = 7
-    AdminSetCurrentTemperature = 8
-    AdminGetServerStatus = 9
+    AdminSetMode = 101
+    AdminSetCurrentTemperature = 102
+    AdminGetServerStatus = 103
+    AdminGetSlaveStatistics = 104
 
     AdminLogin = 1001
     AdminBoot = 1002

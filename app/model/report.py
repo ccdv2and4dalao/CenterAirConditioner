@@ -154,7 +154,8 @@ class ReportModelImpl(SQLModel, ReportModel):
             id2room_id[room] = room_name
             left, right = 0, 1
             while left < len(l):
-                while l[right].event_type != EventType.Disconnect: right += 1
+                while right < len(l) and l[right].event_type != EventType.Disconnect: right += 1
+                if right >= len(l): break
                 for i in range(left + 1, right - 1, 2):
                     r = Report()
                     r.room_id = room_name

@@ -31,6 +31,7 @@ master_http_spec = MasterServerHTTPSpec(
         HTTPSpecItem('get_server_status', '/v1/admin/status', ['GET'], FlowLabel.GetServerStatus),
         HTTPSpecItem('get_connected_slaves', '/v1/admin/pool-list', ['GET'], FlowLabel.GetConnectedSlaves),
         HTTPSpecItem('get_connected_slave', '/v1/admin/pool', ['GET'], FlowLabel.GetConnectedSlave),
+        HTTPSpecItem('get_slave_statistics', '/v1/admin/slave/statistics', ['GET'], FlowLabel.AdminGetSlaveStatistics),
     ],
     [
         HTTPSpecItem('update_metrics', '/v1/metrics', ['POST'], FlowLabel.UpdateMetrics),

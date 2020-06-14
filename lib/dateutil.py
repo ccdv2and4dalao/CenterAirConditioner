@@ -1,5 +1,6 @@
-from dateutil.tz import tzutc, tzlocal
 import datetime
+
+from dateutil.tz import tzutc, tzlocal
 
 _utc = tzutc()
 _local = tzlocal()
@@ -21,6 +22,6 @@ def to_local(dt, format=True):
 
 def now(format=True):
     if format:
-        return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%s')
+        return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     else:
         return datetime.datetime.now()

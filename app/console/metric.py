@@ -1,4 +1,6 @@
-﻿from abstract.consensus import ConsolePrefix
+﻿from prettytable import PrettyTable
+
+from abstract.consensus import ConsolePrefix
 from abstract.console import MetricConsole
 from abstract.service.admin import AdminGetSlaveStatisticsService
 from app.console.base_subconsole import BaseSubConsoleImpl
@@ -14,3 +16,8 @@ class MetricConsoleImpl(MetricConsole, BaseSubConsoleImpl):
     def __call__(self, *args):
         r = AdminGetSlaveStatisticsRequest
         ret = self.metric_service.serve(r)
+        attrs = ['room_id', 'start_time', 'stop_time', 'fan_speed', 'energy', 'cost']
+        table = PrettyTable(attrs)
+        for d in ret.data:
+            table.add_row([d[attr] for attr in attrs])
+        print(table)
