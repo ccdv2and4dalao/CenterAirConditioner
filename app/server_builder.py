@@ -22,6 +22,7 @@ from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatu
     AdminGenerateReportService, AdminBootMasterService, AdminBootMasterDaemonService, AdminShutdownMasterService, \
     AdminShutdownMasterDaemonService, AdminGetConnectedSlaveService, \
     AdminSetUpdateDelayService, AdminSetMetricDelayService, AdminLoginService
+from abstract.service.admin.get_room_count import AdminGetRoomCountService
 from abstract.singleton import register_singletons
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
 from app.component.fan_pipe import MasterFanPipeImpl
@@ -41,6 +42,7 @@ from app.service.admin import AdminGenerateReportServiceImpl, AdminSetUpdateDela
     AdminSetMetricDelayServiceImpl
 from app.service.admin.boot import AdminBootMasterServiceImpl, AdminBootMasterDaemonServiceImpl
 from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl, AdminGetConnectedSlaveServiceImpl
+from app.service.admin.get_room_count import AdminGetRoomCountServiceImpl
 from app.service.admin.get_server_status import AdminGetServerStatusServiceImpl
 from app.service.admin.get_slave_statistics import AdminGetSlaveStatisticsServiceImpl
 from app.service.admin.login import AdminLoginServiceImpl
@@ -215,6 +217,7 @@ class ServerBuilder:
         inj.build(AdminShutdownMasterDaemonService, AdminShutdownMasterDaemonServiceImpl)
         inj.build(AdminSetMetricDelayService, AdminSetMetricDelayServiceImpl)
         inj.build(AdminSetUpdateDelayService, AdminSetUpdateDelayServiceImpl)
+        inj.build(AdminGetRoomCountService, AdminGetRoomCountServiceImpl)
         return inj
 
     # noinspection DuplicatedCode

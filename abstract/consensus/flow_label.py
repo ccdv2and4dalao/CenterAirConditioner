@@ -17,6 +17,7 @@ class FlowLabel(enum.Enum):
     AdminSetCurrentTemperature = 102
     AdminGetServerStatus = 103
     AdminGetSlaveStatistics = 104
+    AdminGetRoomCount = 105
 
     AdminLogin = 1001
     AdminBoot = 1002
