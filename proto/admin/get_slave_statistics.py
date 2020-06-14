@@ -34,4 +34,4 @@ class AdminGetSlaveStatisticsResponse(Response):
         }
         '''
         super().__init__()
-        self.statistic_list = []
+        self.data = []

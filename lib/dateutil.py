@@ -21,6 +21,6 @@ def to_local(dt, format=True):
 
 def now(format=True):
     if format:
-        return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%s')
+        return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     else:
         return datetime.datetime.now()
