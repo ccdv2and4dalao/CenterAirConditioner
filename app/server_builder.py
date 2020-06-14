@@ -14,7 +14,7 @@ from abstract.controller import PingController, ConnectController, AdminControll
 from abstract.database import SQLDatabase
 from abstract.middleware.auth import AuthAdminMiddleware
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel, MetricModel, StatisticModel, \
-    ReportModel, EventModel
+    ReportModel, EventModel, Room
 from abstract.service import ConnectionService, StartStateControlService, StopStateControlService, MetricsService, \
     GenerateStatisticService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
@@ -226,8 +226,36 @@ class ServerBuilder:
         self.create_table(inj)
         if self.cfg.use_test_database:
             rm = inj.require(RoomModel)  # type: RoomModel
+            mm = inj.require(MetricModel)  # type: MetricModel
+            em = inj.require(EventModel)  # type: EventModel
+            sm = inj.require(StatisticModel)  # type: StatisticModel
             rm.insert('A-101', '1234')
             rm.insert('A-102', '1234')
+            # mm.insert('A-101', '1234')
+            # mm.insert('A-102', '1234')r = Room(room_id='metric_test')
+            r = Room(room_id='metric_test')
+            rid = rm.insert(r.room_id, r.app_key)
+            r2 = Room(room_id='metric_test2')
+            r2id = rid = rm.insert(r2.room_id, r2.app_key)
+
+            em.insert_connect_event(rid)
+            em.insert_start_state_control_event(rid, 'high')
+            mm.insert(rid, 'high', 24.0)
+            sm.insert(rid, 2.0, 10.0)
+            em.insert_start_state_control_event(r2id, 'low')
+            mm.insert(rid, 'high', 23.0)
+            sm.insert(r2id, 1.0, 5.0)
+            sm.insert(rid, 2.0, 10.0)
+            mm.insert(r2id, 'low', 24.0)
+            sm.insert(rid, 0.2, 1.0)
+            em.insert_stop_state_control_event(rid)
+            mm.insert(r2id, 'low', 23.0)
+            em.insert_disconnect_event(rid)
+            sm.insert(r2id, 1.0, 5.0)
+            mm.insert(r2id, 'low', 22.0)
+            sm.insert(r2id, 0.5, 2.5)
+            em.insert_stop_state_control_event(r2id)
+            em.insert_disconnect_event(r2id)
         return inj
 
     def expose_service(self, inj: Injector = None):
