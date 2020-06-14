@@ -3,7 +3,7 @@ from abstract.middleware.auth import AuthAdminMiddleware
 from abstract.service.admin import AdminLoginService, AdminBootMasterService, AdminShutdownMasterService, \
     AdminGenerateReportService, \
     AdminGetConnectedSlavesService, AdminGetServerStatusService, AdminGetSlaveStatisticsService, \
-    AdminSetCurrentTemperatureService, AdminSetModeService, AdminBootMasterService, AdminShutdownMasterService
+    AdminSetCurrentTemperatureService, AdminSetModeService, AdminBootMasterService, AdminBootMasterDaemonService, AdminShutdownMasterService, AdminShutdownMasterDaemonService
 from abstract.service.admin.get_connected_slaves import AdminGetConnectedSlaveService
 from app.router.flask import RouteController
 from lib.injector import Injector
@@ -25,8 +25,8 @@ class FlaskDaemonAdminControllerImpl(DaemonAdminController):
         self.rc = inj.require(RouteController)  # type: RouteController
         self.auth_admin = inj.require(AuthAdminMiddleware)  # type: AuthAdminMiddleware
         self.login_service = inj.require(AdminLoginService)
-        self.boot_service = inj.require(AdminBootMasterService)
-        self.shutdown_service = inj.require(AdminShutdownMasterService)
+        self.boot_service = inj.require(AdminBootMasterDaemonService)
+        self.shutdown_service = inj.require(AdminShutdownMasterDaemonService)
 
     def login(self, *args, **kwargs):
         return self.rc.ok(self.login_service.serve(self.rc.bind(AdminLoginRequest)))

@@ -10,3 +10,10 @@ class AdminBootMasterService(Service, ABC):
     @abstractmethod
     def serve(self, req: AdminBootMasterRequest) -> AdminBootMasterResponse or FailedResponse:
         pass
+
+
+class AdminBootMasterDaemonService(Service, ABC):
+
+    @abstractmethod
+    def serve(self, req: AdminBootMasterRequest) -> AdminBootMasterResponse or FailedResponse:
+        pass

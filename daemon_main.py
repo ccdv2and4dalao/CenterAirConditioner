@@ -6,14 +6,14 @@ from abstract.component import OptionProvider, Logger, ConfigurationProvider, Sy
 from abstract.component.jwt import JWT
 from abstract.controller import PingController, DaemonAdminController
 from abstract.middleware.auth import AuthAdminMiddleware
-from abstract.service.admin import AdminLoginService, AdminBootMasterService, AdminShutdownMasterService
+from abstract.service.admin import AdminLoginService, AdminBootMasterService, AdminBootMasterDaemonService, AdminShutdownMasterService, AdminShutdownMasterDaemonService
 from abstract.singleton import register_singletons
 from app.config import APPVersion, APPDescription, APPName
 from app.controller.admin import FlaskDaemonAdminControllerImpl
 from app.controller.ping import PingControllerFlaskImpl
 from app.middleware.auth import AuthAdminMiddlewareImpl
 from app.router.flask import DaemonFlaskRouter, FlaskRouteController, RouteController
-from app.service.admin import AdminLoginServiceImpl, AdminBootMasterServiceImpl, AdminShutdownMasterServiceImpl
+from app.service.admin import AdminLoginServiceImpl, AdminBootMasterServiceImpl,  AdminBootMasterDaemonServiceImpl, AdminShutdownMasterServiceImpl, AdminShutdownMasterDaemonServiceImpl
 from lib import std_logging
 from lib.arg_parser import StdArgParser
 from lib.file_configuration import FileConfigurationProvider
@@ -59,8 +59,8 @@ def inject_middleware(inj: Injector):
 
 def inject_service(inj: Injector):
     inj.build(AdminLoginService, AdminLoginServiceImpl)
-    inj.build(AdminBootMasterService, AdminBootMasterServiceImpl)
-    inj.build(AdminShutdownMasterService, AdminShutdownMasterServiceImpl)
+    inj.build(AdminBootMasterDaemonService, AdminBootMasterDaemonServiceImpl)
+    inj.build(AdminShutdownMasterDaemonService, AdminShutdownMasterDaemonServiceImpl)
 
     return inj
 

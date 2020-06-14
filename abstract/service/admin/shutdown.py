@@ -10,3 +10,10 @@ class AdminShutdownMasterService(Service, ABC):
     @abstractmethod
     def serve(self, req: AdminShutdownRequest) -> AdminShutdownResponse or FailedResponse:
         pass
+
+
+class AdminShutdownMasterDaemonService(Service, ABC):
+
+    @abstractmethod
+    def serve(self, req: AdminShutdownRequest) -> AdminShutdownResponse or FailedResponse:
+        pass

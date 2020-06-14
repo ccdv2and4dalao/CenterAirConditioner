@@ -19,7 +19,7 @@ from abstract.service import ConnectionService, StartStateControlService, StopSt
     GenerateStatisticService, DisConnectionService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
-    AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService, AdminGetConnectedSlaveService, \
+    AdminGenerateReportService, AdminBootMasterService, AdminBootMasterDaemonService, AdminShutdownMasterService, AdminShutdownMasterDaemonService, AdminGetConnectedSlaveService, \
     AdminSetUpdateDelayService, AdminSetMetricDelayService, AdminLoginService
 from abstract.singleton import register_singletons
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
@@ -38,14 +38,14 @@ from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelI
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
 from app.service.admin import AdminGenerateReportServiceImpl, AdminSetUpdateDelayServiceImpl, \
     AdminSetMetricDelayServiceImpl
-from app.service.admin.boot import AdminBootMasterServiceImpl
+from app.service.admin.boot import AdminBootMasterServiceImpl, AdminBootMasterDaemonServiceImpl
 from app.service.admin.login import AdminLoginServiceImpl
 from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl, AdminGetConnectedSlaveServiceImpl
 from app.service.admin.get_server_status import AdminGetServerStatusServiceImpl
 from app.service.admin.get_slave_statistics import AdminGetSlaveStatisticsServiceImpl
 from app.service.admin.set_current_temperature import AdminSetCurrentTemperatureServiceImpl
 from app.service.admin.set_mode import AdminSetModeServiceImpl
-from app.service.admin.shutdown import AdminShutdownMasterServiceImpl
+from app.service.admin.shutdown import AdminShutdownMasterServiceImpl, AdminShutdownMasterDaemonServiceImpl
 from app.service.connect import ConnectionServiceImpl
 from app.service.generate_statistics import GenerateStatisticServiceImpl
 from app.service.metrics import MetricsServiceImpl
@@ -208,6 +208,8 @@ class ServerBuilder:
         inj.build(AdminLoginService, AdminLoginServiceImpl)
         inj.build(AdminBootMasterService, AdminBootMasterServiceImpl)
         inj.build(AdminShutdownMasterService, AdminShutdownMasterServiceImpl)
+        inj.build(AdminBootMasterDaemonService, AdminBootMasterDaemonServiceImpl)
+        inj.build(AdminShutdownMasterDaemonService, AdminShutdownMasterDaemonServiceImpl)
         inj.build(AdminSetMetricDelayService, AdminSetMetricDelayServiceImpl)
         inj.build(AdminSetUpdateDelayService, AdminSetUpdateDelayServiceImpl)
         return inj
