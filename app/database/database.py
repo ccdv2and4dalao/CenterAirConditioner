@@ -119,7 +119,6 @@ class BaseSQLDatabaseImpl(AsyncContext, SQLDatabase):
         return flag
 
 
-sqlDatabase = BaseSQLDatabaseImpl()
 
 
 class KVDatabaseImpl(KVDatabase):

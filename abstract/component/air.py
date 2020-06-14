@@ -47,6 +47,13 @@ class MasterAirCond(AirCond, Bootable):
         pass
 
     @abstractmethod
+    def get_delay_pari(self) -> Tuple[int, int]:
+        '''
+        return (update, metric) delay
+        '''
+        pass
+
+    @abstractmethod
     def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode):
         pass
 

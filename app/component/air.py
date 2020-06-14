@@ -13,6 +13,8 @@ class MasterAirCondImpl(StoppableThread, MasterAirCond):
         cfg = inj.require(ConfigurationProvider).get()  # type: Configuration
         self.mode = AirMode(cfg.master_default.mode)  # type: AirMode
         self.default_temperature = cfg.master_default.default_temperature  # type: float
+        self.update_delay = cfg.slave_default.update_delay
+        self.metric_delay = cfg.slave_default.metric_delay
         self.mutex = Lock()  # type: Lock
         self.fan_pipe = inj.require(MasterFanPipe) # type: MasterFanPipe
 
@@ -21,6 +23,15 @@ class MasterAirCondImpl(StoppableThread, MasterAirCond):
         p = (self.mode, self.default_temperature)
         self.mutex.release()
         return p
+
+    def get_delay_pair(self) -> Tuple[int, int]:
+        '''
+        return (update, metric) delay
+        '''
+        with self.mutex:
+            p = (self.update_delay, self.metric_delay)
+        return p
+        
 
     def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode):
         self.fan_pipe.start_supply(room_id, speed, mode)

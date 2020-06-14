@@ -15,9 +15,9 @@ class StatusConsoleImpl(StatusConsole, BaseSubConsoleImpl):
         r = AdminGetServerStatusRequest()
         ret = self.server_status_service.serve(r)
         if type(ret) is AdminGetServerStatusResponse:
-            print('Server Status:\n')
+            print('Server Status:')
             print(f'\tmode: {ret.mode}')
             print(f'\twork state: {ret.work_state}')
             print(f'\tcurrent temperature: {ret.current_temperature}')
             print(f'\tmetric delay: {ret.metric_delay}')
-            print(f'\tupdate delay: {ret.update_delay}')
+            print(f'\tstatistic delay: {ret.update_delay}')

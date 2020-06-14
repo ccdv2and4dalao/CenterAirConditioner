@@ -30,7 +30,7 @@ class AdminGetSlaveStatisticsServiceImpl(AdminGetSlaveStatisticsService):
                 if i + 1 < len(lists): 
                     r = lists[i + 1]
                     if r.event_type != EventType.StopControl:
-                        raise ValueError('event type mismatch: missing stop control')
+                        print('event type mismatch: missing stop control')
                 else:
                     r = Event()
                     r.checkpoint = now()

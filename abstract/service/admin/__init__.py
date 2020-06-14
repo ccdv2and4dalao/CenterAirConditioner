@@ -7,6 +7,8 @@ from .login import AdminLoginService
 from .set_current_temperature import AdminSetCurrentTemperatureService
 from .set_mode import AdminSetModeService
 from .shutdown import AdminShutdownMasterService
+from .set_metric_delay import AdminSetMetricDelayService
+from .set_update_delay import AdminSetUpdateDelayService
 
 __all__ = [
     'AdminBootMasterService',
@@ -19,4 +21,6 @@ __all__ = [
     'AdminGetSlaveStatisticsService',
     'AdminSetCurrentTemperatureService',
     'AdminSetModeService',
+    'AdminSetMetricDelayService',
+    'AdminSetUpdateDelayService'
 ]

@@ -29,7 +29,7 @@ class MainConsoleImpl(MainConsole, Thread):
             cmd = input('> ')
             self.parse(cmd)
             print('')
-
+            
     def register(self, prefix, obj):
         self.m[prefix] = obj
 

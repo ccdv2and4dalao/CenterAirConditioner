@@ -19,7 +19,8 @@ from abstract.service import ConnectionService, StartStateControlService, StopSt
     GenerateStatisticService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
-    AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService, AdminGetConnectedSlaveService
+    AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService, AdminGetConnectedSlaveService, \
+    AdminSetUpdateDelayService, AdminSetMetricDelayService
 from abstract.singleton import register_singletons
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
 from app.component.fan_pipe import MasterFanPipeImpl
@@ -30,12 +31,12 @@ from app.controller.metrics import MetricsControllerFlaskImpl
 from app.controller.slave_state_control import SlaveStateControlControllerFlaskImpl
 from app.controller.statistics import StatisticsControllerFlaskImpl
 # implementations
-from app.database import sqlDatabase
+from app.database import BaseSQLDatabaseImpl
 from app.middleware.auth import AuthAdminMiddlewareImpl
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, MetricsModelImpl, \
     StatisticModelImpl, ReportModelImpl, EventModelImpl
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
-from app.service.admin import AdminGenerateReportServiceImpl
+from app.service.admin import AdminGenerateReportServiceImpl, AdminSetUpdateDelayServiceImpl, AdminSetMetricDelayServiceImpl
 from app.service.admin.boot import AdminBootMasterServiceImpl
 from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl, AdminGetConnectedSlaveServiceImpl
 from app.service.admin.get_server_status import AdminGetServerStatusServiceImpl
@@ -134,7 +135,7 @@ class ServerBuilder:
             self.db_conn = SQLite3(memory=True)
             inj.provide(SQLDatabase, self.db_conn)
         else:
-            self.db_conn = sqlDatabase
+            self.db_conn = BaseSQLDatabaseImpl()
             self.db_conn.connect()
             inj.provide(SQLDatabase, self.db_conn)
             self.logger.warn("no database is connected")
@@ -204,6 +205,8 @@ class ServerBuilder:
         inj.build(AdminSetModeService, AdminSetModeServiceImpl)
         inj.build(AdminBootMasterService, AdminBootMasterServiceImpl)
         inj.build(AdminShutdownMasterService, AdminShutdownMasterServiceImpl)
+        inj.build(AdminSetMetricDelayService, AdminSetMetricDelayServiceImpl)
+        inj.build(AdminSetUpdateDelayService, AdminSetUpdateDelayServiceImpl)
         return inj
 
     # noinspection DuplicatedCode
