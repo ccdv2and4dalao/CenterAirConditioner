@@ -1,6 +1,7 @@
 import datetime
 import unittest
 
+import lib.dateutil
 from abstract.database import SQLDatabase
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, StatisticModelImpl, \
     MetricsModelImpl, ReportModelImpl
@@ -172,8 +173,10 @@ class StatisticModelImplTest(BasicSqlite3Test):
         self.assert_create_table()
         self.assertEqual(self.model.insert(2, 3, 4), 1, self.db.last_error_lazy)
         self.assertEqual(self.model.insert(2, 5, 6), 2, self.db.last_error_lazy)
-        total_energy, total_cost = self.model.query_sum_by_time_interval(2, datetime.datetime.now() - x,
-                                                                         datetime.datetime.now())
+        total_energy, total_cost = self.model.query_sum_by_time_interval(
+            2,
+            lib.dateutil.to_local(datetime.datetime.now() - x),
+            lib.dateutil.to_local(datetime.datetime.now()))
         self.assertEqual(total_energy, 8)
         self.assertEqual(total_cost, 10)
 
