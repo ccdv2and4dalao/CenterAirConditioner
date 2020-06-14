@@ -34,7 +34,7 @@ class MetricsServiceImpl(BaseMetricsServiceImpl):
         if req.mode != current_mode:
             return ConflictMode(f'conflict with current mode: want {current_mode}, got {req.mode}')
 
-        if req.temperature not in AirconTempConstraint.get_range(req.mode):
+        if req.temperature not in AirconTempConstraint.get_contraint(req.mode):
             return InvalidTargetTemperature(f'invalid target temperature : {req.temperature}')
         else:
             return None
