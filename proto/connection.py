@@ -12,6 +12,12 @@ class ConnectionRequest(Request):
             return
         self.room_id = d['room_id']
         self.id = d['id']
+        
+    def bind_header(self, h):
+        if h is None:
+            return
+        super().bind_header(h)
+        self.app_key = h['app_key']
 
 
 class ConnectionResponse(Response):
