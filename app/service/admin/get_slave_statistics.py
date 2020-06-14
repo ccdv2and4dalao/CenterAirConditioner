@@ -5,7 +5,7 @@ from dateutil.parser import parse
 from abstract.model import EventModel, EventType, Event, StatisticModel
 from abstract.service.admin.get_slave_statistics import AdminGetSlaveStatisticsService
 from app.service.generate_statistics import GenerateStatisticServiceImpl
-from lib.dateutil import now
+from lib.dateutil import now, to_local
 from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsResponse, AdminGetSlaveStatisticsRequest
 from proto import MasterAirCondNotAlive
 from abstract.component import MasterAirCond
@@ -48,8 +48,12 @@ class AdminGetSlaveStatisticsServiceImpl(GenerateStatisticServiceImpl, AdminGetS
                 i += 2
         data.sort(key=lambda x: x['start_time'])
         for d in data:
-            d['start_time'] = parse(d['start_time']).strftime("%Y-%m-%dT%H:%M:%SZ")
-            d['stop_time'] = parse(d['stop_time']).strftime("%Y-%m-%dT%H:%M:%SZ")
+            if type(d['start_time']) is datetime.datetime:
+                d['start_time'] = d['start_time'].strftime("%Y-%m-%dT%H:%M:%SZ")
+                d['stop_time'] = d['stop_time'].strftime("%Y-%m-%dT%H:%M:%SZ")
+            else:
+                d['start_time'] = parse(d['start_time']).strftime("%Y-%m-%dT%H:%M:%SZ")
+                d['stop_time'] = parse(d['stop_time']).strftime("%Y-%m-%dT%H:%M:%SZ")
             d['energy'] = float(d['energy'])
             d['cost'] = float(d['cost'])
         ret = AdminGetSlaveStatisticsResponse()

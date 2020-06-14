@@ -141,9 +141,9 @@ class ReportModelImpl(SQLModel, ReportModel):
 
         events = []
         for e in room_event.values():
-            while e[0].event_type != EventType.Connect:
+            while len(e) and e[0].event_type != EventType.Connect:
                 e.pop(0)
-            while e[-1].event_type != EventType.Disconnect:
+            while len(e) and e[-1].event_type != EventType.Disconnect:
                 e.pop()
             events.extend(e)
 

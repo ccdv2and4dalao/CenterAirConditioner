@@ -13,7 +13,6 @@ class MainConsoleImpl(MainConsole, Thread):
         self.setDaemon(True)
 
     def parse(self, cmd: str):
-        print(cmd)
         args = cmd.split(' ')
         try:
             self.m[args[0].lower()](*args[1:])
