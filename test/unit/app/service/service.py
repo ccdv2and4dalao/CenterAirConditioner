@@ -7,9 +7,12 @@ from abstract.model import UserModel, RoomModel, UserInRoomRelationshipModel
 from app.server_builder import ServerBuilder
 from app.service.connect import ConnectionServiceImpl
 from app.service.start_state_control import StartStateControlServiceImpl
+from app.service.metrics import MetricsServiceImpl
 from proto import WrongPassword, ServiceCode
 from proto.connection import ConnectionRequest
 from proto.start_state_control import StartStateControlRequest
+from proto.metrics import MetricsRequest
+from lib.dateutil import now
 
 
 class BasicServiceTest(unittest.TestCase):
@@ -119,3 +122,52 @@ class StartStateControlServiceImplTest(BasicServiceTest):
         req.mode = 'cool'
         req.speed = 'high'
         resp = self.service.serve(req)
+
+
+class MetricsServiceImplTest(BasicServiceTest):
+    def setUp(self) -> None:
+        super().setUp()
+        self.service = MetricsServiceImpl(self.builder.injector)
+        self.builder.create_table()
+
+    def test_metrics(self):
+        req = MetricsRequest()
+
+        # assuming connection is in pool
+        connection_pool = self.builder.injector.require(ConnectionPool)  # type: ConnectionPool
+        connection_pool.put(self.user1_id, self.room1_id, False)
+
+        # test case 1
+        req.token = '1234'
+        req.mode = 'cool'
+        req.fan_speed = 'low'
+        req.temperature = 25.1
+        checkpoint = now()
+        resp = self.service.serve(req)
+
+        self.assertEqual(resp.code, 8)
+
+        # test case 1
+        req.token = '1234'
+        req.mode = 'heat'
+        req.fan_speed = 'low'
+        req.temperature = 25.1
+        checkpoint = now()
+        resp = self.service.serve(req)
+
+        self.assertEqual(resp.code, 2)
+
+        # test case 1
+        req.token = '1234'
+        req.mode = 'cool'
+        req.fan_speed = 'high'
+        req.temperature = 24.9
+        checkpoint = now()
+        resp = self.service.serve(req)
+
+        self.assertEqual(resp.code, 0)
+
+if __name__ == '__main__':
+    t = MetricsServiceImplTest()
+    t.setUp()
+    t.test_metrics()
