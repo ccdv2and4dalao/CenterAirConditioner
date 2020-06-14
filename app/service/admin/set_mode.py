@@ -1,15 +1,16 @@
 from abstract.component import MasterAirCond
 from abstract.consensus import AirMode
 from abstract.service.admin.set_mode import AdminSetModeService
-from proto import FailedResponse, InvalidModeValue
+from proto import FailedResponse, InvalidModeValue, MasterAirCondNotAlive
 from proto.admin.set_mode import AdminSetModeRequest, AdminSetModeResponse
-
 
 class AdminSetModeServiceImpl(AdminSetModeService):
     def __init__(self, inj):
         self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
 
     def serve(self, req: AdminSetModeRequest) -> AdminSetModeResponse or FailedResponse:
+        if not self.master_air_cond.is_boot:
+            return MasterAirCondNotAlive("master aircon is off")
         # noinspection PyProtectedMember
         if req.mode not in AirMode._value2member_map_:
             return InvalidModeValue(f'invalid mode enum value: {req.mode}')

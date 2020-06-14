@@ -3,15 +3,16 @@ from abstract.consensus import AirMode, FanSpeed
 from abstract.service import StartStateControlService
 from app.service.state_control import BasicStateControlServiceImpl
 from lib.injector import Injector
-from proto import FailedResponse, ConflictMode, InvalidFanSpeedValue, InvalidModeValue
+from proto import FailedResponse, ConflictMode, InvalidFanSpeedValue, InvalidModeValue, MasterAirCondNotAlive
 from proto.start_state_control import StartStateControlRequest, StartStateControlResponse
-
 
 class StartStateControlServiceImpl(BasicStateControlServiceImpl, StartStateControlService):
     def __init__(self, inj: Injector):
         super().__init__(inj)
 
     def serve(self, req: StartStateControlRequest) -> StartStateControlResponse or FailedResponse:
+        if not self.master_air_cond.is_boot:
+            return MasterAirCondNotAlive("master aircon is off")
         return self.check_configuration(req) or self.start_supply(req.token, FanSpeed(req.speed), AirMode(req.mode))
 
     def check_configuration(self, req: StartStateControlRequest) -> FailedResponse or None:

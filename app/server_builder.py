@@ -20,7 +20,7 @@ from abstract.service import ConnectionService, StartStateControlService, StopSt
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
     AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService, AdminGetConnectedSlaveService, \
-    AdminSetUpdateDelayService, AdminSetMetricDelayService
+    AdminSetUpdateDelayService, AdminSetMetricDelayService, AdminLoginService
 from abstract.singleton import register_singletons
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
 from app.component.fan_pipe import MasterFanPipeImpl
@@ -38,6 +38,7 @@ from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelI
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
 from app.service.admin import AdminGenerateReportServiceImpl, AdminSetUpdateDelayServiceImpl, AdminSetMetricDelayServiceImpl
 from app.service.admin.boot import AdminBootMasterServiceImpl
+from app.service.admin.login import AdminLoginServiceImpl
 from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl, AdminGetConnectedSlaveServiceImpl
 from app.service.admin.get_server_status import AdminGetServerStatusServiceImpl
 from app.service.admin.get_slave_statistics import AdminGetSlaveStatisticsServiceImpl
@@ -209,6 +210,7 @@ class ServerBuilder:
         inj.build(AdminGetSlaveStatisticsService, AdminGetSlaveStatisticsServiceImpl)
         inj.build(AdminSetCurrentTemperatureService, AdminSetCurrentTemperatureServiceImpl)
         inj.build(AdminSetModeService, AdminSetModeServiceImpl)
+        inj.build(AdminLoginService, AdminLoginServiceImpl)
         inj.build(AdminBootMasterService, AdminBootMasterServiceImpl)
         inj.build(AdminShutdownMasterService, AdminShutdownMasterServiceImpl)
         inj.build(AdminSetMetricDelayService, AdminSetMetricDelayServiceImpl)

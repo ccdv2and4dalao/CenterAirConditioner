@@ -12,7 +12,7 @@ class ConnectionRequest(Request):
             return
         self.room_id = d['room_id']
         self.id = d['id']
-        
+
     def bind_header(self, h):
         if h is None:
             return

@@ -16,7 +16,9 @@ class MasterAirCondImpl(StoppableThread, MasterAirCond):
         self.update_delay = cfg.slave_default.update_delay
         self.metric_delay = cfg.slave_default.metric_delay
         self.mutex = Lock()  # type: Lock
-        self.fan_pipe = inj.require(MasterFanPipe) # type: MasterFanPipe
+        self.fan_pipe = inj.require(MasterFanPipe)  # type: MasterFanPipe
+        self.is_boot = True  # type: bool
+
 
     def get_md_pair(self) -> Tuple[AirMode, float]:
         self.mutex.acquire()
@@ -31,7 +33,7 @@ class MasterAirCondImpl(StoppableThread, MasterAirCond):
         with self.mutex:
             p = (self.update_delay, self.metric_delay)
         return p
-        
+
 
     def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode):
         self.fan_pipe.start_supply(room_id, speed, mode)
