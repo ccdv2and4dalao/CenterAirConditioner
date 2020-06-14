@@ -20,7 +20,8 @@ class AdminGetSlaveStatisticsServiceImpl(GenerateStatisticServiceImpl, AdminGetS
     def serve(self, req: AdminGetSlaveStatisticsRequest):
         if not self.master_air_cond.is_boot:
             return MasterAirCondNotAlive("master aircon is off")
-        events = self.event_model.query_by_time_interval(None, datetime.datetime(2000, 1, 1), now())
+        events = self.event_model.query_by_time_interval(None if req.room_id == 0 else req.room_id, 
+                                                         datetime.datetime(2000, 1, 1), now())
         data = []
         i = 0
         room_events = {}
