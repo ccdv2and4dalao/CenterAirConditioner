@@ -112,7 +112,7 @@ class ServerBuilder:
         ])(inj or self.injector)
 
     def build_global_vars(self, inj: Injector):
-        inj.provide(APPVersion, 'v0.1.0')
+        inj.provide(APPVersion, 'v0.8.0')
         inj.provide(APPDescription, 'center air conditioner base on flask')
         inj.provide(APPName, 'center-air-conditioner-server')
         return inj
