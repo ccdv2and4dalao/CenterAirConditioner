@@ -67,7 +67,7 @@ class BasicStateControlServiceImpl(object):
             self.statistic_model.insert(rid, (cur - t) * self.active_map[rid] / 5, 
                                         (cur - t) * self.active_map[rid])
             t = cur
-            sleep(1.0)
+            time.sleep(1.0)
         cur = time.clock()
         self.statistic_model.insert(rid, (cur - t) * self.active_map[rid] / 5, 
                                     (cur - t) * self.active_map[rid])

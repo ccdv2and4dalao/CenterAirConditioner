@@ -5,7 +5,7 @@ from dateutil.parser import parse
 from abstract.model import EventModel, EventType, Event, StatisticModel
 from abstract.service.admin.get_slave_statistics import AdminGetSlaveStatisticsService
 from app.service.generate_statistics import GenerateStatisticServiceImpl
-from lib.dateutil import now
+from lib.dateutil import now, to_local
 from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsResponse, AdminGetSlaveStatisticsRequest
 from proto import MasterAirCondNotAlive
 from abstract.component import MasterAirCond
@@ -20,7 +20,8 @@ class AdminGetSlaveStatisticsServiceImpl(GenerateStatisticServiceImpl, AdminGetS
     def serve(self, req: AdminGetSlaveStatisticsRequest):
         if not self.master_air_cond.is_boot:
             return MasterAirCondNotAlive("master aircon is off")
-        events = self.event_model.query_by_time_interval(None, datetime.datetime(2000, 1, 1), now())
+        events = self.event_model.query_by_time_interval(None if req.room_id == 0 else req.room_id, 
+                                                         datetime.datetime(2000, 1, 1), now())
         data = []
         i = 0
         room_events = {}
@@ -48,8 +49,12 @@ class AdminGetSlaveStatisticsServiceImpl(GenerateStatisticServiceImpl, AdminGetS
                 i += 2
         data.sort(key=lambda x: x['start_time'])
         for d in data:
-            d['start_time'] = parse(d['start_time']).strftime("%Y-%m-%dT%H:%M:%SZ")
-            d['stop_time'] = parse(d['stop_time']).strftime("%Y-%m-%dT%H:%M:%SZ")
+            if type(d['start_time']) is datetime.datetime:
+                d['start_time'] = d['start_time'].strftime("%Y-%m-%dT%H:%M:%SZ")
+                d['stop_time'] = d['stop_time'].strftime("%Y-%m-%dT%H:%M:%SZ")
+            else:
+                d['start_time'] = parse(d['start_time']).strftime("%Y-%m-%dT%H:%M:%SZ")
+                d['stop_time'] = parse(d['stop_time']).strftime("%Y-%m-%dT%H:%M:%SZ")
             d['energy'] = float(d['energy'])
             d['cost'] = float(d['cost'])
         ret = AdminGetSlaveStatisticsResponse()
