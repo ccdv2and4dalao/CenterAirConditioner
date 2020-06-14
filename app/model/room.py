@@ -13,12 +13,12 @@ class RoomModelImpl(SQLModel, RoomModel):
             {Room.room_privilege} integer
         )""")
 
-    def insert(self, room_id: str, app_key: str):
+    def insert(self, room_id: str, app_key: str, room_privilege=0):
         return self.db.insert(f'''
         insert into {Room.table_name} (
-        {Room.room_id_key}, {Room.app_key_key})
+        {Room.room_id_key}, {Room.app_key_key} {Room.room_privilege_key})
         values
-        ({self.db.placeholder}, {self.db.placeholder})''', room_id, app_key)
+        ({self.db.placeholder}, {self.db.placeholder}, {self.db.placeholder})''', room_id, app_key, room_privilege)
 
     def query_page(self, page_size: int = 10, page_number: int = 1):
         # assuming MySQL Impl
