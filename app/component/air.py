@@ -13,6 +13,8 @@ class MasterAirCondImpl(StoppableThread, MasterAirCond):
         cfg = inj.require(ConfigurationProvider).get()  # type: Configuration
         self.mode = AirMode(cfg.master_default.mode)  # type: AirMode
         self.default_temperature = cfg.master_default.default_temperature  # type: float
+        self.cool_min, self.cool_max = cfg.master_default.cool_min, cfg.master_default.cool_max
+        self.heat_min, self.heat_max = cfg.master_default.heat_min, cfg.master_default.heat_max
         self.update_delay = cfg.slave_default.update_delay
         self.metric_delay = cfg.slave_default.metric_delay
         self.mutex = Lock()  # type: Lock

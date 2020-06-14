@@ -32,12 +32,20 @@ class Configuration(object):
     class MasterDefault:
         default_temperature_key = 'default-temperature'
         mode_key = 'mode'
-
+        cool_min_key = 'cool_min'
+        cool_max_key = 'cool_max'
+        heat_min_key = 'heat_min'
+        heat_max_key = 'heat_max'
         def __init__(self,
                      default_temperature=None,
-                     mode=None):
+                     mode=None, cool_min=None, cool_max=None,
+                     heat_min=None, heat_max=None):
             self.default_temperature = default_temperature or 22.0  # type: float
             self.mode = mode or AirMode.Cool.value  # type: str
+            self.cool_min = cool_min or 18.0 # type: float
+            self.cool_max = cool_max or 25.0 # type: float
+            self.heat_min = heat_min or 25.0 # type: float
+            self.heat_max = heat_max or 30.0 # type: float
 
     class SlaveDefault:
         metric_delay_key = 'metric-delay'

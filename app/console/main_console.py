@@ -14,7 +14,7 @@ class MainConsoleImpl(MainConsole, Thread):
 
     def parse(self, cmd: str):
         print(cmd)
-        args = cmd.split('_')
+        args = cmd.split(' ')
         try:
             self.m[args[0].lower()](*args[1:])
         except KeyError as e:
