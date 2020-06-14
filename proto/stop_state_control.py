@@ -6,6 +6,11 @@ class StopStateControlRequest(Request):
         super().__init__()
         self.room_id = 0  # type: int
 
+    def bind_dict(self, d):
+        if d is None:
+            return
+        super().bind_dict(d)
+        self.room_id = d['room_id']
 
 class StopStateControlResponse(Response):
     def __init__(self):

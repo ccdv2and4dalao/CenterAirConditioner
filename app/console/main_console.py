@@ -13,7 +13,8 @@ class MainConsoleImpl(MainConsole, Thread):
         self.setDaemon(True)
 
     def parse(self, cmd: str):
-        args = cmd.split(' ')
+        print(cmd)
+        args = cmd.split('_')
         try:
             self.m[args[0].lower()](*args[1:])
         except KeyError as e:

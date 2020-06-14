@@ -15,10 +15,11 @@ class MetricsRequest(Request):
             return
         self.fan_speed = d['fan_speed']
         self.temperature = d['temperature']
+        self.checkpoint = d.get('checkpoint', None)
         self.mode = d['mode']
 
     def bind_header(self, h):
-        self.token = h['Authorization']
+        self.token = h['token']
 
 
 class MetricsResponse(Response):
