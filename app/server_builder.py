@@ -12,7 +12,7 @@ from abstract.component.websocket_conn import WebsocketConn
 from abstract.controller import PingController, ConnectController, AdminController, MetricsController, \
     StatisticsController, SlaveStateControlController
 from abstract.database import SQLDatabase
-from abstract.middleware.auth import AuthAdminMiddleware
+from abstract.middleware.auth import AuthAdminMiddleware, AuthSlaveMiddleware
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel, MetricModel, StatisticModel, \
     ReportModel, EventModel, Room
 from abstract.service import ConnectionService, StartStateControlService, StopStateControlService, MetricsService, \
@@ -32,7 +32,7 @@ from app.controller.slave_state_control import SlaveStateControlControllerFlaskI
 from app.controller.statistics import StatisticsControllerFlaskImpl
 # implementations
 from app.database import BaseSQLDatabaseImpl
-from app.middleware.auth import AuthAdminMiddlewareImpl
+from app.middleware.auth import AuthAdminMiddlewareImpl, AuthSlaveMiddlewareImpl
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, MetricsModelImpl, \
     StatisticModelImpl, ReportModelImpl, EventModelImpl
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
@@ -136,7 +136,6 @@ class ServerBuilder:
             inj.provide(SQLDatabase, self.db_conn)
         else:
             self.db_conn = BaseSQLDatabaseImpl()
-            self.db_conn.connect()
             inj.provide(SQLDatabase, self.db_conn)
             self.logger.warn("no database is connected")
 
@@ -173,6 +172,12 @@ class ServerBuilder:
         return inj
 
     def create_table(self, inj: Injector = None):
+        if not self.cfg.use_test_database:
+            cfg = inj.require(ConfigurationProvider)
+            dbc = cfg.get().database_config
+            host, port = dbc.host.split(':')
+            user, pw, dbn = str(dbc.user), str(dbc.password), str(dbc.database_name)
+            self.db_conn.connect(str(host), int(port), user, pw, dbn)
         inj = inj or self.injector
         for model_prototype in [UserModel, RoomModel, UserInRoomRelationshipModel, MetricModel, StatisticModel,
                                 EventModel]:
@@ -185,6 +190,7 @@ class ServerBuilder:
         inj = inj or self.injector
         # inj.build(ReceiveRequestMiddleware, ReceiveRequestMiddlewareImpl)
         inj.build(AuthAdminMiddleware, AuthAdminMiddlewareImpl)
+        inj.build(AuthSlaveMiddleware, AuthSlaveMiddlewareImpl)
         CORS(inj.require(Flask))
         return inj
 

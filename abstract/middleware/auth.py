@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from abstract.middleware.abstract import Middleware
-from proto import Response
+from proto import Response, Request
 
 
 class AuthAdminMiddleware(Middleware, ABC):
@@ -22,5 +22,5 @@ class AuthSlaveMiddleware(Middleware, ABC):
     pass
 
     @abstractmethod
-    def __call__(self, app_key: str) -> Response:
+    def __call__(self, req: Request, jwt_token: str) -> Response:
         pass

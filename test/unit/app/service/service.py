@@ -64,8 +64,7 @@ class ConnectionServiceTest(BasicServiceTest):
 
         # self.connection_pool.put(token, room_id, user_id, False)
 
-        def good_put(token: str, room_id: int, user_id: int, need_fan: bool):
-            self.assertEqual(token, '1234')
+        def good_put(room_id: int, user_id: int, need_fan: bool):
             self.assertEqual(room_id, self.user1_id)
             self.assertEqual(user_id, self.room1_id)
             self.assertFalse(need_fan)

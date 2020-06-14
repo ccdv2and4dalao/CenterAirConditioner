@@ -5,7 +5,7 @@ from abstract.singleton import option_context, OptionArgument
 from lib.injector import Injector
 
 option_context.arguments.append(OptionArgument(
-    long_opt='config', help_msg='config file path'))
+    long_opt='config', help_msg='config file path', default_value='config.yaml'))
 
 
 def load_admin_configuration_from_dict(d: dict):
