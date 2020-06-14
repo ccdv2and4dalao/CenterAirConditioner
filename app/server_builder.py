@@ -111,7 +111,7 @@ class ServerBuilder:
         ])(inj or self.injector)
 
     def build_global_vars(self, inj: Injector):
-        inj.provide(APPVersion, 'v0.1.0')
+        inj.provide(APPVersion, 'v0.8.0')
         inj.provide(APPDescription, 'center air conditioner base on flask')
         inj.provide(APPName, 'center-air-conditioner-server')
         return inj
@@ -135,7 +135,6 @@ class ServerBuilder:
             inj.provide(SQLDatabase, self.db_conn)
         else:
             self.db_conn = sqlDatabase
-            self.db_conn.connect()
             inj.provide(SQLDatabase, self.db_conn)
             self.logger.warn("no database is connected")
 
@@ -225,6 +224,9 @@ class ServerBuilder:
             rm = inj.require(RoomModel)  # type: RoomModel
             rm.insert('A-101', '1234')
             rm.insert('A-102', '1234')
+            mm = inj.require(MetricModel)  # type: MetricModel
+            # mm.insert('A-101', '1234')
+            # mm.insert('A-102', '1234')
         return inj
 
     def expose_service(self, inj: Injector = None):
