@@ -16,7 +16,7 @@ from abstract.middleware.auth import AuthAdminMiddleware, AuthSlaveMiddleware
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel, MetricModel, StatisticModel, \
     ReportModel, EventModel, Room
 from abstract.service import ConnectionService, StartStateControlService, StopStateControlService, MetricsService, \
-    GenerateStatisticService
+    GenerateStatisticService, DisConnectionService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
     AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService, AdminGetConnectedSlaveService, \
@@ -36,7 +36,8 @@ from app.middleware.auth import AuthAdminMiddlewareImpl, AuthSlaveMiddlewareImpl
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, MetricsModelImpl, \
     StatisticModelImpl, ReportModelImpl, EventModelImpl
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
-from app.service.admin import AdminGenerateReportServiceImpl, AdminSetUpdateDelayServiceImpl, AdminSetMetricDelayServiceImpl
+from app.service.admin import AdminGenerateReportServiceImpl, AdminSetUpdateDelayServiceImpl, \
+    AdminSetMetricDelayServiceImpl
 from app.service.admin.boot import AdminBootMasterServiceImpl
 from app.service.admin.login import AdminLoginServiceImpl
 from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl, AdminGetConnectedSlaveServiceImpl
@@ -50,6 +51,7 @@ from app.service.generate_statistics import GenerateStatisticServiceImpl
 from app.service.metrics import MetricsServiceImpl
 from app.service.start_state_control import StartStateControlServiceImpl
 from app.service.stop_state_control import StopStateControlServiceImpl
+from app.service.disconnect import DisConnectionServiceImpl
 # external dependencies
 from lib import std_logging
 from lib.arg_parser import StdArgParser
@@ -113,7 +115,7 @@ class ServerBuilder:
         ])(inj or self.injector)
 
     def build_global_vars(self, inj: Injector):
-        inj.provide(APPVersion, 'v0.8.0')
+        inj.provide(APPVersion, 'v0.8.5')
         inj.provide(APPDescription, 'center air conditioner base on flask')
         inj.provide(APPName, 'center-air-conditioner-server')
         return inj
@@ -131,18 +133,16 @@ class ServerBuilder:
         self.logger.logger.addHandler(std_logging.StreamHandler())
         inj.provide(Logger, self.logger)
 
-        # 数据库
-        if self.cfg.use_test_database:
-            self.db_conn = SQLite3(memory=True)
-            inj.provide(SQLDatabase, self.db_conn)
-        else:
-            self.db_conn = BaseSQLDatabaseImpl()
-            inj.provide(SQLDatabase, self.db_conn)
-            self.logger.warn("no database is connected")
-
         # 配置
         inj.build(OptionProvider, StdArgParser)
         inj.build(ConfigurationProvider, FileConfigurationProvider)
+
+        # 数据库
+        if self.cfg.use_test_database:
+            self.db_conn = SQLite3(memory=True)
+        else:
+            self.db_conn = BaseSQLDatabaseImpl(inj)
+        inj.provide(SQLDatabase, self.db_conn)
 
         inj.build(UUIDGenerator, SystemEntropyUUIDGeneratorImpl)
         inj.build(PasswordVerifier, BCryptPasswordVerifier)
@@ -173,12 +173,6 @@ class ServerBuilder:
         return inj
 
     def create_table(self, inj: Injector = None):
-        if not self.cfg.use_test_database:
-            cfg = inj.require(ConfigurationProvider)
-            dbc = cfg.get().database_config
-            host, port = dbc.host.split(':')
-            user, pw, dbn = str(dbc.user), str(dbc.password), str(dbc.database_name)
-            self.db_conn.connect(str(host), int(port), user, pw, dbn)
         inj = inj or self.injector
         for model_prototype in [UserModel, RoomModel, UserInRoomRelationshipModel, MetricModel, StatisticModel,
                                 EventModel]:
@@ -203,6 +197,7 @@ class ServerBuilder:
         inj.build(StopStateControlService, StopStateControlServiceImpl)
         inj.build(MetricsService, MetricsServiceImpl)
         inj.build(GenerateStatisticService, GenerateStatisticServiceImpl)
+        inj.build(DisConnectionService, DisConnectionServiceImpl)
         inj.build(AdminGenerateReportService, AdminGenerateReportServiceImpl)
         inj.build(AdminGetConnectedSlavesService, AdminGetConnectedSlavesServiceImpl)
         inj.build(AdminGetConnectedSlaveService, AdminGetConnectedSlaveServiceImpl)

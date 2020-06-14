@@ -112,6 +112,7 @@ class FlaskRouteController(RouteController):
 
     def bind_json(self, req_type):
         req = req_type()
+        req.bind_header(request.headers)
         req.bind_dict(request.get_json())
         return req
 

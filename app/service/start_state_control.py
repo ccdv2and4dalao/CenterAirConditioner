@@ -13,7 +13,7 @@ class StartStateControlServiceImpl(BasicStateControlServiceImpl, StartStateContr
     def serve(self, req: StartStateControlRequest) -> StartStateControlResponse or FailedResponse:
         if not self.master_air_cond.is_boot:
             return MasterAirCondNotAlive("master aircon is off")
-        return self.check_configuration(req) or self.start_supply(req.token, FanSpeed(req.speed), AirMode(req.mode))
+        return self.check_configuration(req) or self.start_supply(req.room_id, FanSpeed(req.speed), AirMode(req.mode))
 
     def check_configuration(self, req: StartStateControlRequest) -> FailedResponse or None:
 

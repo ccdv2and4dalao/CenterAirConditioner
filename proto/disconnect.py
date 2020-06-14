@@ -1,17 +1,15 @@
-from proto import Request, Response
+﻿from proto import Request, Response
 
 
-class StopStateControlRequest(Request):
+class DisConnectionRequest(Request):
     def __init__(self):
         super().__init__()
-        self.token = ''  # type: str
-        self.room_id = 0  # type: int
+        self.token = '' # type: str
 
     def bind_dict(self, d):
         if d is None:
             return
         super().bind_dict(d)
-        self.room_id = d['room_id']
 
     def bind_header(self, h):
         if h is None:
@@ -19,8 +17,6 @@ class StopStateControlRequest(Request):
         super().bind_header(h)
         self.token = h['Authorization']
 
-
-class StopStateControlResponse(Response):
+class DisConnectionResponse(Response):
     def __init__(self):
         super().__init__()
-

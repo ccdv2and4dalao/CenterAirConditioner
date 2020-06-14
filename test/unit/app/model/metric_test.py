@@ -62,3 +62,4 @@ if __name__ == '__main__':
     mmt.setUp()
     mmt.insert_data()
     # after insert data, generate report
+    
