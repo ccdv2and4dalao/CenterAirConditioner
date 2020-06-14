@@ -41,6 +41,7 @@ class ServiceCode(enum.Enum):
     AuthJWTFailed = 6
     DatabaseError = 7
     InvalidTargetTemperature = 8
+    MasterAirCondNotAlive = 9
 
 class DatabaseError(FailedResponse):
     def __init__(self, data: str):
@@ -80,3 +81,8 @@ class AuthJWTFailed(FailedResponse):
 class InvalidTargetTemperature(FailedResponse):
     def __init__(self, data: str):
         super().__init__(ServiceCode.InvalidTargetTemperature.value, data)
+
+
+class MasterAirCondNotAlive(FailedResponse):
+    def __init__(self, data: str):
+        super().__init__(ServiceCode.MasterAirCondNotAlive.value, data)

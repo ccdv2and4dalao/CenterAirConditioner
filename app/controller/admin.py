@@ -3,7 +3,7 @@ from abstract.middleware.auth import AuthAdminMiddleware
 from abstract.service.admin import AdminLoginService, AdminBootMasterService, AdminShutdownMasterService, \
     AdminGenerateReportService, \
     AdminGetConnectedSlavesService, AdminGetServerStatusService, AdminGetSlaveStatisticsService, \
-    AdminSetCurrentTemperatureService, AdminSetModeService
+    AdminSetCurrentTemperatureService, AdminSetModeService, AdminBootMasterService, AdminShutdownMasterService
 from abstract.service.admin.get_connected_slaves import AdminGetConnectedSlaveService
 from app.router.flask import RouteController
 from lib.injector import Injector
@@ -56,6 +56,9 @@ class AdminControllerFlaskImpl(AdminController):
         self.set_current_temperature_service = inj.require(
             AdminSetCurrentTemperatureService)  # type: AdminSetCurrentTemperatureService
         self.set_mode_service = inj.require(AdminSetModeService)  # type: AdminSetModeService
+        self.admin_login_service = inj.require(AdminLoginService)
+        self.admin_boot_master_service = inj.require(AdminBootMasterService)
+        self.admin_shutdown_master_service = inj.require(AdminShutdownMasterService)
 
     def set_mode(self, *args, **kwargs):
         req = self.rc.bind(AdminSetModeRequest)  # type: AdminSetModeRequest
@@ -84,6 +87,19 @@ class AdminControllerFlaskImpl(AdminController):
     def get_connected_slave(self, *args, **kwargs):
         req = self.rc.bind(AdminGetConnectedSlaveRequest)  # type: AdminGetConnectedSlaveRequest
         return self.auth_admin(req.jwt_token) or self.rc.ok(self.get_connected_slave_service.serve(req))
+
+    def admin_login(self, *args, **kwargs):
+        req = self.rc.bind(AdminLoginRequest)  # type: AdminLoginRequest
+        return self.auth_admin(req.jwt_token) or self.rc.ok(self.admin_login_service.serve(req))
+
+    def admin_boot_master(self, *args, **kwargs):
+        req = self.rc.bind(AdminBootMasterRequest)  # type: AdminBootMasterRequest
+        return self.auth_admin(req.jwt_token) or self.rc.ok(self.admin_boot_master_service.serve(req))
+
+    def admin_shutdown_master(self, *args, **kwargs):
+        req = self.rc.bind(AdminShutdownRequest)  # type: AdminShutdownRequest
+        return self.auth_admin(req.jwt_token) or self.rc.ok(self.admin_shutdown_master_service.serve(req))
+
 
     def set_heat_mode(self, *args, **kwargs):
         # self.set_mode(*args, **kwargs)

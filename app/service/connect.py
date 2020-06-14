@@ -9,7 +9,7 @@ from abstract.component.password_verifier import PasswordVerifier
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel, EventModel
 from abstract.service import ConnectionService
 from lib.injector import Injector
-from proto import FailedResponse, NotFound, DatabaseError, WrongPassword
+from proto import FailedResponse, NotFound, DatabaseError, WrongPassword, MasterAirCondNotAlive
 from proto.connection import ConnectionRequest, ConnectionResponse
 
 IDCardNumber = str
@@ -41,6 +41,8 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
         self.expire_time = datetime.timedelta(hours=1)
 
     def serve(self, req: ConnectionRequest) -> ConnectionResponse or FailedResponse:
+        if not self.master_air_cond.is_boot:
+            return MasterAirCondNotAlive("master aircon is off")
         ap = self.authenticate(req.room_id, req.id)
         if ap is None:
             return DatabaseError(f"database error: {self.user_in_room_model.why()}")

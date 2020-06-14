@@ -1,7 +1,8 @@
 from abstract.component import MasterAirCond, ConfigurationProvider, Dispatcher
 from abstract.service.admin.get_server_status import AdminGetServerStatusService
-from proto import FailedResponse
+from proto import FailedResponse, MasterAirCondNotAlive
 from proto.admin.get_server_status import AdminGetServerStatusRequest, AdminGetServerStatusResponse, ServerState
+from abstract.component import MasterAirCond
 
 
 class AdminGetServerStatusServiceImpl(AdminGetServerStatusService):
@@ -11,6 +12,8 @@ class AdminGetServerStatusServiceImpl(AdminGetServerStatusService):
         self.dispatcher = inj.require(Dispatcher)  # type: Dispatcher
 
     def serve(self, req: AdminGetServerStatusRequest) -> AdminGetServerStatusResponse or FailedResponse:
+        if not self.master_air_cond.is_boot:
+            return MasterAirCondNotAlive("master aircon is off")
         resp = AdminGetServerStatusResponse()
         cfg = self.cfg_provider.get()
         resp.mode, resp.current_temperature = self.master_air_cond.get_md_pair()
