@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 
 import lib.functional
 from abstract.component import ConfigurationProvider, OptionProvider, Logger, MasterAirCond, SystemEntropyProvider, \
@@ -18,11 +19,8 @@ from abstract.service import ConnectionService, StartStateControlService, StopSt
     GenerateStatisticService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
-    AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService
-
+    AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService, AdminGetConnectedSlaveService
 from abstract.singleton import register_singletons
-# implementations
-from app.database import sqlDatabase
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
 from app.component.fan_pipe import MasterFanPipeImpl
 from app.config import APPVersion, APPDescription, APPName
@@ -31,24 +29,25 @@ from app.controller.admin import AdminControllerFlaskImpl
 from app.controller.metrics import MetricsControllerFlaskImpl
 from app.controller.slave_state_control import SlaveStateControlControllerFlaskImpl
 from app.controller.statistics import StatisticsControllerFlaskImpl
+# implementations
+from app.database import sqlDatabase
 from app.middleware.auth import AuthAdminMiddlewareImpl
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, MetricsModelImpl, \
     StatisticModelImpl, ReportModelImpl, EventModelImpl
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
 from app.service.admin import AdminGenerateReportServiceImpl
-from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl
+from app.service.admin.boot import AdminBootMasterServiceImpl
+from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl, AdminGetConnectedSlaveServiceImpl
 from app.service.admin.get_server_status import AdminGetServerStatusServiceImpl
 from app.service.admin.get_slave_statistics import AdminGetSlaveStatisticsServiceImpl
 from app.service.admin.set_current_temperature import AdminSetCurrentTemperatureServiceImpl
 from app.service.admin.set_mode import AdminSetModeServiceImpl
-from app.service.admin.boot import AdminBootMasterServiceImpl
 from app.service.admin.shutdown import AdminShutdownMasterServiceImpl
 from app.service.connect import ConnectionServiceImpl
 from app.service.generate_statistics import GenerateStatisticServiceImpl
 from app.service.metrics import MetricsServiceImpl
 from app.service.start_state_control import StartStateControlServiceImpl
 from app.service.stop_state_control import StopStateControlServiceImpl
-
 # external dependencies
 from lib import std_logging
 from lib.arg_parser import StdArgParser
@@ -147,13 +146,13 @@ class ServerBuilder:
         inj.build(UUIDGenerator, SystemEntropyUUIDGeneratorImpl)
         inj.build(PasswordVerifier, BCryptPasswordVerifier)
         inj.build(JWT, PyJWTImpl)
+        inj.provide(Flask, Flask(APPName))
 
         inj.provide(ConnectionPool, SafeMemoryConnectionPoolImpl())
 
         # todo: should provide parameters later
         # inj.build(Dispatcher, PriQueueDispatcher())
         inj.provide(Dispatcher, QueueDispatcherWithThreadPool())
-        inj.provide(Flask, Flask(APPName))
 
         inj.provide(WebsocketConn, functional_flask_socket_io_connection_impl(inj))
         inj.build(MasterFanPipe, MasterFanPipeImpl)
@@ -185,6 +184,7 @@ class ServerBuilder:
         inj = inj or self.injector
         # inj.build(ReceiveRequestMiddleware, ReceiveRequestMiddlewareImpl)
         inj.build(AuthAdminMiddleware, AuthAdminMiddlewareImpl)
+        CORS(inj.require(Flask))
         return inj
 
     # noinspection DuplicatedCode
@@ -197,6 +197,7 @@ class ServerBuilder:
         inj.build(GenerateStatisticService, GenerateStatisticServiceImpl)
         inj.build(AdminGenerateReportService, AdminGenerateReportServiceImpl)
         inj.build(AdminGetConnectedSlavesService, AdminGetConnectedSlavesServiceImpl)
+        inj.build(AdminGetConnectedSlaveService, AdminGetConnectedSlaveServiceImpl)
         inj.build(AdminGetServerStatusService, AdminGetServerStatusServiceImpl)
         inj.build(AdminGetSlaveStatisticsService, AdminGetSlaveStatisticsServiceImpl)
         inj.build(AdminSetCurrentTemperatureService, AdminSetCurrentTemperatureServiceImpl)
@@ -220,6 +221,10 @@ class ServerBuilder:
         dispatcher = inj.require(Dispatcher)  # type: Dispatcher
         dispatcher.boot_up()
         self.create_table(inj)
+        if self.cfg.use_test_database:
+            rm = inj.require(RoomModel)  # type: RoomModel
+            rm.insert('A-101', '1234')
+            rm.insert('A-102', '1234')
         return inj
 
     def expose_service(self, inj: Injector = None):

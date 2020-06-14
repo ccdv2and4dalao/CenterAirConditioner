@@ -1,8 +1,9 @@
-﻿from abstract.console import BootConsole
-from app.console.base_subconsole import BaseSubConsoleImpl
-from abstract.consensus import ConsolePrefix
+﻿from abstract.consensus import ConsolePrefix
+from abstract.console import BootConsole
 from abstract.service.admin import AdminBootMasterService
+from app.console.base_subconsole import BaseSubConsoleImpl
 from proto.admin.boot import AdminBootMasterRequest
+
 
 class BootConsoleImpl(BootConsole, BaseSubConsoleImpl):
     def __init__(self, inj):

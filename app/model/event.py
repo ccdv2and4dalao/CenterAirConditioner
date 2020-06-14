@@ -1,9 +1,9 @@
-from typing import List, Optional
+from collections import namedtuple
+from typing import List, Optional, Union
 
+import lib.dateutil
 from abstract.model.event import EventModel, Event, EventType
 from app.model.model import SQLModel
-import lib.dateutil
-from collections import namedtuple
 
 EventTupleProxy = namedtuple('MetricsTupleProxy', [
     Event.id_key,
@@ -19,8 +19,8 @@ class EventModelImpl(SQLModel, EventModel):
     def create(self, *args) -> bool:
         sql = f'''
         CREATE TABLE IF NOT EXISTS {Event.table_name} (
-        {Event.id_key}          INT {self.db.auto_increment} PRIMARY KEY,
-        {Event.room_id_key}     INT,
+        {Event.id_key}          INTEGER PRIMARY KEY {self.db.auto_increment},
+        {Event.room_id_key}     INTEGER,
         {Event.checkpoint_key}  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         {Event.event_type_key}  VARCHAR(5), 
         {Event.str_arg_key}     VARCHAR(255)
@@ -93,7 +93,7 @@ class EventModelImpl(SQLModel, EventModel):
             '''
             return self.db.insert(sql, room_id, EventType.StartControl, checkpoint, fan_speed)
 
-    def query_by_time_interval(self, room_id, start_time, stop_time) -> List[Event]:
+    def query_by_time_interval(self, room_id, start_time, stop_time) -> Union[List[Event], None]:
         if type(start_time) is not str:
             start_time = lib.dateutil.to_local(start_time)
         if type(stop_time) is not str:
@@ -114,13 +114,10 @@ class EventModelImpl(SQLModel, EventModel):
         if data is None:
             return None
 
+        # noinspection PyTypeChecker
         return [EventTupleProxy(*d) for d in data]
 
     def query_last_connect_event(self, room_id) -> Optional[Event]:
-        if type(start_time) is not str:
-            start_time = lib.dateutil.to_local(start_time)
-        if type(stop_time) is not str:
-            stop_time = lib.dateutil.to_local(stop_time)
         sql = f'''
         SELECT * FROM {Event.table_name}
         WHERE {Event.event_type_key} = {self.db.placeholder} 

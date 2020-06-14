@@ -1,6 +1,7 @@
-﻿from abstract.console import SetStatisticFrequencyConsole
+﻿from abstract.consensus import ConsolePrefix
+from abstract.console import SetStatisticFrequencyConsole
 from app.console.base_subconsole import BaseSubConsoleImpl
-from abstract.consensus import ConsolePrefix
+
 
 class SetStatisticFrequencyConsoleImpl(SetStatisticFrequencyConsole, BaseSubConsoleImpl):
     def __init__(self, inj):
@@ -8,6 +9,5 @@ class SetStatisticFrequencyConsoleImpl(SetStatisticFrequencyConsole, BaseSubCons
         self.register(ConsolePrefix.set_statistic_freq)
 
     def __call__(self, *args):
-        print('process set statistic freq')        
+        print('process set statistic freq')
         raise NotImplementedError
-

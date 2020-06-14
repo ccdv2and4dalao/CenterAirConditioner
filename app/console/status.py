@@ -1,8 +1,9 @@
-﻿from abstract.console import StatusConsole
-from app.console.base_subconsole import BaseSubConsoleImpl
-from abstract.consensus import ConsolePrefix
+﻿from abstract.consensus import ConsolePrefix
+from abstract.console import StatusConsole
 from abstract.service.admin import AdminGetServerStatusService
+from app.console.base_subconsole import BaseSubConsoleImpl
 from proto.admin.get_server_status import AdminGetServerStatusRequest, AdminGetServerStatusResponse
+
 
 class StatusConsoleImpl(StatusConsole, BaseSubConsoleImpl):
     def __init__(self, inj):

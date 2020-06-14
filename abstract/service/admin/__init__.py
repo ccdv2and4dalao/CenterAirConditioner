@@ -1,6 +1,6 @@
 from .boot import AdminBootMasterService
 from .generate_report import AdminGenerateReportService
-from .get_connected_slaves import AdminGetConnectedSlavesService
+from .get_connected_slaves import AdminGetConnectedSlavesService, AdminGetConnectedSlaveService
 from .get_server_status import AdminGetServerStatusService
 from .get_slave_statistics import AdminGetSlaveStatisticsService
 from .login import AdminLoginService
@@ -14,6 +14,7 @@ __all__ = [
     'AdminLoginService',
     'AdminGenerateReportService',
     'AdminGetConnectedSlavesService',
+    'AdminGetConnectedSlaveService',
     'AdminGetServerStatusService',
     'AdminGetSlaveStatisticsService',
     'AdminSetCurrentTemperatureService',

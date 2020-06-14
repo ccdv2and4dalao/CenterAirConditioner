@@ -123,14 +123,15 @@ class ReportModelImpl(SQLModel, ReportModel):
         '''
         return self.db.delete(sql, report_no)
 
-    def get_reports(self, stop_time: datetime.datetime, report_duration: str) -> Tuple[List[Report], List[Event], Dict[int, str]]:
+    def get_reports(self, stop_time: datetime.datetime, report_duration: str) -> Tuple[
+        List[Report], List[Event], Dict[int, str]]:
         report_duration = report_duration.lower()
         if report_duration not in ['day', 'month', 'week']:
             raise ValueError('report duration should in [day, month, week]')
-        
+
         days = 1 if report_duration == 'day' else 7 if report_duration == 'week' else 30
         start_time = stop_time - datetime.timedelta(days=days)
-        events = self.event_model.query_by_time_interval(None, start_time, stop_time) 
+        events = self.event_model.query_by_time_interval(None, start_time, stop_time)
 
         room_event = {}
         for event in events:
@@ -146,11 +147,10 @@ class ReportModelImpl(SQLModel, ReportModel):
                 e.pop()
             events.extend(e)
 
-
         reports = []
         id2room_id = {}
         for room, l in room_event.items():
-            room_name = self.room_model.query_by_id(room).room_id 
+            room_name = self.room_model.query_by_id(room).room_id
             id2room_id[room] = room_name
             left, right = 0, 1
             while left < len(l):
@@ -163,7 +163,8 @@ class ReportModelImpl(SQLModel, ReportModel):
                         raise ValueError('event mismatch: missing {}'.format(EventType.StartControl), l[i])
                     if l[i + 1].event_type != EventType.StopControl:
                         raise ValueError('event mismatch: missing {}'.format(EventType.StopControl), l[i + 1])
-                    r.energy, r.cost = self.statistic_model.query_sum_by_time_interval(room, l[i].checkpoint, l[i + 1].checkpoint)
+                    r.energy, r.cost = self.statistic_model.query_sum_by_time_interval(room, l[i].checkpoint,
+                                                                                       l[i + 1].checkpoint)
                     if type(r.energy) is not float:
                         r.energy, r.cost = float(r.energy), float(r.cost)
                     metrics = self.metric_model.query_by_time_interval(room, l[i].checkpoint, l[i + 1].checkpoint)

@@ -1,8 +1,9 @@
-﻿from abstract.console import SetTemperatureConsole
-from app.console.base_subconsole import BaseSubConsoleImpl
-from abstract.consensus import ConsolePrefix
+﻿from abstract.consensus import ConsolePrefix
+from abstract.console import SetTemperatureConsole
 from abstract.service.admin import AdminSetCurrentTemperatureService
+from app.console.base_subconsole import BaseSubConsoleImpl
 from proto.admin.set_current_temperature import AdminSetCurrentTemperatureRequest, AdminSetCurrentTemperatureResponse
+
 
 class SetTemperatureConsoleImpl(SetTemperatureConsole, BaseSubConsoleImpl):
     def __init__(self, inj):

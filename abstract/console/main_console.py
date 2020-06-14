@@ -1,5 +1,6 @@
 ﻿from abc import abstractmethod
 
+
 class MainConsole:
     @abstractmethod
     def parse(self, cmd: str):

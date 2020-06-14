@@ -4,7 +4,7 @@ import enum
 class Request(object):
     def __init__(self):
         self.label = 0  # type: int
-        self.room_id = '' # type: str
+        self.room_id = '' # type: int
         self.timestamp = 0 # type: int
 
     def bind_dict(self, d: dict):
@@ -75,6 +75,7 @@ class WrongPassword(FailedResponse):
 class AuthJWTFailed(FailedResponse):
     def __init__(self, data: str):
         super().__init__(ServiceCode.AuthJWTFailed.value, data)
+
 
 class InvalidTargetTemperature(FailedResponse):
     def __init__(self, data: str):

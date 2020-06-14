@@ -1,8 +1,9 @@
-﻿from queue import Queue, PriorityQueue
+﻿import time
+from queue import Queue, PriorityQueue
 from threading import Thread, Lock
+
 from abstract.consensus import FanSpeed
 from abstract.component.connection_pool import ConnectionPool
-import time
 
 from app.component.basic_thread_dispatcher import BasicThreadDispatcher
 
@@ -54,7 +55,7 @@ class PriQueueDispatcher(BasicThreadDispatcher):
 
     def push(self, opaque, tag):
         self.waiting_queue.put((self.weighing_function(opaque),
-            {'opaque': opaque, 'tag': tag}))  # append is atomic
+                                {'opaque': opaque, 'tag': tag}))  # append is atomic
 
     def weighing_function(self, opaque) -> float:
         room_id = opaque["room_id"]

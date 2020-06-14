@@ -1,11 +1,11 @@
 from abc import abstractmethod, ABC
 from typing import Union
 
+from abstract.component import MasterAirCond
+from abstract.consensus import AirconTempConstraint
 from abstract.model import MetricModel
 from abstract.service import MetricsService
-from abstract.component import MasterAirCond
 from lib.injector import Injector
-from abstract.consensus import AirconTempConstraint
 from proto import FailedResponse, ConflictMode, InvalidTargetTemperature
 from proto.metrics import MetricsRequest, MetricsResponse
 
@@ -22,7 +22,7 @@ class MetricsServiceImpl(BaseMetricsServiceImpl):
         self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
 
     def serve(self, req) -> Union[MetricsResponse, FailedResponse]:
-        check_res = self.check_configuration()
+        check_res = self.check_configuration(req)
         if check_res is None:
             self.update_metrics(req)
             return MetricsResponse()

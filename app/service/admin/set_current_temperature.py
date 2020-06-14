@@ -9,5 +9,5 @@ class AdminSetCurrentTemperatureServiceImpl(AdminSetCurrentTemperatureService):
         self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
 
     def serve(self, req: AdminSetCurrentTemperatureRequest) -> AdminSetCurrentTemperatureResponse or FailedResponse:
-        self.master_air_cond.current_temperature = req.target
+        self.master_air_cond.default_temperature = req.target
         return AdminSetCurrentTemperatureResponse()
