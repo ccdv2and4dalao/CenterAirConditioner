@@ -19,7 +19,8 @@ from abstract.service import ConnectionService, StartStateControlService, StopSt
     GenerateStatisticService, DisConnectionService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
-    AdminGenerateReportService, AdminBootMasterService, AdminBootMasterDaemonService, AdminShutdownMasterService, AdminShutdownMasterDaemonService, AdminGetConnectedSlaveService, \
+    AdminGenerateReportService, AdminBootMasterService, AdminBootMasterDaemonService, AdminShutdownMasterService, \
+    AdminShutdownMasterDaemonService, AdminGetConnectedSlaveService, \
     AdminSetUpdateDelayService, AdminSetMetricDelayService, AdminLoginService
 from abstract.singleton import register_singletons
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
@@ -39,19 +40,19 @@ from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteContr
 from app.service.admin import AdminGenerateReportServiceImpl, AdminSetUpdateDelayServiceImpl, \
     AdminSetMetricDelayServiceImpl
 from app.service.admin.boot import AdminBootMasterServiceImpl, AdminBootMasterDaemonServiceImpl
-from app.service.admin.login import AdminLoginServiceImpl
 from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl, AdminGetConnectedSlaveServiceImpl
 from app.service.admin.get_server_status import AdminGetServerStatusServiceImpl
 from app.service.admin.get_slave_statistics import AdminGetSlaveStatisticsServiceImpl
+from app.service.admin.login import AdminLoginServiceImpl
 from app.service.admin.set_current_temperature import AdminSetCurrentTemperatureServiceImpl
 from app.service.admin.set_mode import AdminSetModeServiceImpl
 from app.service.admin.shutdown import AdminShutdownMasterServiceImpl, AdminShutdownMasterDaemonServiceImpl
 from app.service.connect import ConnectionServiceImpl
+from app.service.disconnect import DisConnectionServiceImpl
 from app.service.generate_statistics import GenerateStatisticServiceImpl
 from app.service.metrics import MetricsServiceImpl
 from app.service.start_state_control import StartStateControlServiceImpl
 from app.service.stop_state_control import StopStateControlServiceImpl
-from app.service.disconnect import DisConnectionServiceImpl
 # external dependencies
 from lib import std_logging
 from lib.arg_parser import StdArgParser
@@ -81,6 +82,7 @@ class ServerBuilder:
             self.cfg.use_test_database = use_test_database
         self.logger = None
         self.db_conn = None
+        self.websocket_conn = None
 
     def build(self):
         """
@@ -155,7 +157,8 @@ class ServerBuilder:
         # inj.build(Dispatcher, PriQueueDispatcher())
         inj.provide(Dispatcher, QueueDispatcherWithThreadPool())
 
-        inj.provide(WebsocketConn, functional_flask_socket_io_connection_impl(inj))
+        self.websocket_conn = functional_flask_socket_io_connection_impl(inj)
+        inj.provide(WebsocketConn, self.websocket_conn)
         inj.build(MasterFanPipe, MasterFanPipeImpl)
         inj.build(MasterAirCond, MasterAirCondImpl)
         return inj
@@ -230,12 +233,17 @@ class ServerBuilder:
         dispatcher.boot_up()
         self.create_table(inj)
         if self.cfg.use_test_database:
+            um = inj.require(UserModel)  # type: UserModel
+            uim = inj.require(UserInRoomRelationshipModel)  # type: UserInRoomRelationshipModel
             rm = inj.require(RoomModel)  # type: RoomModel
             mm = inj.require(MetricModel)  # type: MetricModel
             em = inj.require(EventModel)  # type: EventModel
             sm = inj.require(StatisticModel)  # type: StatisticModel
-            rm.insert('A-101', '1234')
-            rm.insert('A-102', '1234')
+            pw = inj.require(PasswordVerifier)  # type: PasswordVerifier
+            rid = rm.insert('A-101', pw.create('1234'))
+            rm.insert('A-102', pw.create('1234'))
+            uid = um.insert('xxx')
+            uim.insert(user_id=uid, room_id=rid)
             # mm.insert('A-101', '1234')
             # mm.insert('A-102', '1234')r = Room(room_id='metric_test')
             r = Room(room_id='metric_test')
@@ -267,5 +275,8 @@ class ServerBuilder:
         inj = inj or self.injector
         opt = inj.require(OptionProvider)  # type: OptionProvider
 
-        MasterFlaskRouter(inj).run(
-            opt.find('host'), opt.find('port'))
+        MasterFlaskRouter(inj)
+        # .run(host=opt.find('host'), port=opt.find('port'))
+
+        self.websocket_conn.sio.run(self.websocket_conn.app, host=opt.find('host'), port=int(opt.find('port')),
+                                    debug=True)
