@@ -64,6 +64,8 @@ class EventModelImpl(SQLModel, EventModel):
         return self.__insert_state_event(room_id, EventType.StopControl, checkpoint=checkpoint)
 
     def insert_start_state_control_event(self, room_id: int, fan_speed: str, checkpoint=None) -> int:
+        if type(fan_speed) is not str:
+            fan_speed = fan_speed.value
         if checkpoint is None:
             sql = f'''
             INSERT INTO {Event.table_name} (

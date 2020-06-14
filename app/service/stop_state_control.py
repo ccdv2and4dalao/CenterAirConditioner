@@ -18,5 +18,5 @@ class StopStateControlServiceImpl(BasicStateControlServiceImpl, StopStateControl
         room_info = self.connection_pool.get(room_id)
         if room_info.need_fan:
             self.connection_pool.put_need_fan(room_id, False)
-        self.push_stop_request(room_info.room_id, self.generate_tag())
+        #self.push_stop_request(room_info.room_id, self.generate_tag())
         return StopStateControlResponse()

@@ -2,7 +2,7 @@ from abstract.component import Logger, Dispatcher, UUIDGenerator, MasterAirCond
 from abstract.component.connection_pool import ConnectionPool
 from abstract.model import EventModel, StatisticModel
 from lib.injector import Injector
-from threading import Thread
+from threading import Thread, local
 import time
 
 
@@ -17,7 +17,6 @@ class BasicStateControlServiceImpl(object):
         self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
         self.logger = inj.require(Logger)  # type: Logger
         self.statistic_model = inj.require(StatisticModel) # type: StatisticModel
-        self.active_map = {}
 
     def push_start_request(self, room_id, speed_fan, mode, tag):
         return self.dispatcher.push(
@@ -31,43 +30,32 @@ class BasicStateControlServiceImpl(object):
         return self.uuid_provider.generate_uuid()
 
     def _pop_request(self, req: dict, tag: str) -> None:
-        room_info = req['need_fan'] and self.connection_pool.get(req['room_id'])
-        is_stop = False
+        b = local()
+        b.room_id, b.mode = req['room_id'], req['mode']
+        b.speed = req['speed_fan']
+        b.co = 5 if b.speed.value == 'high' else 4 if b.speed.value == 'mid' else 3
 
-        if not room_info or not room_info.need_fan:
-            # fast forward
-            is_stop = True
-            resp = self.master_air_cond.stop_supply(req['room_id'])
-        else:
-            resp = self.master_air_cond.start_supply(req['room_id'], req['speed_fan'], req['mode'])
-        #if not resp:
-        #    d = resp.__dict__
-        #    d['tag'] = tag
-        #    self.logger.warn('failed supply', d)
-        #    # self._update_statistics(failed response, tag)
-        #else:
-        if is_stop:
-            self.active_map.pop(req['room_id'])
-            self.event_model.insert_stop_state_control_event(req['room_id'])
-        else:
-            speed = req['speed']
-            self.active_map[req['room_id']] = 5 if speed == 'high' else 4 if speed == 'mid' else 3
-            Thread(target=self._update_statistics, args=(req, tag)).start()
-            self.event_model.insert_start_state_control_event(req['room_id'], req['speed_fan'])
+        self.master_air_cond.start_supply(b.room_id, b.speed, b.mode)
+        self.event_model.insert_start_state_control_event(b.room_id, b.speed)
+        
+        b.t1 = time.clock()
+        while self.connection_pool.get(b.room_id).need_fan:
+            b.t2 = time.clock()
+            self.statistic_model.insert(b.room_id, (b.t2 - b.t1) * b.co / 5,
+                                        (b.t2 - b.t1) * b.co)
+            b.t1 = b.t2
+            time.sleep(1.0)
+        b.t2 = time.clock()
+        self.statistic_model.insert(b.room_id, (b.t2 - b.t1) * b.co / 5,
+                            (b.t2 - b.t1) * b.co)
+
+        self.master_air_cond.stop_supply(b.room_id)
+        self.event_model.insert_stop_state_control_event(b.room_id)
 
     def _fallback_request(self, req: dict, tag: str) -> None:
         req['tag'] = tag
         self.logger.warn('abort request', req)
 
     def _update_statistics(self, opaque: dict, tag: str) -> None:
-        rid = opaque['room_id']
-        t = time.clock()
-        while rid in self.active_map.keys():
-            cur = time.clock()
-            self.statistic_model.insert(rid, (cur - t) * self.active_map[rid] / 5, 
-                                        (cur - t) * self.active_map[rid])
-            t = cur
-            time.sleep(1.0)
-        cur = time.clock()
-        self.statistic_model.insert(rid, (cur - t) * self.active_map[rid] / 5, 
-                                    (cur - t) * self.active_map[rid])
+        raise DeprecationWarning('_update_statistics function hasnt been used')
+        pass
