@@ -1,5 +1,4 @@
 ﻿from abc import abstractmethod
-from .base_subconsole import BaseSubConsole
 
 
 class SetStatisticFrequencyConsole:

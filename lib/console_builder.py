@@ -6,6 +6,7 @@ from app.console import MainConsoleImpl, BootConsoleImpl, MetricConsoleImpl, Rep
     SetTemperatureConsoleImpl, ShutdownConsoleImpl, StatusConsoleImpl
 from lib.injector import Injector
 
+
 def build_and_run_console(inj: Injector):
     inj.provide(MainConsole, MainConsoleImpl())
     inj.build(BootConsole, BootConsoleImpl)

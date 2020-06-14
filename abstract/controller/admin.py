@@ -130,15 +130,35 @@ class AdminController(object):
     @abstractmethod
     def get_connected_slaves(self, *args, **kwargs):
         """
+        /v1/admin/pool-list GET
+
+        request:-
+        page_number=1&page_size=1
+        with header: "Authorization" : "Bearer " + jwt_token
+        response:
+        self.id = inc_id  # type: int
+        self.room_id = room_id  # type: str
+        self.connected = connected  # type: bool
+        self.current_temperature = current_temperature  # type: float
+        self.need_fan = need_fan  # type: bool
+        self.fan_speed = fan_speed  # type: str
+        {"code": 0, "data": [{
+                "id": 1, ""room_id: "A-101", "connected": true, "current_temperature": 22.0,
+                "need_fan": true, "fan_speed": "high"}]}
+        """
+        pass
+
+    @abstractmethod
+    def get_connected_slave(self, *args, **kwargs):
+        """
         /v1/admin/pool GET
 
         request:
+        id=1
         with header: "Authorization" : "Bearer " + jwt_token
         response:
-        {"code": 0, "data": [{
-
-            ,// "room"
-            ,//"user"
-            //"status"}]}
+        {"code": 0, "data": {
+                "id": 1, ""room_id: "A-101", "connected": true, "current_temperature": 22.0,
+                "need_fan": true, "fan_speed": "high"}}
         """
         pass

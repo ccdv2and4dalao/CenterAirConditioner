@@ -19,7 +19,7 @@ class Room:
         self.id = inc_id  # type: int
         self.room_id = room_id  # type: str
         self.app_key = app_key  # type: str
-        self.room_privilege = privilege # type: int
+        self.room_privilege = privilege  # type: int
 
 
 class RoomModel(Model):

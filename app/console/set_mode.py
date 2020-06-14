@@ -1,8 +1,9 @@
-﻿from abstract.console import SetModeConsole
-from app.console.base_subconsole import BaseSubConsoleImpl
-from abstract.consensus import ConsolePrefix
+﻿from abstract.consensus import ConsolePrefix
+from abstract.console import SetModeConsole
 from abstract.service.admin import AdminSetModeService
+from app.console.base_subconsole import BaseSubConsoleImpl
 from proto.admin.set_mode import AdminSetModeRequest, AdminSetModeResponse
+
 
 class SetModeConsoleImpl(SetModeConsole, BaseSubConsoleImpl):
     def __init__(self, inj):

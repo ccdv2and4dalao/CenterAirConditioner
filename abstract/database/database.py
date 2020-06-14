@@ -31,6 +31,7 @@ class SQLConnection(object):
 
 class SQLDatabase(SQLConnection):
     placeholder: str
+    auto_increment: str
 
     @abstractmethod
     def __init__(self):

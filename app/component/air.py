@@ -5,6 +5,7 @@ from abstract.component import MasterAirCond, ConfigurationProvider, Configurati
 from abstract.consensus import FanSpeed, AirMode
 from lib.stoppable_thread import StoppableThread
 
+
 class MasterAirCondImpl(StoppableThread, MasterAirCond):
 
     def __init__(self, inj):

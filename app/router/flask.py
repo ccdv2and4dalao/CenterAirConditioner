@@ -16,6 +16,7 @@ MasterServerHTTPSpec = namedtuple(
     'MasterServerHTTPSpec',
     ['ping', 'connect', 'admin', 'metrics', 'slave_state_control', 'statistics'])
 DaemonServerHTTPSpec = namedtuple('DaemonServerHTTPSpec', ['ping', 'admin'])
+
 master_http_spec = MasterServerHTTPSpec(
     [
         HTTPSpecItem('ping', '/ping', ['GET'], FlowLabel.Ping),
@@ -28,6 +29,8 @@ master_http_spec = MasterServerHTTPSpec(
         HTTPSpecItem('set_current_temperature', '/v1/admin/current-temp', ['POST'],
                      FlowLabel.AdminSetCurrentTemperature),
         HTTPSpecItem('get_server_status', '/v1/admin/status', ['GET'], FlowLabel.GetServerStatus),
+        HTTPSpecItem('get_connected_slaves', '/v1/admin/pool-list', ['GET'], FlowLabel.GetConnectedSlaves),
+        HTTPSpecItem('get_connected_slave', '/v1/admin/pool', ['GET'], FlowLabel.GetConnectedSlave),
     ],
     [
         HTTPSpecItem('update_metrics', '/v1/metrics', ['POST'], FlowLabel.UpdateMetrics),
@@ -108,8 +111,11 @@ class FlaskRouteController(RouteController):
 
     def bind(self, req_type):
         req = req_type()
-        req.bind_dict(request.get_json())
         req.bind_header(request.headers)
+        if request.method == 'GET':
+            req.bind_dict(request.args)
+        else:
+            req.bind_dict(request.get_json())
         return req
 
 

@@ -1,3 +1,6 @@
+from flask import Flask
+from flask_cors import CORS
+
 import lib.functional
 from abstract.component import OptionProvider, Logger, ConfigurationProvider, SystemEntropyProvider
 from abstract.component.jwt import JWT
@@ -38,6 +41,7 @@ def inject_external_dependency(inj: Injector):
     logger = std_logging.StdLoggerImpl()
     logger.logger.addHandler(std_logging.StreamHandler())
     inj.provide(Logger, logger)
+    inj.provide(Flask, Flask(APPName))
 
     inj.build(OptionProvider, StdArgParser)
     inj.build(ConfigurationProvider, FileConfigurationProvider)
@@ -49,6 +53,7 @@ def inject_external_dependency(inj: Injector):
 
 def inject_middleware(inj: Injector):
     inj.build(AuthAdminMiddleware, AuthAdminMiddlewareImpl)
+    CORS(inj.require(Flask))
     return inj
 
 

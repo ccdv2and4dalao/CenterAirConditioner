@@ -1,6 +1,8 @@
-﻿from abstract.console import MainConsole
-from threading import Thread
+﻿from threading import Thread
+
+from abstract.console import MainConsole
 from lib.std_logging import StdLoggerImpl
+
 
 class MainConsoleImpl(MainConsole, Thread):
     def __init__(self):
@@ -13,12 +15,12 @@ class MainConsoleImpl(MainConsole, Thread):
     def parse(self, cmd: str):
         args = cmd.split(' ')
         try:
-            self.m[args[0].lower()](*args[1 : ])
+            self.m[args[0].lower()](*args[1:])
         except KeyError as e:
-            #self.logger.warn('Unexpected command {}\ninput help for all available command'.format(e))
+            # self.logger.warn('Unexpected command {}\ninput help for all available command'.format(e))
             print('Unexpected command {}\ninput help for all available command'.format(e))
         except Exception as e:
-            #self.logger.error(e)
+            # self.logger.error(e)
             print(e)
 
     def run(self):

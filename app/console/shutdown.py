@@ -1,8 +1,9 @@
-﻿from abstract.console import ShutdownConsole
-from app.console.base_subconsole import BaseSubConsoleImpl
-from abstract.consensus import ConsolePrefix
+﻿from abstract.consensus import ConsolePrefix
+from abstract.console import ShutdownConsole
 from abstract.service.admin import AdminShutdownMasterService
+from app.console.base_subconsole import BaseSubConsoleImpl
 from proto.admin.shutdown import AdminShutdownRequest, AdminShutdownResponse
+
 
 class ShutdownConsoleImpl(ShutdownConsole, BaseSubConsoleImpl):
     def __init__(self, inj):

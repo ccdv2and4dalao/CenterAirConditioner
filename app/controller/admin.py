@@ -4,12 +4,13 @@ from abstract.service.admin import AdminLoginService, AdminBootMasterService, Ad
     AdminGenerateReportService, \
     AdminGetConnectedSlavesService, AdminGetServerStatusService, AdminGetSlaveStatisticsService, \
     AdminSetCurrentTemperatureService, AdminSetModeService
+from abstract.service.admin.get_connected_slaves import AdminGetConnectedSlaveService
 from app.router.flask import RouteController
 from lib.injector import Injector
 # transport layer objects
 from proto.admin.boot import AdminBootMasterRequest
 from proto.admin.generate_report import AdminGenerateReportRequest
-from proto.admin.get_connected_slaves import AdminGetConnectedSlavesRequest
+from proto.admin.get_connected_slaves import AdminGetConnectedSlavesRequest, AdminGetConnectedSlaveRequest
 from proto.admin.get_server_status import AdminGetServerStatusRequest
 from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsRequest
 from proto.admin.login import AdminLoginRequest
@@ -45,8 +46,10 @@ class AdminControllerFlaskImpl(AdminController):
         self.rc = inj.require(RouteController)  # type: RouteController
         self.auth_admin = inj.require(AuthAdminMiddleware)  # type: AuthAdminMiddleware
         self.generate_report_service = inj.require(AdminGenerateReportService)  # type: AdminGenerateReportService
-        self.get_connectedSlaves_service = inj.require(
+        self.get_connected_slaves_service = inj.require(
             AdminGetConnectedSlavesService)  # type: AdminGetConnectedSlavesService
+        self.get_connected_slave_service = inj.require(
+            AdminGetConnectedSlaveService)  # type: AdminGetConnectedSlaveService
         self.get_server_status_service = inj.require(AdminGetServerStatusService)  # type: AdminGetServerStatusService
         self.get_slave_statistics_service = inj.require(
             AdminGetSlaveStatisticsService)  # type: AdminGetSlaveStatisticsService
@@ -76,7 +79,11 @@ class AdminControllerFlaskImpl(AdminController):
 
     def get_connected_slaves(self, *args, **kwargs):
         req = self.rc.bind(AdminGetConnectedSlavesRequest)  # type: AdminGetConnectedSlavesRequest
-        return self.auth_admin(req.jwt_token) or self.rc.ok(self.get_connectedSlaves_service.serve(req))
+        return self.auth_admin(req.jwt_token) or self.rc.ok(self.get_connected_slaves_service.serve(req))
+
+    def get_connected_slave(self, *args, **kwargs):
+        req = self.rc.bind(AdminGetConnectedSlaveRequest)  # type: AdminGetConnectedSlaveRequest
+        return self.auth_admin(req.jwt_token) or self.rc.ok(self.get_connected_slave_service.serve(req))
 
     def set_heat_mode(self, *args, **kwargs):
         # self.set_mode(*args, **kwargs)

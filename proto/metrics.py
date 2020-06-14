@@ -8,7 +8,7 @@ class MetricsRequest(Request):
         self.fan_speed = ''  # type: str
         self.temperature = 0.0  # type: float
         self.checkpoint = None
-        self.mode = '' # type: str
+        self.mode = ''  # type: str
 
     def bind_dict(self, d: dict):
         if d is None:

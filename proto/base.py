@@ -76,6 +76,7 @@ class AuthJWTFailed(FailedResponse):
     def __init__(self, data: str):
         super().__init__(ServiceCode.AuthJWTFailed.value, data)
 
+
 class InvalidTargetTemperature(FailedResponse):
     def __init__(self, data: str):
         super().__init__(ServiceCode.InvalidTargetTemperature.value, data)

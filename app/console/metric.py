@@ -1,8 +1,9 @@
-﻿from abstract.console import MetricConsole
-from app.console.base_subconsole import BaseSubConsoleImpl
-from abstract.consensus import ConsolePrefix
+﻿from abstract.consensus import ConsolePrefix
+from abstract.console import MetricConsole
 from abstract.service.admin import AdminGetSlaveStatisticsService
+from app.console.base_subconsole import BaseSubConsoleImpl
 from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsRequest
+
 
 class MetricConsoleImpl(MetricConsole, BaseSubConsoleImpl):
     def __init__(self, inj):
@@ -13,4 +14,3 @@ class MetricConsoleImpl(MetricConsole, BaseSubConsoleImpl):
     def __call__(self, *args):
         r = AdminGetSlaveStatisticsRequest
         ret = self.metric_service.serve(r)
-

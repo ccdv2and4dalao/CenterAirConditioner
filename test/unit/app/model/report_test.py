@@ -1,28 +1,26 @@
-﻿from abstract.model import Event, Statistic, Room, Metric
-from app.model import RoomModelImpl, EventModelImpl, MetricsModelImpl, StatisticModelImpl
-import unittest
-from lib.injector import Injector
-from abstract.database import SQLDatabase
-from app.database import sqlDatabase
+﻿import unittest
 from sys import argv
-from datetime import datetime
 from time import sleep
+
+from abstract.database import SQLDatabase
+from abstract.model import Room
+from app.database import sqlDatabase
+from app.model import RoomModelImpl, EventModelImpl, MetricsModelImpl, StatisticModelImpl
+from lib.injector import Injector
 
 
 class ReportModelTest(unittest.TestCase):
-    def __init__(self):
+    def setUp(self) -> None:
         self.inj = Injector()
         self.db = sqlDatabase
         self.db.connect(argv[1], int(argv[2]), argv[3], argv[4], argv[5])
         self.inj.provide(SQLDatabase, self.db)
-
 
     def insert_data(self):
         r = Room(room_id='test')
         rm = RoomModelImpl(self.inj)
         rid = rm.insert(r.room_id, r.app_key)
 
-        
         sleep(1)
         em = EventModelImpl(self.inj)
         mm = MetricsModelImpl(self.inj)
@@ -43,7 +41,8 @@ class ReportModelTest(unittest.TestCase):
 
         em.insert_disconnect_event(rid)
 
+
 if __name__ == '__main__':
-        rmt = ReportModelTest()
-        rmt.insert_data()
-        # after insert data, generate report
+    rmt = ReportModelTest()
+    rmt.insert_data()
+    # after insert data, generate report
