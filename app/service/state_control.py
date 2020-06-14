@@ -40,20 +40,20 @@ class BasicStateControlServiceImpl(object):
             resp = self.master_air_cond.stop_supply(req['room_id'])
         else:
             resp = self.master_air_cond.start_supply(req['room_id'], req['speed_fan'], req['mode'])
-        if not resp:
-            d = resp.__dict__
-            d['tag'] = tag
-            self.logger.warn('failed supply', d)
-            # self._update_statistics(failed response, tag)
+        #if not resp:
+        #    d = resp.__dict__
+        #    d['tag'] = tag
+        #    self.logger.warn('failed supply', d)
+        #    # self._update_statistics(failed response, tag)
+        #else:
+        if is_stop:
+            self.active_map.pop(req['room_id'])
+            self.event_model.insert_stop_state_control_event(req['room_id'])
         else:
-            if is_stop:
-                self.active_map.pop(req['room_id'])
-                self.event_model.insert_stop_state_control_event(req['room_id'])
-            else:
-                speed = req['speed']
-                self.active_map[req['room_id']] = 5 if speed == 'high' else 4 if speed == 'mid' else 3
-                Thread(target=self._update_statistics, args=(req, tag)).start()
-                self.event_model.insert_start_state_control_event(req['room_id'], req['speed_fan'])
+            speed = req['speed']
+            self.active_map[req['room_id']] = 5 if speed == 'high' else 4 if speed == 'mid' else 3
+            Thread(target=self._update_statistics, args=(req, tag)).start()
+            self.event_model.insert_start_state_control_event(req['room_id'], req['speed_fan'])
 
     def _fallback_request(self, req: dict, tag: str) -> None:
         req['tag'] = tag
