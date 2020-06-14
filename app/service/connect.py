@@ -63,7 +63,7 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
         response.room_id = ap[1]
         response.user_id = ap[2]
         response.cool_min, response.cool_max = self.master_air_cond.cool_min, self.master_air_cond.cool_max
-        response.heat_min, respones.heat_max = self.master_air_cond.heat_min, self.master_air_cond.heat_max
+        response.heat_min, response.heat_max = self.master_air_cond.heat_min, self.master_air_cond.heat_max
         self.event_model.insert_connect_event(response.room_id)
         return response
 
