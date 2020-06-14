@@ -1,5 +1,6 @@
 from abstract.component import Logger, Dispatcher, UUIDGenerator, MasterAirCond
 from abstract.component.connection_pool import ConnectionPool
+from abstract.model import EventModel
 from lib.injector import Injector
 
 
@@ -8,6 +9,7 @@ class BasicStateControlServiceImpl(object):
         self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
         self.uuid_provider = inj.require(UUIDGenerator)  # type: UUIDGenerator
         self.dispatcher = inj.require(Dispatcher)  # type: Dispatcher
+        self.event_model = inj.require(EventModel)  # type: EventModel
         self.dispatcher.on_pop(self._pop_request)
         self.dispatcher.on_fallback(self._fallback_request)
         self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
@@ -26,8 +28,11 @@ class BasicStateControlServiceImpl(object):
 
     def _pop_request(self, req: dict, tag: str) -> None:
         room_info = req['need_fan'] and self.connection_pool.get(req['room_id'])
+        is_stop = False
+
         if not room_info or not room_info.need_fan:
             # fast forward
+            is_stop = True
             resp = self.master_air_cond.stop_supply(req['room_id'])
         else:
             resp = self.master_air_cond.start_supply(req['room_id'], req['speed_fan'], req['mode'])
@@ -38,6 +43,10 @@ class BasicStateControlServiceImpl(object):
             # self._update_statistics(failed response, tag)
         else:
             self._update_statistics(req, tag)
+            if is_stop:
+                self.event_model.insert_stop_state_control_event(req['room_id'])
+            else:
+                self.event_model.insert_start_state_control_event(req['room_id'], req['speed_fan'])
 
     def _fallback_request(self, req: dict, tag: str) -> None:
         req['tag'] = tag
