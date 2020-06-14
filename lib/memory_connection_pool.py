@@ -46,31 +46,43 @@ class SafeMemoryConnectionPoolImpl(MemoryConnectionPoolImpl):
 
     def put(self, room_id: int, user_id: int, need_fan: bool):
         self.mutex.acquire()
-        super().put(room_id, user_id, need_fan)
-        self.mutex.release()
+        try:
+            super().put(room_id, user_id, need_fan)
+        finally:
+            self.mutex.release()
 
     def put_need_fan(self, room_id: int, need_fan: bool):
         self.mutex.acquire()
-        super().put_need_fan(room_id, need_fan)
-        self.mutex.release()
+        try:
+            super().put_need_fan(room_id, need_fan)
+        finally:
+            self.mutex.release()
 
     def put_session_id(self, room_id: int, session_id: str):
         self.mutex.acquire()
-        super().put_session_id(room_id, session_id)
-        self.mutex.release()
+        try:
+            super().put_session_id(room_id, session_id)
+        finally:
+            self.mutex.release()
 
     def close_session_connection(self, room_id: int):
         self.mutex.acquire()
-        super().close_session_connection(room_id)
-        self.mutex.release()
+        try:
+            super().close_session_connection(room_id)
+        finally:
+            self.mutex.release()
 
     def delete(self, room_id: int):
         self.mutex.acquire()
-        super().delete(room_id)
-        self.mutex.release()
+        try:
+            super().delete(room_id)
+        finally:
+            self.mutex.release()
 
     def get(self, room_id: int) -> Connection:
         self.mutex.acquire()
-        conn = super().get(room_id)
-        self.mutex.release()
+        try:
+            conn = super().get(room_id)
+        finally:
+            self.mutex.release()
         return conn

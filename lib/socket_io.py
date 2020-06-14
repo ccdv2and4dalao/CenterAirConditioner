@@ -8,12 +8,13 @@ from abstract.component.websocket_conn import WebsocketConn
 
 def functional_flask_socket_io_connection_impl(inj):
     app = inj.require(Flask)  # type: Flask
-    sio = SocketIO(app, cors_allowed_origins='*')
+    sio = SocketIO(app, async_mode='threading', cors_allowed_origins='*')
 
     class FunctionalSocketIOConnectionImpl(WebsocketConn):
         def __init__(self):
             self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
             self.sio = sio
+            self.app = app
             self.session_id_rev_mapping = dict()
 
             @sio.on('connect')
