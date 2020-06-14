@@ -23,6 +23,3 @@ class GenerateStatisticResponse(Response):
         super().__init__()
         self.energy = 0.0
         self.cost = 0.0
-
-    def __dict__(self):
-        pass
