@@ -49,9 +49,15 @@ get-config:
 build-image:
 	./bin/minimum make image
 
+dos-to-unix:
+	find . -type f -print0 | xargs -0 dos2unix
+
+freeze:
+	pip freeze > docker/requirements.txt
 
 .PHONY: \
 	install-docker install-get-docker-script\
 	enable-docker disable-docker start-docker stop-docker\
 	gov-shell help-gov-shell install-gov-shell get-config\
-	build-image
+	build-image\
+	dos-to-unix

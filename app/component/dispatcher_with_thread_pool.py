@@ -2,9 +2,9 @@ import queue
 import time
 from threading import Lock, Thread, Event
 
-from app.component.basic_thread_dispatcher import BasicThreadDispatcher
 from abstract.component.connection_pool import ConnectionPool
 from abstract.consensus import FanSpeed
+from app.component.basic_thread_dispatcher import BasicThreadDispatcher
 
 
 class AtomicInteger(object):
@@ -103,7 +103,7 @@ class PriQueueDispatcherWithThreadPool(BasicThreadDispatcher):
             FanSpeed.high: 75
         }
         weight = pri_coe * room_privilege - \
-            (time.time()-self.timestamp) + speed_coe[opaque['speed_fan']]
+                 (time.time() - self.timestamp) + speed_coe[opaque['speed_fan']]
         return weight
 
     def push(self, opaque, tag):

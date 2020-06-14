@@ -1,15 +1,18 @@
 from abstract.service.admin.get_slave_statistics import AdminGetSlaveStatisticsService
-from app.service.generate_statistics import GenerateStatisticServiceImpl
-from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsResponse, AdminGetSlaveStatisticsRequest
-from abstract.model import EventModel, StatisticModel, EventType, Event, StatisticModel
-from lib.dateutil import now, to_local
 import datetime
 
-class AdminGetSlaveStatisticsServiceImpl(AdminGetSlaveStatisticsService):
+from abstract.model import EventModel, EventType, Event, StatisticModel
+from abstract.service.admin.get_slave_statistics import AdminGetSlaveStatisticsService
+from app.service.generate_statistics import GenerateStatisticServiceImpl
+from lib.dateutil import now, to_local
+from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsResponse, AdminGetSlaveStatisticsRequest
+
+
+class AdminGetSlaveStatisticsServiceImpl(GenerateStatisticServiceImpl, AdminGetSlaveStatisticsService):
     def __init__(self, inj):
         self.response_factory = AdminGetSlaveStatisticsResponse
-        self.event_model = inj.require(EventModel) # type: EventModel
-        self.statistic_model = inj.require(StatisticModel) # type: StatisticModel
+        self.event_model = inj.require(EventModel)  # type: EventModel
+        self.statistic_model = inj.require(StatisticModel)  # type: StatisticModel
 
     def serve(self, req: AdminGetSlaveStatisticsRequest):
         events = self.event_model.query_by_time_interval(None, datetime.datetime(2000, 1, 1), now())
@@ -27,7 +30,7 @@ class AdminGetSlaveStatisticsServiceImpl(AdminGetSlaveStatisticsService):
                 while i < len(lists) and lists[i].event_type != EventType.StartControl: i += 1
                 if i >= len(lists): break
                 l = lists[i]
-                if i + 1 < len(lists): 
+                if i + 1 < len(lists):
                     r = lists[i + 1]
                     if r.event_type != EventType.StopControl:
                         print('event type mismatch: missing stop control')

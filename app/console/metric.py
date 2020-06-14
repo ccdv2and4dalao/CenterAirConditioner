@@ -1,9 +1,11 @@
-﻿from abstract.consensus import ConsolePrefix
+﻿from prettytable import PrettyTable
+
+from abstract.consensus import ConsolePrefix
 from abstract.console import MetricConsole
 from abstract.service.admin import AdminGetSlaveStatisticsService
 from app.console.base_subconsole import BaseSubConsoleImpl
 from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsRequest
-from prettytable import PrettyTable
+
 
 class MetricConsoleImpl(MetricConsole, BaseSubConsoleImpl):
     def __init__(self, inj):

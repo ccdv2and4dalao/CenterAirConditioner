@@ -2,9 +2,8 @@
 from queue import Queue, PriorityQueue
 from threading import Thread, Lock
 
-from abstract.consensus import FanSpeed
 from abstract.component.connection_pool import ConnectionPool
-
+from abstract.consensus import FanSpeed
 from app.component.basic_thread_dispatcher import BasicThreadDispatcher
 
 
@@ -67,7 +66,7 @@ class PriQueueDispatcher(BasicThreadDispatcher):
             FanSpeed.mid: 50,
             FanSpeed.high: 75
         }
-        weight = pri_coe * room_privilege - (time.time()-self.timestamp) + speed_coe[opaque['speed_fan']]
+        weight = pri_coe * room_privilege - (time.time() - self.timestamp) + speed_coe[opaque['speed_fan']]
         return -weight
 
     def _schedule(self):

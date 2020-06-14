@@ -1,3 +1,5 @@
+from dateutil.parser import parse
+
 from proto import Request, Response
 
 
@@ -12,9 +14,9 @@ class AdminGetSlaveStatisticsRequest(Request):
     def bind_dict(self, d: dict):
         if d is None:
             return
-        self.room_id = d['room_id']
-        self.start_time = d['start_time']
-        self.stop_time = d['stop_time']
+        self.room_id = int(d['room_id'])
+        self.start_time = parse(d['start_time'])
+        self.stop_time = parse(d['stop_time'])
 
     def bind_header(self, h):
         self.jwt_token = h['Authorization']

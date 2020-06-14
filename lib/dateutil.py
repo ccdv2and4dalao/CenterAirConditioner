@@ -1,5 +1,6 @@
-from dateutil.tz import tzutc, tzlocal
 import datetime
+
+from dateutil.tz import tzutc, tzlocal
 
 _utc = tzutc()
 _local = tzlocal()
