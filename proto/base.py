@@ -4,7 +4,7 @@ import enum
 class Request(object):
     def __init__(self):
         self.label = 0  # type: int
-        self.room_id = '' # type: str
+        self.room_id = '' # type: int
         self.timestamp = 0 # type: int
 
     def bind_dict(self, d: dict):

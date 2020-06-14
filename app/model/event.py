@@ -117,10 +117,6 @@ class EventModelImpl(SQLModel, EventModel):
         return [EventTupleProxy(*d) for d in data]
 
     def query_last_connect_event(self, room_id) -> Optional[Event]:
-        if type(start_time) is not str:
-            start_time = lib.dateutil.to_local(start_time)
-        if type(stop_time) is not str:
-            stop_time = lib.dateutil.to_local(stop_time)
         sql = f'''
         SELECT * FROM {Event.table_name}
         WHERE {Event.event_type_key} = {self.db.placeholder} 
