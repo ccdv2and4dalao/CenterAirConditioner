@@ -136,7 +136,6 @@ class ServerBuilder:
             inj.provide(SQLDatabase, self.db_conn)
         else:
             self.db_conn = BaseSQLDatabaseImpl()
-            self.db_conn.connect()
             inj.provide(SQLDatabase, self.db_conn)
             self.logger.warn("no database is connected")
 
@@ -173,6 +172,12 @@ class ServerBuilder:
         return inj
 
     def create_table(self, inj: Injector = None):
+        if not self.cfg.use_test_database:
+            cfg = inj.require(ConfigurationProvider)
+            dbc = cfg.get().database_config
+            host, port = dbc.host.split(':')
+            user, pw, dbn = str(dbc.user), str(dbc.password), str(dbc.database_name)
+            self.db_conn.connect(str(host), int(port), user, pw, dbn)
         inj = inj or self.injector
         for model_prototype in [UserModel, RoomModel, UserInRoomRelationshipModel, MetricModel, StatisticModel,
                                 EventModel]:
