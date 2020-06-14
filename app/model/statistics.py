@@ -81,7 +81,7 @@ class StatisticModelImpl(SQLModel, StatisticModel):
         data = self.db.select(f'''
         select sum({Statistic.current_energy_key}), sum({Statistic.current_cost_key}) from {Statistic.table_name} where
             {Statistic.room_id_key} = {self.db.placeholder} and {Statistic.checkpoint_key} between {self.db.placeholder} and {self.db.placeholder}
-        ''', room_id, lib.dateutil.to_local(start_time), lib.dateutil.to_local(stop_time))
+        ''', room_id, start_time, stop_time)
         if data is None:
             return None
         return data[0]
