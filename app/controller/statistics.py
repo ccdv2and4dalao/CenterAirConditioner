@@ -1,4 +1,5 @@
 from abstract.controller import StatisticsController
+from abstract.middleware.auth import AuthSlaveMiddleware
 from abstract.service import GenerateStatisticService
 from app.router.flask import RouteController
 from lib.injector import Injector
@@ -9,7 +10,9 @@ class StatisticsControllerFlaskImpl(StatisticsController):
 
     def __init__(self, inj: Injector):
         self.rc = inj.require(RouteController)  # type: RouteController
+        self.auth_slave = inj.require(AuthSlaveMiddleware)  # type: AuthSlaveMiddleware
         self.s = inj.require(GenerateStatisticService)  # type: GenerateStatisticService
 
     def generate_statistics(self, *args, **kwargs):
-        return self.rc.ok(self.s.serve(self.rc.bind_json(GenerateStatisticRequest)))
+        req = self.rc.bind_json(GenerateStatisticRequest)
+        return self.auth_slave(req) or self.rc.ok(self.s.serve(req))

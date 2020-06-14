@@ -12,7 +12,7 @@ from abstract.component.websocket_conn import WebsocketConn
 from abstract.controller import PingController, ConnectController, AdminController, MetricsController, \
     StatisticsController, SlaveStateControlController
 from abstract.database import SQLDatabase
-from abstract.middleware.auth import AuthAdminMiddleware
+from abstract.middleware.auth import AuthAdminMiddleware, AuthSlaveMiddleware
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel, MetricModel, StatisticModel, \
     ReportModel, EventModel, Room
 from abstract.service import ConnectionService, StartStateControlService, StopStateControlService, MetricsService, \
@@ -32,7 +32,7 @@ from app.controller.slave_state_control import SlaveStateControlControllerFlaskI
 from app.controller.statistics import StatisticsControllerFlaskImpl
 # implementations
 from app.database import BaseSQLDatabaseImpl
-from app.middleware.auth import AuthAdminMiddlewareImpl
+from app.middleware.auth import AuthAdminMiddlewareImpl, AuthSlaveMiddlewareImpl
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, MetricsModelImpl, \
     StatisticModelImpl, ReportModelImpl, EventModelImpl
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
@@ -190,6 +190,7 @@ class ServerBuilder:
         inj = inj or self.injector
         # inj.build(ReceiveRequestMiddleware, ReceiveRequestMiddlewareImpl)
         inj.build(AuthAdminMiddleware, AuthAdminMiddlewareImpl)
+        inj.build(AuthSlaveMiddleware, AuthSlaveMiddlewareImpl)
         CORS(inj.require(Flask))
         return inj
 
