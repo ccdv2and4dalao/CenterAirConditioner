@@ -3,7 +3,8 @@ from queue import Queue, PriorityQueue
 from threading import Thread, Lock
 
 from abstract.consensus import FanSpeed
-from abstract.model import RoomModel
+from abstract.component.connection_pool import ConnectionPool
+
 from app.component.basic_thread_dispatcher import BasicThreadDispatcher
 
 
@@ -49,8 +50,8 @@ class PriQueueDispatcher(BasicThreadDispatcher):
         self.active_count = 0
         self.count_lock = Lock()
         self.fallback_threshold = fallback_threshold
+        self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
         self.timestamp = time.time()
-        self.room_model = inj.require(RoomModel)
 
     def push(self, opaque, tag):
         self.waiting_queue.put((self.weighing_function(opaque),
@@ -58,14 +59,15 @@ class PriQueueDispatcher(BasicThreadDispatcher):
 
     def weighing_function(self, opaque) -> float:
         room_id = opaque["room_id"]
-        room_privilege = self.room_model.query_by_room_id(room_id).room_privileg
+        room_info = self.connection_pool.get(room_id)
+        room_privilege = room_info.room_privilege
         pri_coe = 100
         speed_coe = {
             FanSpeed.low: 25,
             FanSpeed.mid: 50,
             FanSpeed.high: 75
         }
-        weight = 100 * room_privilege - (time.time() - self.timestamp) + speed_coe[opaque['speed_fan']]
+        weight = pri_coe * room_privilege - (time.time()-self.timestamp) + speed_coe[opaque['speed_fan']]
         return -weight
 
     def _schedule(self):
