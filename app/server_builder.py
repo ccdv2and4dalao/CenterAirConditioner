@@ -19,7 +19,7 @@ from abstract.service import ConnectionService, StartStateControlService, StopSt
     GenerateStatisticService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
-    AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService
+    AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService, AdminGetConnectedSlaveService
 from abstract.singleton import register_singletons
 from app.component import QueueDispatcherWithThreadPool, MasterAirCondImpl
 from app.component.fan_pipe import MasterFanPipeImpl
@@ -37,7 +37,7 @@ from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelI
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
 from app.service.admin import AdminGenerateReportServiceImpl
 from app.service.admin.boot import AdminBootMasterServiceImpl
-from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl
+from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl, AdminGetConnectedSlaveServiceImpl
 from app.service.admin.get_server_status import AdminGetServerStatusServiceImpl
 from app.service.admin.get_slave_statistics import AdminGetSlaveStatisticsServiceImpl
 from app.service.admin.set_current_temperature import AdminSetCurrentTemperatureServiceImpl
@@ -197,6 +197,7 @@ class ServerBuilder:
         inj.build(GenerateStatisticService, GenerateStatisticServiceImpl)
         inj.build(AdminGenerateReportService, AdminGenerateReportServiceImpl)
         inj.build(AdminGetConnectedSlavesService, AdminGetConnectedSlavesServiceImpl)
+        inj.build(AdminGetConnectedSlaveService, AdminGetConnectedSlaveServiceImpl)
         inj.build(AdminGetServerStatusService, AdminGetServerStatusServiceImpl)
         inj.build(AdminGetSlaveStatisticsService, AdminGetSlaveStatisticsServiceImpl)
         inj.build(AdminSetCurrentTemperatureService, AdminSetCurrentTemperatureServiceImpl)

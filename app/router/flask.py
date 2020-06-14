@@ -29,7 +29,8 @@ master_http_spec = MasterServerHTTPSpec(
         HTTPSpecItem('set_current_temperature', '/v1/admin/current-temp', ['POST'],
                      FlowLabel.AdminSetCurrentTemperature),
         HTTPSpecItem('get_server_status', '/v1/admin/status', ['GET'], FlowLabel.GetServerStatus),
-        HTTPSpecItem('get_connected_slaves', '/v1/admin/pool', ['GET'], FlowLabel.GetConnectedSlaves),
+        HTTPSpecItem('get_connected_slaves', '/v1/admin/pool-list', ['GET'], FlowLabel.GetConnectedSlaves),
+        HTTPSpecItem('get_connected_slave', '/v1/admin/pool', ['GET'], FlowLabel.GetConnectedSlave),
     ],
     [
         HTTPSpecItem('update_metrics', '/v1/metrics', ['POST'], FlowLabel.UpdateMetrics),

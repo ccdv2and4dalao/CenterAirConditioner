@@ -22,6 +22,7 @@ class SQLite3(AsyncContext, SQLDatabase):
         super().__init__(SqliteLastErrorRef, ref_name='sqlite_last_error')
         self.db = None
         self.placeholder = "?"
+        self.auto_increment = "autoincrement"
         if memory:
             self.db = sqlite3.connect(':memory:', check_same_thread=False)
         else:

@@ -11,6 +11,7 @@ class FlowLabel(enum.Enum):
     GetServerStatus = 7
     UpdateMetrics = 8
     GetConnectedSlaves = 9
+    GetConnectedSlave = 10
 
     AdminSetMode = 7
     AdminSetCurrentTemperature = 8
