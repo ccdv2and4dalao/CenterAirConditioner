@@ -13,6 +13,7 @@ class MetricsRequest(Request):
     def bind_dict(self, d: dict):
         if d is None:
             return
+        super().bind_dict(d)
         self.fan_speed = d['fan_speed']
         self.temperature = d['temperature']
         self.checkpoint = d.get('checkpoint', None)

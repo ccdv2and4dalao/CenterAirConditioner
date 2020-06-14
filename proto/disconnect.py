@@ -1,10 +1,10 @@
-from proto import Request, Response
+﻿from proto import Request, Response
 
 
-class GenerateStatisticRequest(Request):
+class DisConnectionRequest(Request):
     def __init__(self):
         super().__init__()
-        self.token = ''  # type: str
+        self.token = '' # type: str
 
     def bind_dict(self, d):
         if d is None:
@@ -17,12 +17,6 @@ class GenerateStatisticRequest(Request):
         super().bind_header(h)
         self.token = h['Authorization']
 
-
-class GenerateStatisticResponse(Response):
+class DisConnectionResponse(Response):
     def __init__(self):
         super().__init__()
-        self.energy = 0.0
-        self.cost = 0.0
-
-    def __dict__(self):
-        pass

@@ -16,7 +16,7 @@ from abstract.middleware.auth import AuthAdminMiddleware, AuthSlaveMiddleware
 from abstract.model import UserInRoomRelationshipModel, UserModel, RoomModel, MetricModel, StatisticModel, \
     ReportModel, EventModel, Room
 from abstract.service import ConnectionService, StartStateControlService, StopStateControlService, MetricsService, \
-    GenerateStatisticService
+    GenerateStatisticService, DisConnectionService
 from abstract.service.admin import AdminSetModeService, AdminSetCurrentTemperatureService, \
     AdminGetSlaveStatisticsService, AdminGetServerStatusService, AdminGetConnectedSlavesService, \
     AdminGenerateReportService, AdminBootMasterService, AdminShutdownMasterService, AdminGetConnectedSlaveService, \
@@ -50,6 +50,7 @@ from app.service.generate_statistics import GenerateStatisticServiceImpl
 from app.service.metrics import MetricsServiceImpl
 from app.service.start_state_control import StartStateControlServiceImpl
 from app.service.stop_state_control import StopStateControlServiceImpl
+from app.service.disconnect import DisConnectionServiceImpl
 # external dependencies
 from lib import std_logging
 from lib.arg_parser import StdArgParser
@@ -195,6 +196,7 @@ class ServerBuilder:
         inj.build(StopStateControlService, StopStateControlServiceImpl)
         inj.build(MetricsService, MetricsServiceImpl)
         inj.build(GenerateStatisticService, GenerateStatisticServiceImpl)
+        inj.build(DisConnectionService, DisConnectionServiceImpl)
         inj.build(AdminGenerateReportService, AdminGenerateReportServiceImpl)
         inj.build(AdminGetConnectedSlavesService, AdminGetConnectedSlavesServiceImpl)
         inj.build(AdminGetConnectedSlaveService, AdminGetConnectedSlaveServiceImpl)
