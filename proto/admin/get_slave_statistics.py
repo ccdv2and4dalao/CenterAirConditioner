@@ -22,6 +22,16 @@ class AdminGetSlaveStatisticsRequest(Request):
 
 class AdminGetSlaveStatisticsResponse(Response):
     def __init__(self):
+        '''
+        elements in list:
+        {
+            'room_id': _id,
+            'start_time': '',
+            'stop_time': '',
+            'fan_speed': '',
+            'energy': '',
+            'cost': '',
+        }
+        '''
         super().__init__()
-        self.energy = 0.0
-        self.cost = 0.0
+        self.statistic_list = []
