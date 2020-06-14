@@ -68,3 +68,22 @@ class ConnectionServiceImpl(BaseConnectionServiceImpl):
 
     def update_connection_pool(self, room_id: int, user_id: int):
         self.connection_pool.put(room_id, user_id, False)
+
+
+if __name__ == '__main__':
+    pass
+'''
+    from app.server_builder import ServerBuilder
+    from abstract.database import SQLDatabase
+    sb = ServerBuilder()
+    sb.build()
+    db = sb.injector.require(SQLDatabase)
+    db.connect()
+
+    c = sb.injector.require(ConnectionService)
+    req = ConnectionRequest()
+    req.room_id = 'room_test_4'
+    req.id = 'user_test_4'
+    req.app_key ='room_test_4'
+    c.serve(req)
+'''
