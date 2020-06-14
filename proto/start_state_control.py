@@ -22,7 +22,8 @@ class StartStateControlRequest(Request):
         if h is None:
             return
         super().bind_header(h)
-        self.token = h['token']
+        self.token = h['Authorization']
+
 
 class StartStateControlResponse(Response):
     def __init__(self):

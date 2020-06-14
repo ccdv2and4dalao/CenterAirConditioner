@@ -14,5 +14,5 @@ class StatisticsControllerFlaskImpl(StatisticsController):
         self.s = inj.require(GenerateStatisticService)  # type: GenerateStatisticService
 
     def generate_statistics(self, *args, **kwargs):
-        req = self.rc.bind_json(GenerateStatisticRequest)
-        return self.auth_slave(req) or self.rc.ok(self.s.serve(req))
+        req = self.rc.bind(GenerateStatisticRequest)
+        return self.auth_slave(req, req.token) or self.rc.ok(self.s.serve(req))

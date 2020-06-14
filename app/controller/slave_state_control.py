@@ -17,8 +17,8 @@ class SlaveStateControlControllerFlaskImpl(SlaveStateControlController):
 
     def start_state_control(self, *args, **kwargs):
         req = self.rc.bind_json(StartStateControlRequest)
-        return self.auth_slave(req) or self.rc.ok(self.start_state_control_service.serve(req))
+        return self.auth_slave(req, req.token) or self.rc.ok(self.start_state_control_service.serve(req))
 
     def stop_state_control(self, *args, **kwargs):
         req = self.rc.bind_json(StopStateControlRequest)
-        return self.auth_slave(req) or self.rc.ok(self.stop_state_control_service.serve(req))
+        return self.auth_slave(req, req.token) or self.rc.ok(self.stop_state_control_service.serve(req))

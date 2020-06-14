@@ -19,7 +19,10 @@ class MetricsRequest(Request):
         self.mode = d['mode']
 
     def bind_header(self, h):
-        self.token = h['token']
+        if h is None:
+            return
+        super().bind_header(h)
+        self.token = h['Authorization']
 
 
 class MetricsResponse(Response):

@@ -4,6 +4,7 @@ from typing import List
 
 import pymysql
 
+from abstract.component import ConfigurationProvider
 from abstract.database import SQLDatabase, KVDatabase, SQLConnection
 from lib.async_context import AsyncContext
 
@@ -17,15 +18,18 @@ class SqlLastErrorRef(object):
 class BaseSQLDatabaseImpl(AsyncContext, SQLDatabase):
     sql_last_error: contextvars.ContextVar
 
-    def async_context(self):
-        pass
-
-    def __init__(self):
+    def __init__(self, inj):
         super().__init__(SqlLastErrorRef, ref_name='sql_last_error')
+        cfg = inj.require(ConfigurationProvider)  # type: ConfigurationProvider
+        dbc = cfg.get().database_config
+        host, port = dbc.host.split(':')
+        user, pw, dbn = str(dbc.user), str(dbc.password), str(dbc.database_name)
         self.db_lock = Lock()
         self.placeholder = "%s"
         self.auto_increment = 'auto_increment'
-        self.db = None
+        self.host, self.port, self.user, self.pw, self.dbn = str(host), int(port), user, pw, dbn
+        print(str(host), int(port), user, pw, dbn)
+        self.db = pymysql.connect(host=str(host), port=int(port), user=user, password=pw, database=dbn)
 
     def __del__(self):
         if self.db is not None:

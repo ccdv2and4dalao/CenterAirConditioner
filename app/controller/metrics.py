@@ -17,4 +17,4 @@ class MetricsControllerFlaskImpl(MetricsController):
 
     def update_metrics(self, *args, **kwargs):
         req = self.rc.bind_json(MetricsRequest)  # type: MetricsRequest
-        return self.auth_slave(req) or self.rc.ok(self.s.serve(req))
+        return self.auth_slave(req, req.token) or self.rc.ok(self.s.serve(req))
