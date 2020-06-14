@@ -1,16 +1,18 @@
 from abstract.controller import AdminController, DaemonAdminController
 from abstract.middleware.auth import AuthAdminMiddleware
-from abstract.service.admin import AdminLoginService, AdminBootMasterService, AdminShutdownMasterService, \
-    AdminGenerateReportService, \
+from abstract.service.admin import AdminLoginService, AdminGenerateReportService, \
     AdminGetConnectedSlavesService, AdminGetServerStatusService, AdminGetSlaveStatisticsService, \
-    AdminSetCurrentTemperatureService, AdminSetModeService, AdminBootMasterService, AdminBootMasterDaemonService, AdminShutdownMasterService, AdminShutdownMasterDaemonService
+    AdminSetCurrentTemperatureService, AdminSetModeService, AdminBootMasterService, AdminBootMasterDaemonService, \
+    AdminShutdownMasterService, AdminShutdownMasterDaemonService
 from abstract.service.admin.get_connected_slaves import AdminGetConnectedSlaveService
+from abstract.service.admin.get_room_count import AdminGetRoomCountService
 from app.router.flask import RouteController
 from lib.injector import Injector
 # transport layer objects
 from proto.admin.boot import AdminBootMasterRequest
 from proto.admin.generate_report import AdminGenerateReportRequest
 from proto.admin.get_connected_slaves import AdminGetConnectedSlavesRequest, AdminGetConnectedSlaveRequest
+from proto.admin.get_room_count import AdminGetRoomCountRequest
 from proto.admin.get_server_status import AdminGetServerStatusRequest
 from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsRequest
 from proto.admin.login import AdminLoginRequest
@@ -59,6 +61,7 @@ class AdminControllerFlaskImpl(AdminController):
         self.admin_login_service = inj.require(AdminLoginService)
         self.admin_boot_master_service = inj.require(AdminBootMasterService)
         self.admin_shutdown_master_service = inj.require(AdminShutdownMasterService)
+        self.get_room_count_service = inj.require(AdminGetRoomCountService)
 
     def set_mode(self, *args, **kwargs):
         req = self.rc.bind(AdminSetModeRequest)  # type: AdminSetModeRequest
@@ -83,6 +86,10 @@ class AdminControllerFlaskImpl(AdminController):
     def get_connected_slaves(self, *args, **kwargs):
         req = self.rc.bind(AdminGetConnectedSlavesRequest)  # type: AdminGetConnectedSlavesRequest
         return self.auth_admin(req.jwt_token) or self.rc.ok(self.get_connected_slaves_service.serve(req))
+
+    def get_room_count(self, *args, **kwargs):
+        req = self.rc.bind(AdminGetRoomCountRequest)  # type: AdminGetRoomCountRequest
+        return self.auth_admin(req.jwt_token) or self.rc.ok(self.get_room_count_service.serve(req))
 
     def get_connected_slave(self, *args, **kwargs):
         req = self.rc.bind(AdminGetConnectedSlaveRequest)  # type: AdminGetConnectedSlaveRequest

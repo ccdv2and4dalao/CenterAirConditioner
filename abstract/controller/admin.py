@@ -149,6 +149,18 @@ class AdminController(object):
         pass
 
     @abstractmethod
+    def get_room_count(self, *args, **kwargs):
+        """
+        /v1/admin/pool-list-cout GET
+
+        request:
+        with header: "Authorization" : "Bearer " + jwt_token
+        response:
+        {"code": 0, "data": 1}
+        """
+        pass
+
+    @abstractmethod
     def get_connected_slave(self, *args, **kwargs):
         """
         /v1/admin/pool GET

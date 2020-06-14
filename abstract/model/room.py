@@ -76,3 +76,7 @@ class RoomModel(Model):
     @abstractmethod
     def query_by_id(self, _id: int) -> Optional[Room]:
         pass
+
+    @abstractmethod
+    def query_total_count(self) -> int:
+        pass
