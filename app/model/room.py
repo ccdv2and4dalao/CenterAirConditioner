@@ -10,7 +10,7 @@ class RoomModelImpl(SQLModel, RoomModel):
             {Room.id_key} integer primary key {self.db.auto_increment},
             {Room.room_id_key} VARCHAR(19),
             {Room.app_key_key} VARCHAR(65),
-            {Room.room_privilege} integer
+            {Room.room_privilege_key} integer
         )""")
 
     def insert(self, room_id: str, app_key: str, room_privilege=0):
