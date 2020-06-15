@@ -2,6 +2,7 @@
 from proto import MasterAirCondNotAlive
 from abstract.component.air import MasterAirCond
 from typing import Optional
+from app.router.flask import RouteController
 
 class BootMiddlewareImpl(BootMiddleware):
     """
@@ -9,8 +10,9 @@ class BootMiddlewareImpl(BootMiddleware):
     """
     def __init__(self, inj):
         self.master_air_cond = inj.require(MasterAirCond) # type: MasterAirCond
+        self.rc = inj.require(RouteController)  # type: RouteController
 
     def __call__(self) -> Optional[MasterAirCondNotAlive]:
         if not self.master_air_cond.is_boot:
-            return MasterAirCondNotAlive("master aircon is off")
+            return self.rc.err(MasterAirCondNotAlive("master aircon is off"))
         return None
