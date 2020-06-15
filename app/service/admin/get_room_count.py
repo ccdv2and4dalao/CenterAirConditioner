@@ -1,3 +1,5 @@
+import decimal
+
 from abstract.model import RoomModel
 from abstract.service.admin.get_room_count import AdminGetRoomCountService
 from proto.admin.get_room_count import AdminGetRoomCountRequest, AdminGetRoomCountResponse
@@ -9,4 +11,7 @@ class AdminGetRoomCountServiceImpl(AdminGetRoomCountService):
         pass
 
     def serve(self, req: AdminGetRoomCountRequest) -> AdminGetRoomCountResponse:
-        return AdminGetRoomCountResponse(self.room_model.query_total_count())
+        ret = self.room_model.query_total_count()
+        if isinstance(ret, decimal.Decimal):
+            ret = float(ret)
+        return AdminGetRoomCountResponse(ret)

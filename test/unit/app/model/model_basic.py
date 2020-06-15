@@ -62,6 +62,15 @@ class RoomModelImplTest(BasicSqlite3Test):
         self.assert_create_table()
         self.assertEqual(self.model.insert("A-101", "app_key"), 1, self.db.last_error_lazy)
 
+    def test_query_count(self):
+        self.assert_create_table()
+        self.assertEqual(self.model.insert("A-101", "app_key"), 1, self.db.last_error_lazy)
+        self.assertEqual(self.model.insert("A-102", "app_key"), 2, self.db.last_error_lazy)
+        self.assertEqual(self.model.insert("A-103", "app_key"), 3, self.db.last_error_lazy)
+        self.assertEqual(self.model.insert("A-104", "app_key"), 4, self.db.last_error_lazy)
+
+        print(type(self.model.query_total_count()))
+
     def test_query_page(self):
         self.assert_create_table()
         rooms = self.model.query_page(10, 1)

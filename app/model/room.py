@@ -44,5 +44,6 @@ class RoomModelImpl(SQLModel, RoomModel):
         return data and Room(*data[0])
 
     def query_total_count(self):
-        return self.db.select(f'''
+        data = self.db.select(f'''
         select sum(1) from {Room.table_name}''')
+        return data and data[0][0]
