@@ -43,7 +43,7 @@ class MetricsServiceImpl(BaseMetricsServiceImpl):
     def update_metrics(self, req: MetricsRequest):
         # self.metric_model.insert(req.token, req.fan_speed,
         #                         req.timestamp if req.timestamp else None)
-        self.metric_model.insert(req.room_id, req.fan_speed,
+        self.metric_model.insert(req.room_id, req.fan_speed, req.temperature,
                                  req.timestamp if req.timestamp else None)
 
         self.connection_pool.put_heart_beat(req.room_id)

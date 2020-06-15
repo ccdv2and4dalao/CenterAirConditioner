@@ -16,10 +16,12 @@ class ReportConsoleImpl(ReportConsole, BaseSubConsoleImpl):
 
     def __call__(self, *args):
         duration = args[0].lower()
+        room_id = args[1] if len(args) == 2 else None
         if duration not in ['day', 'week', 'month']:
             raise ValueError('report type should in [day, week, month]')
         r = AdminGenerateReportRequest()
         r.type = duration
+        r.room_id = room_id
         ret = self.report_service.serve(r)
 
         if type(ret) is AdminGenerateReportResponse:
