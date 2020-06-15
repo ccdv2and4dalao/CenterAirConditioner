@@ -28,9 +28,9 @@ class MasterAirCondImpl(StoppableThread, MasterAirCond):
         return p
 
     def get_delay_pair(self) -> Tuple[int, int]:
-        '''
+        """
         return (update, metric) delay
-        '''
+        """
         with self.mutex:
             p = (self.update_delay, self.metric_delay)
         return p

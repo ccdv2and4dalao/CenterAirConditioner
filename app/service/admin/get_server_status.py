@@ -1,4 +1,4 @@
-from abstract.component import MasterAirCond, ConfigurationProvider, Dispatcher
+from abstract.component import MasterAirCond, Dispatcher
 from abstract.service.admin.get_server_status import AdminGetServerStatusService
 from proto import FailedResponse
 from proto.admin.get_server_status import AdminGetServerStatusRequest, AdminGetServerStatusResponse, ServerState
@@ -6,12 +6,11 @@ from proto.admin.get_server_status import AdminGetServerStatusRequest, AdminGetS
 
 class AdminGetServerStatusServiceImpl(AdminGetServerStatusService):
     def __init__(self, inj):
-        self.cfg_provider = inj.require(ConfigurationProvider)  # type: ConfigurationProvider
         self.dispatcher = inj.require(Dispatcher)  # type: Dispatcher
+        self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
 
     def serve(self, req: AdminGetServerStatusRequest) -> AdminGetServerStatusResponse or FailedResponse:
         resp = AdminGetServerStatusResponse()
-        cfg = self.cfg_provider.get()
         resp.mode, resp.current_temperature = self.master_air_cond.get_md_pair()
         resp.mode = resp.mode.value
         resp.update_delay, resp.metric_delay = self.master_air_cond.get_delay_pair()

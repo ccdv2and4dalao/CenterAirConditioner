@@ -48,10 +48,10 @@ class MasterAirCond(AirCond, Bootable):
         pass
 
     @abstractmethod
-    def get_delay_pari(self) -> Tuple[int, int]:
-        '''
+    def get_delay_pair(self) -> Tuple[int, int]:
+        """
         return (update, metric) delay
-        '''
+        """
         pass
 
     @abstractmethod
