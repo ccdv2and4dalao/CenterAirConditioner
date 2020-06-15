@@ -19,8 +19,9 @@ class FlowLabel(enum.Enum):
     AdminGetServerStatus = 103
     AdminGetSlaveStatistics = 104
     AdminGetRoomCount = 105
-    AdminSetMetricsDelay = 106
-    AdminSetUpdateDelay = 107
+    AdminGetReport = 106
+    AdminSetMetricsDelay = 107
+    AdminSetUpdateDelay = 108
 
     AdminLogin = 1001
     AdminBoot = 1002
