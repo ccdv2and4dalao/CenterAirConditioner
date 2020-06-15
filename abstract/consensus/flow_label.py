@@ -12,12 +12,15 @@ class FlowLabel(enum.Enum):
     UpdateMetrics = 8
     GetConnectedSlaves = 9
     GetConnectedSlave = 10
+    Disconnect = 11
 
     AdminSetMode = 101
     AdminSetCurrentTemperature = 102
     AdminGetServerStatus = 103
     AdminGetSlaveStatistics = 104
     AdminGetRoomCount = 105
+    AdminSetMetricsDelay = 106
+    AdminSetUpdateDelay = 107
 
     AdminLogin = 1001
     AdminBoot = 1002

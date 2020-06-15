@@ -23,6 +23,7 @@ master_http_spec = MasterServerHTTPSpec(
     ],
     [
         HTTPSpecItem('connect', '/v1/connect', ['POST'], FlowLabel.Connect),
+        HTTPSpecItem('disconnect', '/v1/disconnect', ['POST'], FlowLabel.Disconnect),
     ],
     [
         HTTPSpecItem('set_mode', '/v1/admin/mode', ['POST'], FlowLabel.AdminSetMode),
@@ -38,6 +39,8 @@ master_http_spec = MasterServerHTTPSpec(
         HTTPSpecItem('admin_login', '/v1/admin/login', ['POST'], FlowLabel.AdminLogin),
         HTTPSpecItem('admin_boot_master', '/v1/admin/boot', ['POST'], FlowLabel.AdminBoot),
         HTTPSpecItem('admin_shutdown_master', '/v1/admin/shutdown', ['POST'], FlowLabel.AdminShutdown),
+        HTTPSpecItem('metrics_delay', '/v1/admin/metrics-delay', ['POST'], FlowLabel.AdminSetMetricsDelay),
+        HTTPSpecItem('update_delay', '/v1/admin/update-delay', ['POST'], FlowLabel.AdminSetUpdateDelay),
     ],
     [
         HTTPSpecItem('update_metrics', '/v1/metrics', ['POST'], FlowLabel.UpdateMetrics),
