@@ -29,6 +29,7 @@ todo_object = object
 #     b)当关闭后，不响应来自房间的任何温控请求；
 
 class MasterAirCond(AirCond, Bootable):
+    is_boot: bool
 
     @abstractmethod
     def turn_on(self):
