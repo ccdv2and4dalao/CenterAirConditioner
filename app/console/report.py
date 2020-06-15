@@ -21,6 +21,7 @@ class ReportConsoleImpl(ReportConsole, BaseSubConsoleImpl):
         r = AdminGenerateReportRequest()
         r.type = duration
         ret = self.report_service.serve(r)
+
         if type(ret) is AdminGenerateReportResponse:
             for d in ret.room_list:
                 print(

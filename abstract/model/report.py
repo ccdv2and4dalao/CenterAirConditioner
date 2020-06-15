@@ -1,8 +1,9 @@
 ﻿from abc import abstractmethod
-from typing import List
+from typing import List, Dict, Tuple, Optional
 
-from .model import Model
-
+from .model import Model 
+from .event import Event
+import datetime
 
 class Report:
     """
@@ -63,11 +64,12 @@ class ReportModel(Model):
         pass
 
     @abstractmethod
-    def get_reports(self, stop_time: str, report_duration: str) -> List[Report]:
+    def get_reports(self, stop_time: datetime.datetime, report_duration: str, room_id: Optional[int]) -> Tuple[List[Report], List[Event], Dict[int, str]]:
         '''
         查询到stop_time为止的报表
         @stop_time: 截止时间
         @report_duration: 报表选取时间范围
         @return: Report的列表
+        @room_id: 对应的room在数据库中id
         '''
         pass

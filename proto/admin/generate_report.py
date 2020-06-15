@@ -7,12 +7,14 @@ class AdminGenerateReportRequest(Request):
         self.jwt_token = ''  # type: str
         self.type = ''  # type: str # one of ['day', 'week' 'month']
         self.stop_time = ''  # type: str
+        self.room_id = None # type: int or None
 
     def bind_dict(self, d: dict):
         if d is None:
             return
         self.type = d['type']
-        self.stop_time = d['stop_time']
+        self.stop_time = d.get('stop_time', '')
+        self.room_id = d.get('room_id', None)
 
     def bind_header(self, h):
         self.jwt_token = h['Authorization']
@@ -21,14 +23,14 @@ class AdminGenerateReportRequest(Request):
 class AdminGenerateReportResponse(Response):
     def __init__(self):
         '''
-        format of the elements in self.room_list:
+        format of the elements in self.data:
         {
             room_id: 'A123',
-            items: [Report, ...]
+            count: 0,
+            items: [Report, ...],
             total_energy: 0.0,
-            total_cost: 0.0,
-            events: [Event, ...]
+            total_cost: 0.0
         }
         '''
         super().__init__()
-        self.room_list = []
+        self.data = []

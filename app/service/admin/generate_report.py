@@ -1,5 +1,5 @@
 ﻿import datetime
-
+from dateutil.parser import parse
 from abstract.model import ReportModel, EventType
 from abstract.service.admin import AdminGenerateReportService
 from lib.injector import Injector
@@ -15,8 +15,8 @@ class AdminGenerateReportServiceImpl(AdminGenerateReportService):
         if req.stop_time == '':
             req.stop_time = datetime.datetime.now()
         else:
-            req.stop_time = datetime.datetime.strptime(req.stop_time, '%Y-%m-%d %H:%M:%S')
-        reports, events, id2roomid = self.report_model.get_reports(req.stop_time, req.type)
+            req.stop_time = parse(req.stop_time)
+        reports, events, id2roomid = self.report_model.get_reports(req.stop_time, req.type, req.room_id)
         d = {}
         for report in reports:
             if report.room_id not in d.keys():
@@ -24,16 +24,13 @@ class AdminGenerateReportServiceImpl(AdminGenerateReportService):
                                      'count': 0,
                                      'items': [],
                                      'total_energy': 0.0,
-                                     'total_cost': 0.0,
-                                     'events': []}
+                                     'total_cost': 0.0}
             d[report.room_id]['items'].append(report)
             d[report.room_id]['total_energy'] += report.energy
             d[report.room_id]['total_cost'] += report.cost
         for event in events:
             if event.event_type == EventType.Connect:
                 d[id2roomid[event.room_id]]['count'] += 1
-            if event.event_type == EventType.Connect or event.event_type == EventType.Disconnect:
-                d[id2roomid[event.room_id]]['events'].append(event)
         response = AdminGenerateReportResponse()
-        response.room_list = list(d.values())
+        response.data = list(d.values())
         return response

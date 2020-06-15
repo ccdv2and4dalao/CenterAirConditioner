@@ -1,5 +1,5 @@
 ﻿import datetime
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 
 from abstract.model import EventModel, StatisticModel, Event, EventType, RoomModel, MetricModel
 from abstract.model import Report, ReportModel
@@ -123,15 +123,14 @@ class ReportModelImpl(SQLModel, ReportModel):
         '''
         return self.db.delete(sql, report_no)
 
-    def get_reports(self, stop_time: datetime.datetime, report_duration: str) -> Tuple[
-        List[Report], List[Event], Dict[int, str]]:
+    def get_reports(self, stop_time: datetime.datetime, report_duration: str, room_id: Optional[int]) -> Tuple[List[Report], List[Event], Dict[int, str]]:
         report_duration = report_duration.lower()
         if report_duration not in ['day', 'month', 'week']:
             raise ValueError('report duration should in [day, month, week]')
 
         days = 1 if report_duration == 'day' else 7 if report_duration == 'week' else 30
         start_time = stop_time - datetime.timedelta(days=days)
-        events = self.event_model.query_by_time_interval(None, start_time, stop_time)
+        events = self.event_model.query_by_time_interval(room_id, start_time, stop_time)
 
         room_event = {}
         for event in events:
@@ -156,8 +155,14 @@ class ReportModelImpl(SQLModel, ReportModel):
             id2room_id[room] = room_name
             left, right = 0, 1
             while left < len(l):
-                while right < len(l) and l[right].event_type != EventType.Disconnect: right += 1
+                while right < len(l) and l[right].event_type != EventType.Disconnect\
+                                          and l[right].event_type != EventType.Connect: 
+                    right += 1
                 if right >= len(l): break
+                if l[right].event_type == EventType.Connect:
+                    l = right
+                    continue
+
                 for i in range(left + 1, right - 1, 2):
                     r = Report()
                     r.room_id = room_name
