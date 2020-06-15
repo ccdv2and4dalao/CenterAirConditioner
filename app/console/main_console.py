@@ -14,14 +14,15 @@ class MainConsoleImpl(MainConsole, Thread):
 
     def parse(self, cmd: str):
         args = cmd.split(' ')
-        try:
+        #try:
+        if args[0].lower() in self.m.keys():
             self.m[args[0].lower()](*args[1:])
-        except KeyError as e:
+        #except KeyError as e:
             # self.logger.warn('Unexpected command {}\ninput help for all available command'.format(e))
-            print('Unexpected command {}\ninput help for all available command'.format(e))
-        except Exception as e:
+            #print('Unexpected command {}\ninput help for all available command'.format(e))
+        #except Exception as e:
             # self.logger.error(e)
-            print(e)
+            #print(e)
 
     def run(self):
         print('Welcome to MasterAirConditioner V0.0.1')

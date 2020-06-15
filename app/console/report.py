@@ -33,8 +33,8 @@ class ReportConsoleImpl(ReportConsole, BaseSubConsoleImpl):
                                      Report.start_temperature_key, Report.end_temperature_key,
                                      Report.energy_key, Report.cost_key])
                 for report in d['items']:
-                    table.add_row([report.start_time, report.stop_time,
-                                   report.start_temperature, report.end_temperature,
-                                   report.energy, report.cost])
+                    table.add_row([report['start_time'], report['stop_time'],
+                                   report['start_temperature'], report['end_temperature'],
+                                   report['energy'], report['cost']])
                 print(table)
                 print('')

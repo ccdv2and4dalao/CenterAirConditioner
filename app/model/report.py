@@ -1,4 +1,5 @@
 ﻿import datetime
+from dateutil.parser import parse
 from typing import List, Dict, Tuple, Optional
 
 from abstract.model import EventModel, StatisticModel, Event, EventType, RoomModel, MetricModel
@@ -159,13 +160,19 @@ class ReportModelImpl(SQLModel, ReportModel):
                     right += 1
                 if right >= len(l): break
                 if l[right].event_type == EventType.Connect:
-                    l = right
+                    left, right = right, right + 1
                     continue
 
                 for i in range(left + 1, right - 1, 2):
                     r = Report()
                     r.room_id = room_name
                     r.start_time, r.stop_time = l[i].checkpoint, l[i + 1].checkpoint
+                    if type(r.start_time) is datetime.datetime:
+                        r.start_time = r.start_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+                        r.stop_time = r.stop_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+                    else:
+                        r.start_time = parse(r.start_time).strftime("%Y-%m-%dT%H:%M:%SZ")
+                        r.stop_time = parse(r.stop_time).strftime("%Y-%m-%dT%H:%M:%SZ")
                     if l[i].event_type != EventType.StartControl:
                         continue
                     if l[i + 1].event_type != EventType.StopControl:
