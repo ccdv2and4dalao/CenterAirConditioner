@@ -15,6 +15,5 @@ class AdminBootMasterServiceImpl(AdminBootMasterService):
         self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
 
     def serve(self, req: AdminBootMasterRequest) -> AdminBootMasterResponse or FailedResponse:
-        if not self.master_air_cond.is_boot:
-            self.master_air_cond.is_boot = True
+        self.master_air_cond.is_boot = True
         return AdminBootMasterResponse()

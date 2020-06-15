@@ -2,7 +2,7 @@
 
 from abstract.service.admin import AdminSetMetricDelayService
 from proto.admin.set_metric_delay import AdminSetMetricDelayRequest, AdminSetMetricDelayResponse
-from proto import FailedResponse, MasterAirCondNotAlive
+from proto import FailedResponse
 from abstract.component.air import MasterAirCond
 
 class AdminSetMetricDelayServiceImpl(AdminSetMetricDelayService):
@@ -10,8 +10,6 @@ class AdminSetMetricDelayServiceImpl(AdminSetMetricDelayService):
         self.master_air_cond = inj.require(MasterAirCond)
 
     def serve(self, req: AdminSetMetricDelayRequest) -> Union[AdminSetMetricDelayResponse, FailedResponse]:
-        if not self.master_air_cond.is_boot:
-            return MasterAirCondNotAlive("master aircon is off")
         delay = int(req.delay)
         self.master_air_cond.metric_delay = delay
         return AdminSetMetricDelayResponse()

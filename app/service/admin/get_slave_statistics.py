@@ -7,20 +7,15 @@ from abstract.service.admin.get_slave_statistics import AdminGetSlaveStatisticsS
 from app.service.generate_statistics import GenerateStatisticServiceImpl
 from lib.dateutil import now, to_local
 from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsResponse, AdminGetSlaveStatisticsRequest
-from proto import MasterAirCondNotAlive
-from abstract.component import MasterAirCond
 
 class AdminGetSlaveStatisticsServiceImpl(GenerateStatisticServiceImpl, AdminGetSlaveStatisticsService):
     def __init__(self, inj):
         self.response_factory = AdminGetSlaveStatisticsResponse
         self.event_model = inj.require(EventModel)  # type: EventModel
         self.statistic_model = inj.require(StatisticModel)  # type: StatisticModel
-        self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
 
     def serve(self, req: AdminGetSlaveStatisticsRequest):
-        if not self.master_air_cond.is_boot:
-            return MasterAirCondNotAlive("master aircon is off")
-        events = self.event_model.query_by_time_interval(None if req.room_id == 0 else req.room_id, 
+        events = self.event_model.query_by_time_interval(None if req.room_id == 0 else req.room_id,
                                                          datetime.datetime(2000, 1, 1), now())
         data = []
         i = 0

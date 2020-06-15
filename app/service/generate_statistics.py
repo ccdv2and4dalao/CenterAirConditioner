@@ -1,12 +1,10 @@
 ﻿from abc import abstractmethod
 from decimal import Decimal
 
-from abstract.component import MasterAirCond
 from abstract.model import EventModel, StatisticModel
 from abstract.service import GenerateStatisticService
 from lib.dateutil import now
 from lib.injector import Injector
-from proto import MasterAirCondNotAlive
 from proto.generate_statistics import GenerateStatisticRequest, GenerateStatisticResponse
 
 
@@ -21,11 +19,8 @@ class GenerateStatisticServiceImpl(BaseGenerateStatisticServiceImpl):
         self.event_model = inj.require(EventModel)
         self.statistic_model = inj.require(StatisticModel)
         self.response_factory = GenerateStatisticResponse
-        self.master_air_cond = inj.require(MasterAirCond)  # type: MasterAirCond
 
     def serve(self, req: GenerateStatisticRequest):
-        if not self.master_air_cond.is_boot:
-            return MasterAirCondNotAlive("master aircon is off")
         return self.get_metrics(req.room_id)
 
     def get_metrics(self, room_id):
