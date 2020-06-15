@@ -1,32 +1,16 @@
 from abc import abstractmethod
+from datetime import datetime
 from typing import Union
 
 
 class Connection(object):
-
-    @property
-    def room_id(self) -> int:
-        return 0
-
-    @property
-    def user_id(self) -> int:
-        return 0
-
-    @property
-    def current_temperature(self) -> float:
-        return 0.0
-
-    @property
-    def need_fan(self) -> bool:
-        return False
-
-    @property
-    def session_id(self) -> Union[str, None]:
-        return None
-
-    @property
-    def fan_speed(self) -> str:
-        return ''
+    room_id: int
+    user_id: int
+    current_temperature: float
+    need_fan: bool
+    session_id: Union[str, None]
+    fan_speed: str
+    last_heart_beat: datetime
 
 
 class ConnectionPool(object):
@@ -45,6 +29,10 @@ class ConnectionPool(object):
 
     @abstractmethod
     def close_session_connection(self, room_id: int):
+        pass
+
+    @abstractmethod
+    def put_heart_beat(self, room_id: int, put_heart_beat: datetime = None):
         pass
 
     @abstractmethod

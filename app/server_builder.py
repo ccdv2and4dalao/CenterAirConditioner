@@ -1,3 +1,5 @@
+from typing import Union
+
 from flask import Flask
 from flask_cors import CORS
 
@@ -63,7 +65,7 @@ from lib.arg_parser import StdArgParser
 from lib.bcrypt_password_verifier import BCryptPasswordVerifier
 from lib.file_configuration import FileConfigurationProvider
 from lib.injector import Injector
-from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl
+from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl, MemoryConnectionPoolImpl
 from lib.py_jwt import PyJWTImpl
 from lib.serializer import JSONSerializer, Serializer
 from lib.socket_io import functional_flask_socket_io_connection_impl
@@ -87,6 +89,7 @@ class ServerBuilder:
         self.logger = None
         self.db_conn = None
         self.websocket_conn = None
+        self.connection_pool = None  # type: Union[MemoryConnectionPoolImpl, None]
 
     def build(self):
         """
@@ -155,7 +158,8 @@ class ServerBuilder:
         inj.build(JWT, PyJWTImpl)
         inj.provide(Flask, Flask(APPName))
 
-        inj.provide(ConnectionPool, SafeMemoryConnectionPoolImpl())
+        self.connection_pool = SafeMemoryConnectionPoolImpl()
+        inj.provide(ConnectionPool, self.connection_pool)
 
         # todo: should provide parameters later
         # inj.build(Dispatcher, PriQueueDispatcher())
@@ -237,6 +241,7 @@ class ServerBuilder:
         inj = inj or self.injector
         dispatcher = inj.require(Dispatcher)  # type: Dispatcher
         dispatcher.boot_up()
+        self.connection_pool.boot_up()
         self.create_table(inj)
         if self.cfg.use_test_database:
             um = inj.require(UserModel)  # type: UserModel

@@ -1,8 +1,9 @@
 ﻿from abc import ABC, abstractmethod
+from typing import Optional
 
 from abstract.middleware.abstract import Middleware
 from proto import MasterAirCondNotAlive
-from typing import Optional
+
 
 class BootMiddleware(Middleware, ABC):
     """
