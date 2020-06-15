@@ -20,10 +20,10 @@ from proto.admin.get_server_status import AdminGetServerStatusRequest
 from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsRequest
 from proto.admin.login import AdminLoginRequest
 from proto.admin.set_current_temperature import AdminSetCurrentTemperatureRequest
-from proto.admin.set_mode import AdminSetModeRequest
-from proto.admin.shutdown import AdminShutdownRequest
 from proto.admin.set_metric_delay import AdminSetMetricDelayRequest
+from proto.admin.set_mode import AdminSetModeRequest
 from proto.admin.set_update_delay import AdminSetUpdateDelayRequest
+from proto.admin.shutdown import AdminShutdownRequest
 
 
 class FlaskDaemonAdminControllerImpl(DaemonAdminController):
@@ -106,7 +106,7 @@ class AdminControllerFlaskImpl(AdminController):
 
     def admin_login(self, *args, **kwargs):
         req = self.rc.bind(AdminLoginRequest)  # type: AdminLoginRequest
-        return self.auth_admin(req.jwt_token) or self.rc.ok(self.admin_login_service.serve(req))
+        return self.rc.ok(self.admin_login_service.serve(req))
 
     def admin_boot_master(self, *args, **kwargs):
         req = self.rc.bind(AdminBootMasterRequest)  # type: AdminBootMasterRequest

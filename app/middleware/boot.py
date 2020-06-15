@@ -1,8 +1,9 @@
-﻿from abstract.middleware.boot import BootMiddleware
-from proto import MasterAirCondNotAlive
+﻿from typing import Optional
+
 from abstract.component.air import MasterAirCond
-from typing import Optional
 from app.router.flask import RouteController
+from abstract.middleware.boot import BootMiddleware
+from proto import MasterAirCondNotAlive
 
 class BootMiddlewareImpl(BootMiddleware):
     """
