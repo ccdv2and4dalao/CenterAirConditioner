@@ -1,0 +1,13 @@
+[Unit]
+Description=Daemon Air Backend
+After=network.target
+
+[Service]
+ExecStart=python3 daemon_main.py --config config.yaml --host 0.0.0.0 --port 2024
+Type=simple
+KillMode=process
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=ulti-user.target

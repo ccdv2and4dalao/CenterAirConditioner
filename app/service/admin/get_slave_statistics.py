@@ -49,12 +49,12 @@ class AdminGetSlaveStatisticsServiceImpl(GenerateStatisticServiceImpl, AdminGetS
                 i += 2
         data.sort(key=lambda x: x['start_time'])
         for d in data:
-            if type(d['start_time']) is datetime.datetime:
-                d['start_time'] = d['start_time'].strftime("%Y-%m-%dT%H:%M:%SZ")
-                d['stop_time'] = d['stop_time'].strftime("%Y-%m-%dT%H:%M:%SZ")
-            else:
-                d['start_time'] = parse(d['start_time']).strftime("%Y-%m-%dT%H:%M:%SZ")
-                d['stop_time'] = parse(d['stop_time']).strftime("%Y-%m-%dT%H:%M:%SZ")
+            if isinstance(d['start_time'], str):
+                d['start_time'] = parse(d['start_time'])
+            if isinstance(d['stop_time'], str):
+                d['stop_time'] = parse(d['stop_time'])
+            d['start_time'] = d['start_time'].strftime("%Y-%m-%dT%H:%M:%SZ")
+            d['stop_time'] = d['stop_time'].strftime("%Y-%m-%dT%H:%M:%SZ")
             d['energy'] = float(d['energy'])
             d['cost'] = float(d['cost'])
         ret = AdminGetSlaveStatisticsResponse()
