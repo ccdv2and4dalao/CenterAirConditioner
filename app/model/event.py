@@ -4,6 +4,7 @@ from typing import List, Optional, Union
 import lib.dateutil
 from abstract.model.event import EventModel, Event, EventType
 from app.model.model import SQLModel
+from lib.hook import Hook
 
 EventTupleProxy = namedtuple('MetricsTupleProxy', [
     Event.id_key,
@@ -17,6 +18,7 @@ EventTupleProxy = namedtuple('MetricsTupleProxy', [
 
 class EventModelImpl(SQLModel, EventModel):
     def create(self, *args) -> bool:
+        Hook.add_callee('disconnect', self.insert_disconnect_event)
         sql = f'''
         CREATE TABLE IF NOT EXISTS {Event.table_name} (
         {Event.id_key}          INTEGER PRIMARY KEY {self.db.auto_increment},

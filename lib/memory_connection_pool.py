@@ -5,7 +5,7 @@ from typing import Dict
 
 from abstract.component.connection_pool import ConnectionPool, Connection
 from app.component.bootable import BootableImpl
-
+from lib.hook import Hook
 
 class ConnectionImpl(Connection):
     def __init__(self, room_id, user_id, current_temperature, need_fan, fan_speed, last_heart_beat):
@@ -39,6 +39,8 @@ class MemoryConnectionPoolImpl(BootableImpl, ConnectionPool):
                 to_pop.append(k)
         for k in to_pop:
             self.cache.pop(k)
+            Hook.get_callee('disconnect')(k)
+
 
     def put(self, room_id: int, user_id: int, need_fan: bool):
         self.cache[room_id] = ConnectionImpl(room_id=room_id, user_id=user_id,
