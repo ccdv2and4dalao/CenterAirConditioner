@@ -114,8 +114,6 @@ class AdminControllerFlaskImpl(AdminController):
 
     def admin_shutdown_master(self, *args, **kwargs):
         req = self.rc.bind(AdminShutdownRequest)  # type: AdminShutdownRequest
-        print("is boot", self.master_is_boot())
-        print("testtttttttttttttttttttttttttttttttttttttttttttttttttttttt", self.auth_admin(req.jwt_token))
         return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(self.admin_shutdown_master_service.serve(req))
 
     def set_heat_mode(self, *args, **kwargs):
