@@ -26,5 +26,6 @@ class AdminGetServerStatusResponse(Response):
         self.current_temperature = 0.0  # type: float
         self.metric_delay = 100  # type: int
         self.update_delay = 100  # type: int
+        self.is_boot = True # type: bool
         # 使用ping方法检测服务器状态
         # self.server_state = ''  # type: str
