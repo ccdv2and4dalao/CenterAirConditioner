@@ -1,5 +1,6 @@
 from abc import abstractmethod
-from typing import List, Optional
+from datetime import datetime
+from typing import List, Optional, Union
 
 from abstract.model.model import Model
 
@@ -49,7 +50,8 @@ class EventModel(Model):
         pass
 
     @abstractmethod
-    def query_by_time_interval(self, room_id, start_time: str, stop_time: str) -> List[Event]:
+    def query_by_time_interval(self, room_id, start_time: Union[str, datetime], stop_time: Union[str, datetime]) -> \
+    List[Event]:
         pass
 
     @abstractmethod

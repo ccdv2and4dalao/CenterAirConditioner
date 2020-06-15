@@ -30,7 +30,7 @@ class FlaskDaemonAdminControllerImpl(DaemonAdminController):
 
     def __init__(self, inj: Injector):
         self.rc = inj.require(RouteController)  # type: RouteController
-        self.master_is_boot = inj.require(BootMiddleware)
+        # self.master_is_boot = inj.require(BootMiddleware)
         self.auth_admin = inj.require(AuthAdminMiddleware)  # type: AuthAdminMiddleware
         self.login_service = inj.require(AdminLoginService)
         self.boot_service = inj.require(AdminBootMasterDaemonService)

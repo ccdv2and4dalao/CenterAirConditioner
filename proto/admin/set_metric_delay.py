@@ -10,7 +10,7 @@ class AdminSetMetricDelayRequest(Request):
         if d is None:
             return
         super().bind_dict(d)
-        self.delay = d['delay']
+        self.delay = int(d['delay'])
 
     def bind_header(self, h):
         self.jwt_token = h['Authorization']
