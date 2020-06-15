@@ -18,6 +18,7 @@ class BasicStateControlServiceImpl(object):
         self.connection_pool = inj.require(ConnectionPool)  # type: ConnectionPool
         self.logger = inj.require(Logger)  # type: Logger
         self.statistic_model = inj.require(StatisticModel) # type: StatisticModel
+        self.base_time = time.perf_counter()
 
     def push_start_request(self, room_id, speed_fan, mode, tag):
         return self.dispatcher.push(
@@ -39,14 +40,14 @@ class BasicStateControlServiceImpl(object):
         self.master_air_cond.start_supply(b.room_id, b.speed, b.mode)
         self.event_model.insert_start_state_control_event(b.room_id, b.speed)
         
-        b.t1 = time.clock()
+        b.t1 = time.perf_counter()
         while self.connection_pool.get(b.room_id).need_fan:
-            b.t2 = time.clock()
+            b.t2 = time.perf_counter()
             self.statistic_model.insert(b.room_id, (b.t2 - b.t1) * b.co / 5,
                                         (b.t2 - b.t1) * b.co)
             b.t1 = b.t2
             time.sleep(2.0)
-        b.t2 = time.clock()
+        b.t2 = time.perf_counter()
         self.statistic_model.insert(b.room_id, (b.t2 - b.t1) * b.co / 5,
                             (b.t2 - b.t1) * b.co)
 
