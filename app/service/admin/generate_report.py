@@ -25,7 +25,7 @@ class AdminGenerateReportServiceImpl(AdminGenerateReportService):
                                      'items': [],
                                      'total_energy': 0.0,
                                      'total_cost': 0.0}
-            d[report.room_id]['items'].append(report)
+            d[report.room_id]['items'].append(report.__dict__)
             d[report.room_id]['total_energy'] += report.energy
             d[report.room_id]['total_cost'] += report.cost
         for event in events:

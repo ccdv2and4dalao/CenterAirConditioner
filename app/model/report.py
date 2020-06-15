@@ -15,7 +15,6 @@ class ReportModelImpl(SQLModel, ReportModel):
         self.metric_model = inj.require(MetricModel)
         self.room_model = inj.require(RoomModel)
 
-
     def create(self):
         return True
         raise DeprecationWarning('this model could only use get_reports')
@@ -170,7 +169,8 @@ class ReportModelImpl(SQLModel, ReportModel):
                     if l[i].event_type != EventType.StartControl:
                         continue
                     if l[i + 1].event_type != EventType.StopControl:
-                        continue
+                        if l[i + 1].event_type != EventType.Disconnect:
+                            continue
                     r.energy, r.cost = self.statistic_model.query_sum_by_time_interval(room, l[i].checkpoint,
                                                                                        l[i + 1].checkpoint)
                     if type(r.energy) is not float:
