@@ -150,7 +150,9 @@ class ReportModelImpl(SQLModel, ReportModel):
         reports = []
         id2room_id = {}
         for room, l in room_event.items():
-            room_name = self.room_model.query_by_id(room).room_id
+            data = self.room_model.query_by_id(room)
+            if not data: continue
+            room_name = data.room_id
             id2room_id[room] = room_name
             left, right = 0, 1
             while left < len(l):
