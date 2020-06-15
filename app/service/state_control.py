@@ -44,7 +44,7 @@ class BasicStateControlServiceImpl(object):
             self.statistic_model.insert(b.room_id, (b.t2 - b.t1) * b.co / 5,
                                         (b.t2 - b.t1) * b.co)
             b.t1 = b.t2
-            time.sleep(1.0)
+            time.sleep(2.0)
         b.t2 = time.clock()
         self.statistic_model.insert(b.room_id, (b.t2 - b.t1) * b.co / 5,
                             (b.t2 - b.t1) * b.co)
