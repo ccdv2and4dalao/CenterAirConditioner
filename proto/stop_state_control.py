@@ -11,7 +11,7 @@ class StopStateControlRequest(Request):
         if d is None:
             return
         super().bind_dict(d)
-        self.room_id = d['room_id']
+        # self.room_id = d['room_id']
 
     def bind_header(self, h):
         if h is None:
