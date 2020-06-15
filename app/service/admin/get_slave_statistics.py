@@ -5,11 +5,14 @@ from dateutil.parser import parse
 from abstract.model import EventModel, EventType, Event, StatisticModel
 from abstract.service.admin.get_slave_statistics import AdminGetSlaveStatisticsService
 from app.service.generate_statistics import GenerateStatisticServiceImpl
-from lib.dateutil import now, to_local
+from lib.dateutil import now
+from proto import DatabaseError
 from proto.admin.get_slave_statistics import AdminGetSlaveStatisticsResponse, AdminGetSlaveStatisticsRequest
+
 
 class AdminGetSlaveStatisticsServiceImpl(GenerateStatisticServiceImpl, AdminGetSlaveStatisticsService):
     def __init__(self, inj):
+        super().__init__(inj)
         self.response_factory = AdminGetSlaveStatisticsResponse
         self.event_model = inj.require(EventModel)  # type: EventModel
         self.statistic_model = inj.require(StatisticModel)  # type: StatisticModel
@@ -17,6 +20,8 @@ class AdminGetSlaveStatisticsServiceImpl(GenerateStatisticServiceImpl, AdminGetS
     def serve(self, req: AdminGetSlaveStatisticsRequest):
         events = self.event_model.query_by_time_interval(None if req.room_id == 0 else req.room_id,
                                                          datetime.datetime(2000, 1, 1), now())
+        if events is None:
+            return DatabaseError(f'DatabaseError: {self.event_model.why()}')
         data = []
         i = 0
         room_events = {}

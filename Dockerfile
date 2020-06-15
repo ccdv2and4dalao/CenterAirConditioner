@@ -14,4 +14,6 @@ RUN rm -rf /usr/src/app
 COPY . /usr/src/app
 EXPOSE 8080
 
-CMD [ "python", "./server_main.py", "--config", "/config.yaml", "--host", "0.0.0.0"]
+COPY docker/run.sh /usr/local/bin/run.sh
+RUN chmod +x /usr/local/bin/run.sh
+CMD /usr/local/bin/run.sh

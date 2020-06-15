@@ -1,1 +1,1 @@
-server
+python ./server_main.py --config /config.yaml --host 0.0.0.0

@@ -30,6 +30,8 @@ todo_object = object
 
 class MasterAirCond(AirCond, Bootable):
     is_boot: bool
+    metric_delay: int
+    update_delay: int
 
     @abstractmethod
     def turn_on(self):
