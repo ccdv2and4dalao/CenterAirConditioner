@@ -2,7 +2,7 @@
 from abstract.service import StopStateControlService
 from app.service.state_control import BasicStateControlServiceImpl
 from lib.injector import Injector
-from proto import FailedResponse, MasterAirCondNotAlive
+from proto import FailedResponse
 from proto.stop_state_control import StopStateControlRequest, StopStateControlResponse
 
 class StopStateControlServiceImpl(BasicStateControlServiceImpl, StopStateControlService):
@@ -10,8 +10,6 @@ class StopStateControlServiceImpl(BasicStateControlServiceImpl, StopStateControl
         super().__init__(inj)
 
     def serve(self, req: StopStateControlRequest) -> StopStateControlResponse or FailedResponse:
-        if not self.master_air_cond.is_boot:
-            return MasterAirCondNotAlive("master aircon is off")
         return self.stop_supply(req.room_id)
 
     def stop_supply(self, room_id: int):
