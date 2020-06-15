@@ -168,9 +168,9 @@ class ReportModelImpl(SQLModel, ReportModel):
                     r.room_id = room_name
                     r.start_time, r.stop_time = l[i].checkpoint, l[i + 1].checkpoint
                     if l[i].event_type != EventType.StartControl:
-                        raise ValueError('event mismatch: missing {}'.format(EventType.StartControl), l[i])
+                        continue
                     if l[i + 1].event_type != EventType.StopControl:
-                        raise ValueError('event mismatch: missing {}'.format(EventType.StopControl), l[i + 1])
+                        continue
                     r.energy, r.cost = self.statistic_model.query_sum_by_time_interval(room, l[i].checkpoint,
                                                                                        l[i + 1].checkpoint)
                     if type(r.energy) is not float:
