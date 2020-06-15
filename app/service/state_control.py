@@ -34,7 +34,7 @@ class BasicStateControlServiceImpl(object):
     def _pop_request(self, req: dict, tag: str) -> None:
         b = local()
         b.room_id, b.mode = req['room_id'], req['mode']
-        b.speed = self.connection_pool.get().fan_speed
+        b.speed = self.connection_pool.get(b.room_id).fan_speed
         b.co = 5 if b.speed.value == 'high' else 4 if b.speed.value == 'mid' else 3
 
         self.master_air_cond.start_supply(b.room_id, b.speed, b.mode)
@@ -44,7 +44,7 @@ class BasicStateControlServiceImpl(object):
         try:
             while self.connection_pool.get(b.room_id).need_fan:
                 time.sleep(2.0)
-                b.new_speed = self.connection_pool.get().fan_speed
+                b.new_speed = self.connection_pool.get(b.room_id).fan_speed
                 if  b.new_speed != b.speed:
                     b.speed = b.new_speed
                     # stop old speed
