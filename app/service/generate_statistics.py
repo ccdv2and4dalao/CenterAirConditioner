@@ -1,12 +1,14 @@
 ﻿from abc import abstractmethod
+from decimal import Decimal
 
+from abstract.component import MasterAirCond
 from abstract.model import EventModel, StatisticModel
 from abstract.service import GenerateStatisticService
 from lib.dateutil import now
 from lib.injector import Injector
-from proto.generate_statistics import GenerateStatisticRequest, GenerateStatisticResponse
 from proto import MasterAirCondNotAlive
-from abstract.component import MasterAirCond
+from proto.generate_statistics import GenerateStatisticRequest, GenerateStatisticResponse
+
 
 class BaseGenerateStatisticServiceImpl(GenerateStatisticService):
     @abstractmethod
@@ -30,4 +32,6 @@ class GenerateStatisticServiceImpl(BaseGenerateStatisticServiceImpl):
         event = self.event_model.query_last_connect_event(room_id)
         r = self.response_factory()
         r.energy, r.cost = self.statistic_model.query_sum_by_time_interval(room_id, event.checkpoint, now())
+        if isinstance(r.energy, Decimal):
+            r.energy, r.cost = float(r.energy), float(r.cost)
         return r
