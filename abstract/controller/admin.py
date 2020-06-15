@@ -198,3 +198,15 @@ class AdminController(object):
         {"code": 0}
         """
         pass
+
+    @abstractmethod
+    def admin_login(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def admin_boot_master(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def admin_shutdown_master(self, *args, **kwargs):
+        pass
