@@ -14,7 +14,9 @@ class MasterFanPipeImpl(MasterFanPipe):
         开始送风，什么模式
         由MasterAirCond调用，不是由从控调用，向从控送风
         """
-        return self.socket_conn.put_event(room_id, 'start_supply', (speed.value, mode.value))
+        if type(speed) is FanSpeed: speed = speed.value
+        if type(mode) is AirMode: mode = mode.value
+        return self.socket_conn.put_event(room_id, 'start_supply', (speed, mode))
 
     def supply_once(self, room_id: int, duration: int):
         """

@@ -14,7 +14,7 @@ class MetricConsoleImpl(MetricConsole, BaseSubConsoleImpl):
         self.metric_service = inj.require(AdminGetSlaveStatisticsService)
 
     def __call__(self, *args):
-        r = AdminGetSlaveStatisticsRequest
+        r = AdminGetSlaveStatisticsRequest()
         ret = self.metric_service.serve(r)
         attrs = ['room_id', 'start_time', 'stop_time', 'fan_speed', 'energy', 'cost']
         table = PrettyTable(attrs)

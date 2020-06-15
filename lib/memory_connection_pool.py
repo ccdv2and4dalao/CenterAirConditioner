@@ -63,6 +63,9 @@ class MemoryConnectionPoolImpl(BootableImpl, ConnectionPool):
     def get(self, room_id: int) -> Connection:
         return self.cache.get(room_id)
 
+    def put_fan_speed(self, room_id: int, fan_speed: str):
+        self.cache[room_id].fan_speed = fan_speed
+
 
 class SafeMemoryConnectionPoolImpl(MemoryConnectionPoolImpl):
 
@@ -126,3 +129,10 @@ class SafeMemoryConnectionPoolImpl(MemoryConnectionPoolImpl):
         finally:
             self.mutex.release()
         return conn
+
+    def put_fan_speed(self, room_id, fan_speed):
+        self.mutex.acquire()
+        try:
+            super().put_fan_speed(room_id, fan_speed)
+        finally:
+            self.mutex.release()

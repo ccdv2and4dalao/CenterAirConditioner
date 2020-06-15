@@ -32,8 +32,10 @@ class StartStateControlServiceImpl(BasicStateControlServiceImpl, StartStateContr
         room_info = self.connection_pool.get(room_id)
         if not room_info.need_fan:
             self.connection_pool.put_need_fan(room_id, True)
+            self.push_start_request(room_info.room_id, speed, mode, self.generate_tag())
+        else:
+            self.connection_pool.put_fan_speed(room_id, speed.value)
 
-        self.push_start_request(room_info.room_id, speed, mode, self.generate_tag())
         return StartStateControlResponse()
 
 

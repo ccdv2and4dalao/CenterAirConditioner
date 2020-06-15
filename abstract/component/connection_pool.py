@@ -42,3 +42,7 @@ class ConnectionPool(object):
     @abstractmethod
     def get(self, room_id: int) -> Connection:
         pass
+
+    @abstractmethod
+    def put_fan_speed(self, room_id: int, fan_speed: str):
+        pass

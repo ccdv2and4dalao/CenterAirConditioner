@@ -34,7 +34,7 @@ class BasicStateControlServiceImpl(object):
     def _pop_request(self, req: dict, tag: str) -> None:
         b = local()
         b.room_id, b.mode = req['room_id'], req['mode']
-        b.speed = req['speed_fan']
+        b.speed = self.connection_pool.get().fan_speed
         b.co = 5 if b.speed.value == 'high' else 4 if b.speed.value == 'mid' else 3
 
         self.master_air_cond.start_supply(b.room_id, b.speed, b.mode)
@@ -42,14 +42,21 @@ class BasicStateControlServiceImpl(object):
         
         b.t1 = time.perf_counter()
         while self.connection_pool.get(b.room_id).need_fan:
+            time.sleep(2.0)
+            if self.connection_pool.get().fan_speed != b.speed:
+                b.speed = self.connection_pool.get().fan_speed
+                # stop old speed
+                self.master_air_cond.stop_supply(b.room_id)
+                self.event_model.insert_stop_state_control_event(b.room_id)
+                # start new speed
+                b.co = 5 if b.speed.value == 'high' else 4 if b.speed.value == 'mid' else 3
+                self.master_air_cond.start_supply(b.room_id, b.speed, b.mode)
+                self.event_model.insert_start_state_control_event(b.room_id, b.speed)
+
             b.t2 = time.perf_counter()
             self.statistic_model.insert(b.room_id, (b.t2 - b.t1) * b.co / 5,
                                         (b.t2 - b.t1) * b.co)
             b.t1 = b.t2
-            time.sleep(2.0)
-        b.t2 = time.perf_counter()
-        self.statistic_model.insert(b.room_id, (b.t2 - b.t1) * b.co / 5,
-                            (b.t2 - b.t1) * b.co)
 
         self.master_air_cond.stop_supply(b.room_id)
         self.event_model.insert_stop_state_control_event(b.room_id)
