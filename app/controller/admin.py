@@ -6,6 +6,8 @@ from abstract.service.admin import AdminLoginService, AdminGenerateReportService
     AdminShutdownMasterService, AdminShutdownMasterDaemonService
 from abstract.service.admin.get_connected_slaves import AdminGetConnectedSlaveService
 from abstract.service.admin.get_room_count import AdminGetRoomCountService
+from abstract.service.admin.set_metric_delay import AdminSetMetricDelayService
+from abstract.service.admin.set_update_delay import AdminSetUpdateDelayService
 from app.router.flask import RouteController
 from lib.injector import Injector
 # transport layer objects
@@ -19,6 +21,8 @@ from proto.admin.login import AdminLoginRequest
 from proto.admin.set_current_temperature import AdminSetCurrentTemperatureRequest
 from proto.admin.set_mode import AdminSetModeRequest
 from proto.admin.shutdown import AdminShutdownRequest
+from proto.admin.set_metric_delay import AdminSetMetricDelayRequest
+from proto.admin.set_update_delay import AdminSetUpdateDelayRequest
 
 
 class FlaskDaemonAdminControllerImpl(DaemonAdminController):
@@ -62,6 +66,8 @@ class AdminControllerFlaskImpl(AdminController):
         self.admin_boot_master_service = inj.require(AdminBootMasterService)
         self.admin_shutdown_master_service = inj.require(AdminShutdownMasterService)
         self.get_room_count_service = inj.require(AdminGetRoomCountService)
+        self.set_metrics_delay_service = inj.require(AdminSetMetricDelayService)
+        self.set_update_delay_service = inj.require(AdminSetUpdateDelayService)
 
     def set_mode(self, *args, **kwargs):
         req = self.rc.bind(AdminSetModeRequest)  # type: AdminSetModeRequest
@@ -129,3 +135,11 @@ class AdminControllerFlaskImpl(AdminController):
         # self.set_current_temperature(*args, **kwargs)
         assert False
         pass
+
+    def metrics_delay(self, *args, **kwargs):
+        req = self.rc.bind(AdminSetMetricDelayRequest) # type: AdminSetMetricDelayRequest
+        return self.auth_admin(req.jwt_token) or self.rc.ok(self.set_metrics_delay_service.serve(req))
+
+    def update_delay(self, *args, **kwargs):
+        req = self.rc.bind(AdminSetUpdateDelayRequest) # type: AdminSetUpdateDelayRequest
+        return self.auth_admin(req.jwt_token) or self.rc.ok(self.set_update_delay_service.serve(req))

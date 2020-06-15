@@ -174,3 +174,27 @@ class AdminController(object):
                 "need_fan": true, "fan_speed": "high"}}
         """
         pass
+
+    @abstractmethod
+    def metrics_delay(self, *args, **kwargs):
+        """
+        /v1/admin/metrics-delay POST
+
+        request:
+        with header: "Authorization" : "Bearer " + jwt_token
+        response:
+        {"code": 0}
+        """
+        pass
+
+    @abstractmethod
+    def update_delay(self, *args, **kwargs):
+        """
+        /v1/admin/update-delay POST
+
+        request:
+        with header: "Authorization" : "Bearer " + jwt_token
+        response:
+        {"code": 0}
+        """
+        pass
