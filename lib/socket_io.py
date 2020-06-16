@@ -2,7 +2,7 @@
 from flask import Flask, request
 from flask_socketio import SocketIO
 
-from abstract.component import ConnectionPool
+from abstract.component import ConnectionPool, Logger
 from abstract.component.websocket_conn import WebsocketConn
 
 
@@ -16,6 +16,7 @@ def functional_flask_socket_io_connection_impl(inj):
             self.sio = sio
             self.app = app
             self.session_id_rev_mapping = dict()
+            self.logger = inj.require(Logger)  # type: Logger
 
             @sio.on('connect')
             def connect():
@@ -30,6 +31,11 @@ def functional_flask_socket_io_connection_impl(inj):
         def put_event(self, room_id, event_name, data):
             room_info = self.connection_pool.get(room_id)
             if room_info is None:
+                self.logger.warn('put_event to a not connected room', args={'room_id': room_id})
+                return None
+            session_id = room_info.session_id
+            if session_id is None:
+                self.logger.warn('put_event to a room without socket connected', args={'room_id': room_id})
                 return None
 
             sio.emit(event_name, data, room=room_info.session_id)

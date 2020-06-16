@@ -44,7 +44,6 @@ class MemoryConnectionPoolImpl(BootableImpl, ConnectionPool):
             self.cache.pop(k)
             Hook.get_callee('disconnect')(k)
 
-
     def put(self, room_id: int, user_id: int, need_fan: bool):
         self.cache[room_id] = ConnectionImpl(room_id=room_id, user_id=user_id,
                                              current_temperature=0, need_fan=need_fan, fan_speed='',
@@ -54,24 +53,28 @@ class MemoryConnectionPoolImpl(BootableImpl, ConnectionPool):
         r = self.cache.get(room_id)
         if not r:
             self.logger.warn('put_need_fan_failed', args={'room_id': room_id, 'need_fan': need_fan})
+            return
         r.need_fan = need_fan
 
     def put_session_id(self, room_id: int, session_id: str):
         r = self.cache.get(room_id)
         if not r:
             self.logger.warn('put_session_id_failed', args={'room_id': room_id, 'session_id': session_id})
+            return
         self.cache[room_id].session_id = session_id
 
     def close_session_connection(self, room_id: int):
         r = self.cache.get(room_id)
         if not r:
             self.logger.warn('close_session_connection_failed', args={'room_id': room_id})
+            return
         self.cache[room_id].session_id = None
 
     def put_heart_beat(self, room_id: int, last_heart_beat=datetime.now()):
         r = self.cache.get(room_id)
         if not r:
             self.logger.warn('put_heart_beat_failed', args={'room_id': room_id})
+            return
         self.cache[room_id].last_heart_beat = last_heart_beat
 
     def delete(self, room_id: int):

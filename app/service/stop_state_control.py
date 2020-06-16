@@ -2,7 +2,7 @@
 from abstract.service import StopStateControlService
 from app.service.state_control import BasicStateControlServiceImpl
 from lib.injector import Injector
-from proto import FailedResponse
+from proto import FailedResponse, NotConnected
 from proto.stop_state_control import StopStateControlRequest, StopStateControlResponse
 
 class StopStateControlServiceImpl(BasicStateControlServiceImpl, StopStateControlService):
@@ -14,7 +14,9 @@ class StopStateControlServiceImpl(BasicStateControlServiceImpl, StopStateControl
 
     def stop_supply(self, room_id: int):
         room_info = self.connection_pool.get(room_id)
+        if not room_info:
+            return NotConnected()
         if room_info.need_fan:
             self.connection_pool.put_need_fan(room_id, False)
-        #self.push_stop_request(room_info.room_id, self.generate_tag())
+        # self.push_stop_request(room_info.room_id, self.generate_tag())
         return StopStateControlResponse()
