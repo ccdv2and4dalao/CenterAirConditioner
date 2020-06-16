@@ -1,6 +1,7 @@
 ﻿import datetime
-from dateutil.parser import parse
 from typing import List, Dict, Tuple, Optional
+
+from dateutil.parser import parse
 
 from abstract.model import EventModel, StatisticModel, Event, EventType, RoomModel, MetricModel
 from abstract.model import Report, ReportModel
@@ -183,9 +184,11 @@ class ReportModelImpl(SQLModel, ReportModel):
                     if type(r.energy) is not float:
                         r.energy, r.cost = float(r.energy), float(r.cost)
                     metrics = self.metric_model.query_by_time_interval(room, l[i].checkpoint, l[i + 1].checkpoint)
-                    r.start_temperature, r.end_temperature = metrics[0].temperature, metrics[-1].temperature
-                    if type(r.start_temperature) is not float:
-                        r.start_temperature, r.end_temperature = float(r.start_temperature), float(r.end_temperature)
+                    if len(metrics) != 0:
+                        r.start_temperature, r.end_temperature = metrics[0].temperature, metrics[-1].temperature
+                        if type(r.start_temperature) is not float:
+                            r.start_temperature, r.end_temperature = float(r.start_temperature), float(
+                                r.end_temperature)
                     reports.append(r)
                 left, right = right + 1, right + 2
         return reports, events, id2room_id

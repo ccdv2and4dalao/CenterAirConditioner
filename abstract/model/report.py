@@ -1,9 +1,10 @@
-﻿from abc import abstractmethod
+﻿import datetime
+from abc import abstractmethod
 from typing import List, Dict, Tuple, Optional
 
-from .model import Model 
 from .event import Event
-import datetime
+from .model import Model
+
 
 class Report:
     """
@@ -22,14 +23,14 @@ class Report:
     cost_key = 'cost'
 
     def __init__(self):
-        self.report_no = 0 # type: int
-        self.room_id = '' # type: str 
-        self.start_time = '1999-01-01 00:00:00' # type: str
-        self.stop_time = '1999-01-01 00:00:00' # type: str
-        self.start_temperature = 27.0 # type: float
-        self.end_temperature = 21.0 # type: float
-        self.energy = 0.0 # type: float
-        self.cost = 0.0 # type: float
+        self.report_no = 0  # type: int
+        self.room_id = ''  # type: str
+        self.start_time = '1999-01-01 00:00:00'  # type: str
+        self.stop_time = '1999-01-01 00:00:00'  # type: str
+        self.start_temperature = -274.0  # type: float
+        self.end_temperature = -274.0  # type: float
+        self.energy = 0.0  # type: float
+        self.cost = 0.0  # type: float
 
 
 class ReportModel(Model):
