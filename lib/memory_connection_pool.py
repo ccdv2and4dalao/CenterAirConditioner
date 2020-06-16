@@ -29,16 +29,16 @@ class MemoryConnectionPoolImpl(BootableImpl, ConnectionPool):
 
     def _check_pool(self):
         while True:
-            time.sleep(60)
+            time.sleep(15)
             self.__check_pool()
 
     def __check_pool(self):
         check_now = datetime.now()
-        d = timedelta(minutes=2)
+        d = timedelta(seconds=30)
 
         to_pop = []
         for k, r in self.cache.items():
-            if (r.last_heart_beat - check_now) > d:
+            if (check_now - r.last_heart_beat) > d:
                 to_pop.append(k)
         for k in to_pop:
             self.cache.pop(k)
