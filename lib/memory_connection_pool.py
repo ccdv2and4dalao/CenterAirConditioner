@@ -3,9 +3,11 @@ from datetime import datetime, timedelta
 from threading import Lock
 from typing import Dict
 
+from abstract.component import Logger
 from abstract.component.connection_pool import ConnectionPool, Connection
 from app.component.bootable import BootableImpl
 from lib.hook import Hook
+
 
 class ConnectionImpl(Connection):
     def __init__(self, room_id, user_id, current_temperature, need_fan, fan_speed, last_heart_beat):
@@ -20,9 +22,10 @@ class ConnectionImpl(Connection):
 
 class MemoryConnectionPoolImpl(BootableImpl, ConnectionPool):
 
-    def __init__(self, *_):
+    def __init__(self, inj):
         self.cache = dict()  # type: Dict[int, Connection]
         super().__init__(self._check_pool, daemonic=True)
+        self.logger = inj.require(Logger)  # type: Logger
 
     def _check_pool(self):
         while True:
@@ -48,15 +51,27 @@ class MemoryConnectionPoolImpl(BootableImpl, ConnectionPool):
                                              last_heart_beat=datetime.now())
 
     def put_need_fan(self, room_id: int, need_fan: bool):
-        self.cache[room_id].need_fan = need_fan
+        r = self.cache.get(room_id)
+        if not r:
+            self.logger.warn('put_need_fan_failed', args={'room_id': room_id, 'need_fan': need_fan})
+        r.need_fan = need_fan
 
     def put_session_id(self, room_id: int, session_id: str):
+        r = self.cache.get(room_id)
+        if not r:
+            self.logger.warn('put_session_id_failed', args={'room_id': room_id, 'session_id': session_id})
         self.cache[room_id].session_id = session_id
 
     def close_session_connection(self, room_id: int):
+        r = self.cache.get(room_id)
+        if not r:
+            self.logger.warn('close_session_connection_failed', args={'room_id': room_id})
         self.cache[room_id].session_id = None
 
     def put_heart_beat(self, room_id: int, last_heart_beat=datetime.now()):
+        r = self.cache.get(room_id)
+        if not r:
+            self.logger.warn('put_heart_beat_failed', args={'room_id': room_id})
         self.cache[room_id].last_heart_beat = last_heart_beat
 
     def delete(self, room_id: int):
@@ -71,8 +86,8 @@ class MemoryConnectionPoolImpl(BootableImpl, ConnectionPool):
 
 class SafeMemoryConnectionPoolImpl(MemoryConnectionPoolImpl):
 
-    def __init__(self, *_):
-        super().__init__(*_)
+    def __init__(self, inj):
+        super().__init__(inj)
         self.mutex = Lock()
 
     def __check_pool(self):
