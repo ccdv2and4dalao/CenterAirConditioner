@@ -1,12 +1,14 @@
 from collections import namedtuple
+from datetime import datetime
 from typing import List, Optional, Union
 
 import lib.dateutil
+from abstract.consensus import FanSpeed
 from abstract.model.event import EventModel, Event, EventType
 from app.model.model import SQLModel
 from lib.hook import Hook
 
-EventTupleProxy = namedtuple('MetricsTupleProxy', [
+EventTupleProxy = namedtuple('EventTupleProxy', [
     Event.id_key,
     Event.room_id_key,
     Event.checkpoint_key,
@@ -43,6 +45,8 @@ class EventModelImpl(SQLModel, EventModel):
             '''
             return self.db.insert(sql, room_id, event_type)
         else:
+            if isinstance(checkpoint, datetime):
+                checkpoint = lib.dateutil.to_local(checkpoint)
             sql = f'''
             INSERT INTO {Event.table_name} (
                 {Event.room_id_key},
@@ -51,10 +55,10 @@ class EventModelImpl(SQLModel, EventModel):
             ) VALUES (
                 {self.db.placeholder},
                 {self.db.placeholder},
-                {event_type}
+                {self.db.placeholder}
             )
             '''
-            return self.db.insert(sql, room_id, event_type, checkpoint)
+            return self.db.insert(sql, room_id, checkpoint, event_type)
 
     def insert_connect_event(self, room_id: int, checkpoint=None) -> int:
         return self.__insert_state_event(room_id, EventType.Connect, checkpoint=checkpoint)
@@ -65,8 +69,8 @@ class EventModelImpl(SQLModel, EventModel):
     def insert_stop_state_control_event(self, room_id: int, checkpoint=None) -> int:
         return self.__insert_state_event(room_id, EventType.StopControl, checkpoint=checkpoint)
 
-    def insert_start_state_control_event(self, room_id: int, fan_speed: str, checkpoint=None) -> int:
-        if type(fan_speed) is not str:
+    def insert_start_state_control_event(self, room_id: int, fan_speed: Union[str, FanSpeed], checkpoint=None) -> int:
+        if type(fan_speed) is FanSpeed:
             fan_speed = fan_speed.value
         if checkpoint is None:
             sql = f'''
@@ -82,6 +86,8 @@ class EventModelImpl(SQLModel, EventModel):
             '''
             return self.db.insert(sql, room_id, EventType.StartControl, fan_speed)
         else:
+            if isinstance(checkpoint, datetime):
+                checkpoint = lib.dateutil.to_local(checkpoint)
             sql = f'''
             INSERT INTO {Event.table_name} (
                 {Event.room_id_key},
@@ -95,7 +101,27 @@ class EventModelImpl(SQLModel, EventModel):
                 {self.db.placeholder}
             )
             '''
-            return self.db.insert(sql, room_id, EventType.StartControl, checkpoint, fan_speed)
+            return self.db.insert(sql, room_id, checkpoint, EventType.StartControl, fan_speed)
+
+    def query_control_events_by_time_interval(self, room_id, start_time, stop_time) -> Union[List[Event], None]:
+        if room_id is None:
+            data = self.db.select(f'''
+            select * from {Event.table_name}
+            where {Event.checkpoint_key} between {self.db.placeholder} and {self.db.placeholder}
+            and {Event.event_type_key} in ('{EventType.StartControl}', '{EventType.StopControl}')
+            ''', start_time, stop_time)
+        else:
+            data = self.db.select(f'''
+            select * from {Event.table_name}
+            where {Event.checkpoint_key} between {self.db.placeholder} and {self.db.placeholder}
+            and {Event.event_type_key} in ('{EventType.StartControl}', '{EventType.StopControl}')
+            and {Event.room_id_key} = {self.db.placeholder}
+            ''', start_time, stop_time, room_id)
+        if data is None:
+            return None
+
+        # noinspection PyTypeChecker
+        return [EventTupleProxy(*d) for d in data]
 
     def query_by_time_interval(self, room_id, start_time, stop_time) -> Union[List[Event], None]:
         if type(start_time) is not str:

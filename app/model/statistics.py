@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import lib.dateutil
 from abstract.model.statistic import StatisticModel, Statistic
 from app.model.model import SQLModel
@@ -49,6 +51,9 @@ class StatisticModelImpl(SQLModel, StatisticModel):
 
     def insert(self, room_id: int, energy: float, cost: float, checkpoint=None) -> int:
         if checkpoint is not None:
+            if isinstance(checkpoint, datetime):
+                checkpoint = lib.dateutil.to_local(checkpoint)
+
             return self.db.insert(f'''
             insert into {Statistic.table_name} (
             {Statistic.room_id_key},
@@ -84,4 +89,4 @@ class StatisticModelImpl(SQLModel, StatisticModel):
         ''', room_id, start_time, stop_time)
         if data is None:
             return None
-        return data[0]
+        return data[0][0] or 0.0, data[0][1] or 0.0

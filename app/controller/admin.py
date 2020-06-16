@@ -62,6 +62,8 @@ class AdminControllerFlaskImpl(AdminController):
         self.get_server_status_service = inj.require(AdminGetServerStatusService)  # type: AdminGetServerStatusService
         self.get_slave_statistics_service = inj.require(
             AdminGetSlaveStatisticsService)  # type: AdminGetSlaveStatisticsService
+        self.get_slave_statistics_service_v2 = inj.require(
+            (AdminGetSlaveStatisticsService, 'V2'))  # type: AdminGetSlaveStatisticsService
         self.set_current_temperature_service = inj.require(
             AdminSetCurrentTemperatureService)  # type: AdminSetCurrentTemperatureService
         self.set_mode_service = inj.require(AdminSetModeService)  # type: AdminSetModeService
@@ -78,7 +80,8 @@ class AdminControllerFlaskImpl(AdminController):
 
     def set_current_temperature(self, *args, **kwargs):
         req = self.rc.bind(AdminSetCurrentTemperatureRequest)  # type: AdminSetCurrentTemperatureRequest
-        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(self.set_current_temperature_service.serve(req))
+        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(
+            self.set_current_temperature_service.serve(req))
 
     def get_server_status(self, *args, **kwargs):
         req = self.rc.bind(AdminGetServerStatusRequest)  # type: AdminGetServerStatusRequest
@@ -86,23 +89,33 @@ class AdminControllerFlaskImpl(AdminController):
 
     def get_slave_statistics(self, *args, **kwargs):
         req = self.rc.bind(AdminGetSlaveStatisticsRequest)  # type: AdminGetSlaveStatisticsRequest
-        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(self.get_slave_statistics_service.serve(req))
+        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(
+            self.get_slave_statistics_service.serve(req))
+
+    def get_slave_statistics_v2(self, *args, **kwargs):
+        req = self.rc.bind(AdminGetSlaveStatisticsRequest)  # type: AdminGetSlaveStatisticsRequest
+        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(
+            self.get_slave_statistics_service_v2.serve(req))
 
     def get_report(self, *args, **kwargs):
         req = self.rc.bind(AdminGenerateReportRequest)  # type: AdminGenerateReportRequest
-        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(self.generate_report_service.serve(req))
+        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(
+            self.generate_report_service.serve(req))
 
     def get_connected_slaves(self, *args, **kwargs):
         req = self.rc.bind(AdminGetConnectedSlavesRequest)  # type: AdminGetConnectedSlavesRequest
-        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(self.get_connected_slaves_service.serve(req))
+        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(
+            self.get_connected_slaves_service.serve(req))
 
     def get_room_count(self, *args, **kwargs):
         req = self.rc.bind(AdminGetRoomCountRequest)  # type: AdminGetRoomCountRequest
-        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(self.get_room_count_service.serve(req))
+        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(
+            self.get_room_count_service.serve(req))
 
     def get_connected_slave(self, *args, **kwargs):
         req = self.rc.bind(AdminGetConnectedSlaveRequest)  # type: AdminGetConnectedSlaveRequest
-        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(self.get_connected_slave_service.serve(req))
+        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(
+            self.get_connected_slave_service.serve(req))
 
     def admin_login(self, *args, **kwargs):
         req = self.rc.bind(AdminLoginRequest)  # type: AdminLoginRequest
@@ -114,7 +127,8 @@ class AdminControllerFlaskImpl(AdminController):
 
     def admin_shutdown_master(self, *args, **kwargs):
         req = self.rc.bind(AdminShutdownRequest)  # type: AdminShutdownRequest
-        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(self.admin_shutdown_master_service.serve(req))
+        return self.master_is_boot() or self.auth_admin(req.jwt_token) or self.rc.ok(
+            self.admin_shutdown_master_service.serve(req))
 
     def set_heat_mode(self, *args, **kwargs):
         # self.set_mode(*args, **kwargs)
@@ -139,9 +153,9 @@ class AdminControllerFlaskImpl(AdminController):
         pass
 
     def metrics_delay(self, *args, **kwargs):
-        req = self.rc.bind(AdminSetMetricDelayRequest) # type: AdminSetMetricDelayRequest
+        req = self.rc.bind(AdminSetMetricDelayRequest)  # type: AdminSetMetricDelayRequest
         return self.auth_admin(req.jwt_token) or self.rc.ok(self.set_metrics_delay_service.serve(req))
 
     def update_delay(self, *args, **kwargs):
-        req = self.rc.bind(AdminSetUpdateDelayRequest) # type: AdminSetUpdateDelayRequest
+        req = self.rc.bind(AdminSetUpdateDelayRequest)  # type: AdminSetUpdateDelayRequest
         return self.auth_admin(req.jwt_token) or self.rc.ok(self.set_update_delay_service.serve(req))

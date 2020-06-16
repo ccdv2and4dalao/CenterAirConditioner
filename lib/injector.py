@@ -1,12 +1,12 @@
-from typing import List
+from typing import List, Union
 
 
 class Injector:
     def __init__(self):
         self.mapping = dict()
 
-    def provide(self, proto: type or str, impl: object):
-        if not isinstance(proto, str) and not isinstance(impl, proto):
+    def provide(self, proto: Union[type, str, tuple], impl: object):
+        if isinstance(proto, type) and not isinstance(impl, proto):
             raise NotImplementedError(f'impl {type(impl)} not implement proto {proto}')
         if proto in self.mapping:
             raise AssertionError(f'proto {proto} is already provided')
@@ -20,10 +20,10 @@ class Injector:
             raise AssertionError(f'proto {proto} is already provided')
         self.mapping[proto] = impl_instance
 
-    def require(self, proto: type or str):
+    def require(self, proto: Union[type, str, tuple]):
         return self.mapping[proto]
 
-    def weak_require(self, proto: type or str, default_value=None):
+    def weak_require(self, proto: Union[type, str, tuple], default_value=None):
         return self.mapping.get(proto, default_value)
 
     def requires(self, prototypes: List[type]):

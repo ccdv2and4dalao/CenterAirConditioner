@@ -1,10 +1,12 @@
+from typing import Optional, Union
 
 from abstract.consensus import AirMode, FanSpeed
 from abstract.service import StartStateControlService
 from app.service.state_control import BasicStateControlServiceImpl
 from lib.injector import Injector
-from proto import FailedResponse, ConflictMode, InvalidFanSpeedValue, InvalidModeValue, MasterAirCondNotAlive
+from proto import FailedResponse, ConflictMode, InvalidFanSpeedValue, InvalidModeValue, NotConnected
 from proto.start_state_control import StartStateControlRequest, StartStateControlResponse
+
 
 class StartStateControlServiceImpl(BasicStateControlServiceImpl, StartStateControlService):
     def __init__(self, inj: Injector):
@@ -28,8 +30,11 @@ class StartStateControlServiceImpl(BasicStateControlServiceImpl, StartStateContr
             return ConflictMode(f'conflict with current mode: want {current_mode}, got {req.mode}')
         return None
 
-    def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode) -> StartStateControlResponse or None:
+    def start_supply(self, room_id: int, speed: FanSpeed, mode: AirMode) -> \
+            Optional[Union[StartStateControlResponse, FailedResponse]]:
         room_info = self.connection_pool.get(room_id)
+        if not room_info:
+            return NotConnected()
         if not room_info.need_fan:
             self.connection_pool.put_need_fan(room_id, True)
             self.connection_pool.put_fan_speed(room_id, speed.value)

@@ -1,5 +1,6 @@
 import datetime
 
+from dateutil.parser import parse
 from dateutil.tz import tzutc, tzlocal
 
 _utc = tzutc()
@@ -25,3 +26,11 @@ def now(format=True):
         return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     else:
         return datetime.datetime.now()
+
+
+def to_rfc3339(dt: datetime.datetime):
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def str_to_rfc3339(dt: str):
+    return parse(dt).strftime("%Y-%m-%dT%H:%M:%SZ")

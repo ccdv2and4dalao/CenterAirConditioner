@@ -2,9 +2,10 @@ import datetime
 import unittest
 
 import lib.dateutil
+from abstract.consensus import FanSpeed
 from abstract.database import SQLDatabase
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, StatisticModelImpl, \
-    MetricsModelImpl, ReportModelImpl
+    MetricsModelImpl, EventModelImpl
 from lib.injector import Injector
 from lib.sql_sqlite3 import SQLite3
 
@@ -160,7 +161,7 @@ class StatisticModelImplTest(BasicSqlite3Test):
         self.assert_create_table()
         res = self.model.query_by_time_interval(1, datetime.datetime.now() - x, datetime.datetime.now())
         self.assertEqual(len(res), 0)
-        self.assertEqual(self.model.insert(2, 3, 4), 1, self.db.last_error_lazy)
+        self.assertEqual(self.model.insert(2, 3, 4, datetime.datetime.now()), 1, self.db.last_error_lazy)
         res = self.model.query_by_time_interval(2, datetime.datetime.now() - x, datetime.datetime.now())
         self.assertEqual(len(res), 1)
 
@@ -168,7 +169,7 @@ class StatisticModelImplTest(BasicSqlite3Test):
         self.assertEqual(res[0].room_id, 2)
         self.assertEqual(res[0].current_energy, 3)
         self.assertEqual(res[0].current_cost, 4)
-        self.assertEqual(self.model.insert(2, 5, 6), 2, self.db.last_error_lazy)
+        self.assertEqual(self.model.insert(2, 5, 6, datetime.datetime.now()), 2, self.db.last_error_lazy)
         res = self.model.query_by_time_interval(2, datetime.datetime.now() - x, datetime.datetime.now())
         self.assertEqual(len(res), 2)
 
@@ -180,8 +181,8 @@ class StatisticModelImplTest(BasicSqlite3Test):
     def test_query_sum_by_time_interval(self):
         x = datetime.timedelta(hours=1)
         self.assert_create_table()
-        self.assertEqual(self.model.insert(2, 3, 4), 1, self.db.last_error_lazy)
-        self.assertEqual(self.model.insert(2, 5, 6), 2, self.db.last_error_lazy)
+        self.assertEqual(self.model.insert(2, 3, 4, datetime.datetime.now()), 1, self.db.last_error_lazy)
+        self.assertEqual(self.model.insert(2, 5, 6, datetime.datetime.now()), 2, self.db.last_error_lazy)
         total_energy, total_cost = self.model.query_sum_by_time_interval(
             2,
             lib.dateutil.to_local(datetime.datetime.now() - x),
@@ -199,13 +200,45 @@ class MetricsModelImplTest(BasicSqlite3Test):
         self.assert_create_table()
 
 
-class ReportModelImplTest(BasicSqlite3Test):
+class EventModelImplTest(BasicSqlite3Test):
     def setUp(self) -> None:
         super().setUp()
-        self.model = ReportModelImpl(self.injector)
+        self.model = EventModelImpl(self.injector)
 
     def test_create(self):
         self.assert_create_table()
+
+    def test_insert(self):
+        self.assert_create_table()
+        self.assertEqual(self.model.insert_start_state_control_event(1, FanSpeed.High), 1, self.db.last_error_lazy)
+        self.assertEqual(self.model.insert_stop_state_control_event(1), 2, self.db.last_error_lazy)
+        self.assertEqual(self.model.insert_connect_event(1), 3, self.db.last_error_lazy)
+        self.assertEqual(self.model.insert_disconnect_event(1), 4, self.db.last_error_lazy)
+
+    def test_query_state_control_by_time_interval(self):
+        x = datetime.timedelta(hours=1)
+        self.assert_create_table()
+        res = self.model.query_control_events_by_time_interval(1,
+                                                               lib.dateutil.to_local(datetime.datetime.now() - x),
+                                                               lib.dateutil.to_local(datetime.datetime.now()))
+        self.assertEqual(len(res), 0)
+        self.assertEqual(self.model.insert_start_state_control_event(1, FanSpeed.High, datetime.datetime.now()), 1,
+                         self.db.last_error_lazy)
+        res = self.model.query_control_events_by_time_interval(1,
+                                                               lib.dateutil.to_local(datetime.datetime.now() - x),
+                                                               lib.dateutil.to_local(datetime.datetime.now()))
+        self.assertEqual(len(res), 1)
+        self.assertEqual(self.model.insert_stop_state_control_event(1, datetime.datetime.now()), 2,
+                         self.db.last_error_lazy)
+        res = self.model.query_control_events_by_time_interval(1,
+                                                               lib.dateutil.to_local(datetime.datetime.now() - x),
+                                                               lib.dateutil.to_local(datetime.datetime.now()))
+        self.assertEqual(len(res), 2)
+        self.assertEqual(self.model.insert_connect_event(1, datetime.datetime.now()), 3, self.db.last_error_lazy)
+        res = self.model.query_control_events_by_time_interval(1,
+                                                               lib.dateutil.to_local(datetime.datetime.now() - x),
+                                                               lib.dateutil.to_local(datetime.datetime.now()))
+        self.assertEqual(len(res), 2)
 
 
 if __name__ == '__main__':

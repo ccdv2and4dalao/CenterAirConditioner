@@ -33,6 +33,8 @@ master_http_spec = MasterServerHTTPSpec(
         HTTPSpecItem('get_connected_slaves', '/v1/admin/pool-list', ['GET'], FlowLabel.GetConnectedSlaves),
         HTTPSpecItem('get_connected_slave', '/v1/admin/pool', ['GET'], FlowLabel.GetConnectedSlave),
         HTTPSpecItem('get_slave_statistics', '/v1/admin/slave/statistics', ['GET'], FlowLabel.AdminGetSlaveStatistics),
+        HTTPSpecItem('get_slave_statistics_v2', '/v2/admin/slave/statistics', ['GET'],
+                     FlowLabel.AdminGetSlaveStatistics),
         HTTPSpecItem('get_room_count', '/v1/admin/slave/pool-list-count', ['GET'], FlowLabel.AdminGetRoomCount),
         HTTPSpecItem('get_report', '/v1/admin/report', ['GET'], FlowLabel.AdminGetReport),
 

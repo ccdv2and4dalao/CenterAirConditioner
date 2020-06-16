@@ -4,8 +4,8 @@ import enum
 class Request(object):
     def __init__(self):
         self.label = 0  # type: int
-        self.room_id = '' # type: int
-        self.timestamp = 0 # type: int
+        self.room_id = 0  # type: int
+        self.timestamp = 0  # type: int
 
     def bind_dict(self, d: dict):
         if d is None:
@@ -42,6 +42,8 @@ class ServiceCode(enum.Enum):
     DatabaseError = 7
     InvalidTargetTemperature = 8
     MasterAirCondNotAlive = 9
+    NotConnected = 10
+
 
 class DatabaseError(FailedResponse):
     def __init__(self, data: str):
@@ -51,6 +53,11 @@ class DatabaseError(FailedResponse):
 class NotFound(FailedResponse):
     def __init__(self, data: str):
         super().__init__(ServiceCode.NotFound.value, data)
+
+
+class NotConnected(FailedResponse):
+    def __init__(self, data: str = ''):
+        super().__init__(ServiceCode.NotConnected.value, data)
 
 
 class ConflictMode(FailedResponse):

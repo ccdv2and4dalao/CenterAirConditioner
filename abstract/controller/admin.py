@@ -115,6 +115,15 @@ class AdminController(object):
         pass
 
     @abstractmethod
+    def get_slave_statistics_v2(self, *args, **kwargs):
+        """
+        /v2/admin/slave/statistics GET
+
+        the input and output are the same as get_slave_statistics
+        """
+        pass
+
+    @abstractmethod
     def get_report(self, *args, **kwargs):
         """
         /v1/admin/report GET

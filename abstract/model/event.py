@@ -51,7 +51,12 @@ class EventModel(Model):
 
     @abstractmethod
     def query_by_time_interval(self, room_id, start_time: Union[str, datetime], stop_time: Union[str, datetime]) -> \
-    List[Event]:
+            List[Event]:
+        pass
+
+    @abstractmethod
+    def query_control_events_by_time_interval(self, room_id, start_time: str, stop_time: str) -> \
+            List[Event]:
         pass
 
     @abstractmethod

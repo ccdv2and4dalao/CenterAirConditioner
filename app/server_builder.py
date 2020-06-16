@@ -43,7 +43,7 @@ from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelI
     StatisticModelImpl, ReportModelImpl, EventModelImpl
 from app.router.flask import MasterFlaskRouter, FlaskRouteController, RouteController
 from app.service.admin import AdminGenerateReportServiceImpl, AdminSetUpdateDelayServiceImpl, \
-    AdminSetMetricDelayServiceImpl
+    AdminSetMetricDelayServiceImpl, AdminGetSlaveStatisticsServiceImplV2
 from app.service.admin.boot import AdminBootMasterServiceImpl, AdminBootMasterDaemonServiceImpl
 from app.service.admin.get_connected_slaves import AdminGetConnectedSlavesServiceImpl, AdminGetConnectedSlaveServiceImpl
 from app.service.admin.get_room_count import AdminGetRoomCountServiceImpl
@@ -215,6 +215,7 @@ class ServerBuilder:
         inj.build(AdminGetConnectedSlaveService, AdminGetConnectedSlaveServiceImpl)
         inj.build(AdminGetServerStatusService, AdminGetServerStatusServiceImpl)
         inj.build(AdminGetSlaveStatisticsService, AdminGetSlaveStatisticsServiceImpl)
+        inj.provide((AdminGetSlaveStatisticsService, 'V2'), AdminGetSlaveStatisticsServiceImplV2(inj))
         inj.build(AdminSetCurrentTemperatureService, AdminSetCurrentTemperatureServiceImpl)
         inj.build(AdminSetModeService, AdminSetModeServiceImpl)
         inj.build(AdminLoginService, AdminLoginServiceImpl)
