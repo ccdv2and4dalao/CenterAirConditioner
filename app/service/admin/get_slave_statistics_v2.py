@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Union
 
 import lib
@@ -36,10 +37,19 @@ class AdminGetSlaveStatisticsServiceImplV2(GenerateStatisticServiceImpl, AdminGe
 
                 energy, cost = self.statistic_model.query_sum_by_time_interval(
                     req.room_id, left.checkpoint, right.checkpoint)
+
+                if isinstance(left.checkpoint, datetime):
+                    s = lib.dateutil.to_rfc3339(left.checkpoint)
+                else:
+                    s = lib.dateutil.str_to_rfc3339(left.checkpoint)
+                if isinstance(right.checkpoint, datetime):
+                    t = lib.dateutil.to_rfc3339(right.checkpoint)
+                else:
+                    t = lib.dateutil.str_to_rfc3339(right.checkpoint)
                 data.append({
                     'room_id': req.room_id,
-                    'start_time': lib.dateutil.str_to_rfc3339(left.checkpoint),
-                    'stop_time': lib.dateutil.str_to_rfc3339(right.checkpoint),
+                    'start_time': s,
+                    'stop_time': t,
                     'fan_speed': left.str_arg,
                     'energy': float(energy),
                     'cost': float(cost)
