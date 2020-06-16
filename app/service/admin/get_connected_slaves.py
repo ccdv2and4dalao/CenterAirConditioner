@@ -47,7 +47,7 @@ class AdminGetConnectedSlavesServiceImpl(BasicAdminGetConnectedSlaveServiceImpl,
         rooms = self.room_model.query_page(req.page_size, req.page_number)  # type: List[Union[dict, Room]]
         if rooms is None:
             return DatabaseError(f'DatabaseError: {self.room_model.why()}')
-        if not room:
+        if not rooms:
             return NotFound('DatabaseWarning: query room not found')
         for (i, room) in enumerate(rooms):
             rooms[i] = self.query(room)
