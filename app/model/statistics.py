@@ -44,8 +44,8 @@ class StatisticModelImpl(SQLModel, StatisticModel):
             {Statistic.id_key} integer primary key {self.db.auto_increment},
             {Statistic.room_id_key} integer,
             {Statistic.checkpoint_key} timestamp default CURRENT_TIMESTAMP,
-            {Statistic.current_energy_key} decimal(15, 2),
-            {Statistic.current_cost_key} decimal(15, 2)
+            {Statistic.current_energy_key} decimal(15, 8),
+            {Statistic.current_cost_key} decimal(15, 8)
         )
         """)
 

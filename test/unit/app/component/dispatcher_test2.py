@@ -1,14 +1,15 @@
 ﻿import unittest
-
-from app.server_builder import ServerBuilder
-from abstract.service import StartStateControlService, StopStateControlService
-from abstract.component.dispatcher import Dispatcher
-from abstract.component import ConnectionPool
-from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl
-from abstract.consensus.fan_speed import FanSpeed
-from abstract.consensus.air_mode import AirMode
-from abstract.component.websocket_conn import WebsocketConn
 from time import sleep
+
+from abstract.component import ConnectionPool
+from abstract.component.dispatcher import Dispatcher
+from abstract.component.websocket_conn import WebsocketConn
+from abstract.consensus.air_mode import AirMode
+from abstract.consensus.fan_speed import FanSpeed
+from abstract.service import StartStateControlService, StopStateControlService
+from app.server_builder import ServerBuilder
+from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl
+
 
 class FakePipe(SafeMemoryConnectionPoolImpl, WebsocketConn):
     def put_event(self, room_id, event_name, data):
@@ -34,15 +35,19 @@ class DispatcherTest(unittest.TestCase):
         start = self.sb.injector.require(StartStateControlService)
         stop = self.sb.injector.require(StopStateControlService)
         cp = self.sb.injector.require(ConnectionPool)
-        cp.put(8, 6, True)
+        cp.put(8, 6, False)
+        cp.put_fan_speed(8, 'low')
         cp.put(7, 5, False)
+        cp.put_fan_speed(7, 'low')
         cp.put(6, 4, False)
+        cp.put_fan_speed(6, 'low')
         cp.put(5, 3, False)
+        cp.put_fan_speed(5, 'high')
 
         start.start_supply(8, FanSpeed.Low, AirMode.Cool)
-        start.start_supply(7, FanSpeed.Mid, AirMode.Cool)
-        start.start_supply(6, FanSpeed.High, AirMode.Cool)
-        start.start_supply(5, FanSpeed.Low, AirMode.Cool)
+        start.start_supply(7, FanSpeed.Low, AirMode.Cool)
+        start.start_supply(6, FanSpeed.Low, AirMode.Cool)
+        start.start_supply(5, FanSpeed.High, AirMode.Cool)
         sleep(5)
         stop.stop_supply(8)
         sleep(5)

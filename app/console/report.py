@@ -25,16 +25,16 @@ class ReportConsoleImpl(ReportConsole, BaseSubConsoleImpl):
         ret = self.report_service.serve(r)
 
         if type(ret) is AdminGenerateReportResponse:
-            for d in ret.data:
-                print(
-                    f"room: {d['room_id']}\ttotal energy: {d['total_energy']}\t total cost: {d['total_cost']}\t total boots: {d['count']}")
-                print('details:')
-                table = PrettyTable([Report.start_time_key, Report.stop_time_key,
-                                     Report.start_temperature_key, Report.end_temperature_key,
-                                     Report.energy_key, Report.cost_key])
-                for report in d['items']:
-                    table.add_row([report['start_time'], report['stop_time'],
-                                   report['start_temperature'], report['end_temperature'],
-                                   report['energy'], report['cost']])
-                print(table)
-                print('')
+            d = ret.data
+            print(
+                f"room: {d['room_id']}\ttotal energy: {d['total_energy']}\t total cost: {d['total_cost']}\t total boots: {d['count']}")
+            print('details:')
+            table = PrettyTable([Report.start_time_key, Report.stop_time_key,
+                                 Report.start_temperature_key, Report.end_temperature_key,
+                                 Report.energy_key, Report.cost_key])
+            for report in d['items']:
+                table.add_row([report['start_time'], report['stop_time'],
+                               report['start_temperature'], report['end_temperature'],
+                               report['energy'], report['cost']])
+            print(table)
+            print('')

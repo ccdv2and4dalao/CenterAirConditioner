@@ -2,7 +2,6 @@ import queue
 import time
 from threading import Lock, Thread, Event
 
-from abstract.component.connection_pool import ConnectionPool
 from abstract.consensus import FanSpeed
 from app.component.basic_thread_dispatcher import BasicThreadDispatcher
 
@@ -72,15 +71,13 @@ class QueueDispatcherWithThreadPool(BasicThreadDispatcher):
 
 class PriQueueDispatcherWithThreadPool(BasicThreadDispatcher):
 
-    def __init__(self, inj, active_size=3, fallback_threshold=30):
+    def __init__(self, active_size=3, fallback_threshold=30):
         super(BasicThreadDispatcher, self).__init__(
             self._schedule, daemonic=True)
 
         self.active_size = active_size
         self.fallback_threshold = fallback_threshold
         self.control_precision = 0.1
-        self.connection_pool = inj.require(
-            ConnectionPool)  # type: ConnectionPool
 
         self.waiting_queue = queue.PriorityQueue()
 
@@ -93,21 +90,23 @@ class PriQueueDispatcherWithThreadPool(BasicThreadDispatcher):
             t.start()
 
     def weighing_function(self, opaque) -> float:
-        room_id = opaque["room_id"]
-        room_info = self.connection_pool.get(room_id)
-        room_privilege = room_info.room_privilege
-        pri_coe = 100
+        # room_id = opaque["room_id"]
+        # room_info = self.connection_pool.get(room_id)
+        # room_privilege = room_info.room_privilege
+        # pri_coe = 100
         speed_coe = {
-            FanSpeed.low: 25,
-            FanSpeed.mid: 50,
-            FanSpeed.high: 75
+            FanSpeed.Low: 3,
+            FanSpeed.Mid: 2,
+            FanSpeed.High: 1,
+            FanSpeed.Low.value: 3,
+            FanSpeed.Mid.value: 2,
+            FanSpeed.High.value: 1
         }
-        weight = pri_coe * room_privilege - \
-                 (time.time() - self.timestamp) + speed_coe[opaque['speed_fan']]
+        weight = speed_coe[opaque['speed_fan']]
         return weight
 
     def push(self, opaque, tag):
-        pri = self.weighing_function(self, opaque)
+        pri = self.weighing_function(opaque)
         self.waiting_queue.put((pri, (opaque, tag)))  # append is atomic
 
     def _schedule(self):
