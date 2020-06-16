@@ -87,9 +87,9 @@ class Configuration(object):
                      escape=None,
                      location=None):
             self.connection_type = connection_type or 'mysql'  # type: str
-            self.user = user or 'admin'  # type: str
+            self.user = user or 'madmin'  # type: str
             self.password = password or '12345678'  # type: str
-            self.host = host or 'localhost:3306'  # type: str
+            self.host = host or '112.126.65.59:2020'  # type: str
             self.database_name = database_name or 'backend'  # type: str
             self.charset = charset or 'utf8mb4'  # type: str
             self.max_idle = max_idle or 100  # type: int
