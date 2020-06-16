@@ -51,6 +51,12 @@ class RoomModelTest(unittest.TestCase):
         u4id = um.insert(u4.id_card_number)
         uirm.insert(u4id, r4id)
 
+        r5 = Room(room_id='room_test_5', app_key='room_test_5')
+        u5 = User(id_card_number='user_test_5')
+        r5id = rm.insert(r5.room_id, pw.create('room_test_5'))
+        u5id = um.insert(u5.id_card_number)
+        uirm.insert(u5id, r5id)
+
 if __name__ == '__main__':
     rmt = RoomModelTest()
     rmt.setUp()
