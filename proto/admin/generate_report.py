@@ -23,7 +23,7 @@ class AdminGenerateReportRequest(Request):
 class AdminGenerateReportResponse(Response):
     def __init__(self):
         '''
-        format of the elements in self.data:
+        format of self.data:
         {
             room_id: 'A123',
             count: 0,
@@ -33,4 +33,4 @@ class AdminGenerateReportResponse(Response):
         }
         '''
         super().__init__()
-        self.data = []
+        self.data = {}

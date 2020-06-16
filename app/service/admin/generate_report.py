@@ -17,20 +17,18 @@ class AdminGenerateReportServiceImpl(AdminGenerateReportService):
         else:
             req.stop_time = parse(req.stop_time)
         reports, events, id2roomid = self.report_model.get_reports(req.stop_time, req.type, req.room_id)
-        d = {}
+        d = {'room_id': id2roomid[int(req.room_id)],
+            'count': 0,
+            'items': [],
+            'total_energy': 0.0,
+            'total_cost': 0.0}
         for report in reports:
-            if report.room_id not in d.keys():
-                d[report.room_id] = {'room_id': report.room_id,
-                                     'count': 0,
-                                     'items': [],
-                                     'total_energy': 0.0,
-                                     'total_cost': 0.0}
-            d[report.room_id]['items'].append(report.__dict__)
-            d[report.room_id]['total_energy'] += report.energy
-            d[report.room_id]['total_cost'] += report.cost
+            d['items'].append(report.__dict__)
+            d['total_energy'] += report.energy
+            d['total_cost'] += report.cost
         for event in events:
             if event.event_type == EventType.Connect:
-                d[id2roomid[event.room_id]]['count'] += 1
+                d['count'] += 1
         response = AdminGenerateReportResponse()
-        response.data = list(d.values())
+        response.data = d
         return response
