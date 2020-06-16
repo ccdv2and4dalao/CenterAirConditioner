@@ -2,7 +2,6 @@ import queue
 import time
 from threading import Lock, Thread, Event
 
-from abstract.component.connection_pool import ConnectionPool
 from abstract.consensus import FanSpeed
 from app.component.basic_thread_dispatcher import BasicThreadDispatcher
 
@@ -91,10 +90,10 @@ class PriQueueDispatcherWithThreadPool(BasicThreadDispatcher):
             t.start()
 
     def weighing_function(self, opaque) -> float:
-        #room_id = opaque["room_id"]
-        #room_info = self.connection_pool.get(room_id)
-        #room_privilege = room_info.room_privilege
-        #pri_coe = 100
+        # room_id = opaque["room_id"]
+        # room_info = self.connection_pool.get(room_id)
+        # room_privilege = room_info.room_privilege
+        # pri_coe = 100
         speed_coe = {
             FanSpeed.Low: 3,
             FanSpeed.Mid: 2,

@@ -1,11 +1,13 @@
 import datetime
 import unittest
+from typing import Union
 
 import lib.dateutil
 from abstract.consensus import FanSpeed
 from abstract.database import SQLDatabase
+from abstract.model import EventModel, MetricModel, StatisticModel, RoomModel
 from app.model import UserModelImpl, RoomModelImpl, UserInRoomRelationshipModelImpl, StatisticModelImpl, \
-    MetricsModelImpl, EventModelImpl
+    MetricsModelImpl, EventModelImpl, ReportModelImpl
 from lib.injector import Injector
 from lib.sql_sqlite3 import SQLite3
 
@@ -198,6 +200,114 @@ class MetricsModelImplTest(BasicSqlite3Test):
 
     def test_create(self):
         self.assert_create_table()
+
+
+class ReportModelImplTest(BasicSqlite3Test):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.start = []
+        self.stop = []
+        self.connect = []
+        self.disconnect = []
+        self.x = datetime.datetime.now()
+        self.y = datetime.timedelta(seconds=1)
+        self.room1_id = None  # type: Union[int, None]
+
+        self.room_model = RoomModelImpl(self.injector)
+        self.em = EventModelImpl(self.injector)
+        self.mm = MetricsModelImpl(self.injector)
+        self.sm = StatisticModelImpl(self.injector)
+
+        self.injector.provide(RoomModel, self.room_model)
+        self.injector.provide(EventModel, self.em)
+        self.injector.provide(MetricModel, self.mm)
+        self.injector.provide(StatisticModel, self.sm)
+        self.rm = ReportModelImpl(self.injector)
+
+        self.room_model.create()
+        self.em.create()
+        self.sm.create()
+        self.mm.create()
+
+    def now(self):
+        self.x += self.y
+        return self.x
+
+    def insert_start(self, fan_speed: FanSpeed):
+        em = self.em
+        # self.start.append(self.now())
+        d = self.now()
+        self.start.append(d)
+        em.insert_start_state_control_event(self.room1_id, fan_speed.value, d)
+        self.assertIsNone(em.why())
+
+    def insert_stop(self):
+        em = self.em
+        d = self.now()
+        # self.stop.append(self.now())
+        self.stop.append(d)
+        em.insert_stop_state_control_event(self.room1_id, d)
+        self.assertIsNone(em.why())
+
+    def insert_connect(self):
+        em = self.em
+        d = self.now()
+        # self.stop.append(self.now())
+        self.connect.append(d)
+        em.insert_connect_event(self.room1_id, d)
+        self.assertIsNone(em.why())
+
+    def insert_disconnect(self):
+        em = self.em
+        d = self.now()
+        # self.stop.append(self.now())
+        self.disconnect.append(d)
+        em.insert_disconnect_event(self.room1_id, d)
+        self.assertIsNone(em.why())
+
+    def insert_data(self):
+        self.room1_id = self.room_model.insert('A-101', '1234', 0)
+
+        self.insert_connect()
+        # self.insert_start(fan_speed=FanSpeed.High)
+        # self.insert_stop()
+        self.insert_disconnect()
+
+    def test_get_report(self):
+        self.insert_data()
+        rm = self.rm
+        reports, events, id2room_id = rm.get_reports(self.disconnect[0], 'day', self.room1_id)
+        print(reports, events, id2room_id)
+
+    def insert_data2(self):
+        self.room1_id = self.room_model.insert('A-101', '1234', 0)
+
+        self.insert_connect()
+        self.insert_start(fan_speed=FanSpeed.High)
+        self.insert_stop()
+        self.insert_disconnect()
+
+    def test_get_report2(self):
+        self.insert_data2()
+        rm = self.rm
+        reports, events, id2room_id = rm.get_reports(self.disconnect[0], 'day', self.room1_id)
+        print(reports, events, id2room_id)
+
+    def insert_data3(self):
+        self.room1_id = self.room_model.insert('A-101', '1234', 0)
+
+        self.insert_connect()
+        self.insert_start(fan_speed=FanSpeed.High)
+        self.mm.insert(self.room1_id, 'high', 24.0, self.now())
+        self.insert_stop()
+        self.insert_disconnect()
+
+    def test_get_report3(self):
+        self.insert_data3()
+        rm = self.rm
+        reports, events, id2room_id = rm.get_reports(self.disconnect[0], 'day', self.room1_id)
+        print(reports, events, id2room_id)
 
 
 class EventModelImplTest(BasicSqlite3Test):

@@ -1,14 +1,15 @@
 ﻿import unittest
-
-from app.server_builder import ServerBuilder
-from abstract.service import StartStateControlService, StopStateControlService
-from abstract.component.dispatcher import Dispatcher
-from abstract.component import ConnectionPool
-from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl
-from abstract.consensus.fan_speed import FanSpeed
-from abstract.consensus.air_mode import AirMode
-from abstract.component.websocket_conn import WebsocketConn
 from time import sleep
+
+from abstract.component import ConnectionPool
+from abstract.component.dispatcher import Dispatcher
+from abstract.component.websocket_conn import WebsocketConn
+from abstract.consensus.air_mode import AirMode
+from abstract.consensus.fan_speed import FanSpeed
+from abstract.service import StartStateControlService, StopStateControlService
+from app.server_builder import ServerBuilder
+from lib.memory_connection_pool import SafeMemoryConnectionPoolImpl
+
 
 class FakePipe(SafeMemoryConnectionPoolImpl, WebsocketConn):
     def put_event(self, room_id, event_name, data):

@@ -1,11 +1,13 @@
 ﻿import datetime
-from dateutil.parser import parse
 from typing import List, Dict, Tuple, Optional
+
+from dateutil.parser import parse
 
 from abstract.model import EventModel, StatisticModel, Event, EventType, RoomModel, MetricModel
 from abstract.model import Report, ReportModel
 from app.model.model import SQLModel
 from lib.injector import Injector
+
 
 class ReportModelImpl(SQLModel, ReportModel):
     def __init__(self, inj: Injector):
@@ -185,7 +187,8 @@ class ReportModelImpl(SQLModel, ReportModel):
                     if len(metrics) != 0:
                         r.start_temperature, r.end_temperature = metrics[0].temperature, metrics[-1].temperature
                         if type(r.start_temperature) is not float:
-                            r.start_temperature, r.end_temperature = float(r.start_temperature), float(r.end_temperature)
+                            r.start_temperature, r.end_temperature = float(r.start_temperature), float(
+                                r.end_temperature)
                     reports.append(r)
                 left, right = right + 1, right + 2
         return reports, events, id2room_id

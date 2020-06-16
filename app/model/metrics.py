@@ -2,8 +2,6 @@ from collections import namedtuple
 
 from abstract.model.metric import MetricModel, Metric
 from app.model.model import SQLModel
-from dateutil.parser import parse
-from datetime import datetime
 
 MetricsTupleProxy = namedtuple('MetricsTupleProxy', [
     Metric.id_key,
