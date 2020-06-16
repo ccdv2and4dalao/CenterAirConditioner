@@ -2,6 +2,8 @@ from collections import namedtuple
 
 from abstract.model.metric import MetricModel, Metric
 from app.model.model import SQLModel
+from dateutil.parser import parse
+from datetime import datetime
 
 MetricsTupleProxy = namedtuple('MetricsTupleProxy', [
     Metric.id_key,
@@ -20,7 +22,7 @@ class MetricsModelImpl(SQLModel, MetricModel):
             {Metric.room_id_key} integer,
             {Metric.checkpoint_key} timestamp default CURRENT_TIMESTAMP,
             {Metric.fan_speed_key} varchar(5),
-            {Metric.temperature_key} decimal(15, 2)
+            {Metric.temperature_key} decimal(15, 8)
         )""")
 
     def insert(self, room_id: int, fan_speed: str, temperature: float, checkpoint=None) -> int:
