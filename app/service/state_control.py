@@ -35,7 +35,7 @@ class BasicStateControlServiceImpl(object):
         b = local()
         b.room_id, b.mode = req['room_id'], req['mode']
         b.speed = self.connection_pool.get(b.room_id).fan_speed
-        b.co = 5 if b.speed == 'high' else 4 if b.speed == 'mid' else 3
+        b.co = 1.2 / 60 if b.speed == 'high' else 1 / 60 if b.speed == 'mid' else 0.8 / 60
 
         self.master_air_cond.start_supply(b.room_id, b.speed, b.mode)
         self.event_model.insert_start_state_control_event(b.room_id, b.speed)
@@ -51,16 +51,16 @@ class BasicStateControlServiceImpl(object):
                     self.master_air_cond.stop_supply(b.room_id)
                     self.event_model.insert_stop_state_control_event(b.room_id)
                     # start new speed
-                    b.co = 5 if b.speed == 'high' else 4 if b.speed == 'mid' else 3
+                    b.co = 1.2 / 60 if b.speed == 'high' else 1 / 60 if b.speed == 'mid' else 0.8 / 60
                     self.master_air_cond.start_supply(b.room_id, b.speed, b.mode)
                     self.event_model.insert_start_state_control_event(b.room_id, b.speed)
 
                 b.t2 = time.perf_counter()
-                self.statistic_model.insert(b.room_id, (b.t2 - b.t1) * b.co / 5,
-                                            (b.t2 - b.t1) * b.co)
+                self.statistic_model.insert(b.room_id, (b.t2 - b.t1) * b.co,
+                                            (b.t2 - b.t1) * b.co * 5)
                 b.t1 = b.t2
         except Exception as e:
-            pass
+            self.logger.error('{}, {}'.format(type(e), e))
 
         self.master_air_cond.stop_supply(b.room_id)
         self.event_model.insert_stop_state_control_event(b.room_id)
