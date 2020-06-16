@@ -3,7 +3,7 @@ from typing import List, Union
 from abstract.component import ConnectionPool
 from abstract.model import RoomModel, Room
 from abstract.service.admin.get_connected_slaves import AdminGetConnectedSlavesService, AdminGetConnectedSlaveService
-from proto import FailedResponse, DatabaseError
+from proto import FailedResponse, DatabaseError, NotFound
 from proto.admin.get_connected_slaves import AdminGetConnectedSlavesRequest, AdminGetConnectedSlavesResponse, \
     AdminGetConnectedSlaveResponseItem, AdminGetConnectedSlaveResponse, AdminGetConnectedSlaveRequest
 
@@ -47,6 +47,8 @@ class AdminGetConnectedSlavesServiceImpl(BasicAdminGetConnectedSlaveServiceImpl,
         rooms = self.room_model.query_page(req.page_size, req.page_number)  # type: List[Union[dict, Room]]
         if rooms is None:
             return DatabaseError(f'DatabaseError: {self.room_model.why()}')
+        if not room:
+            return NotFound('DatabaseWarning: query room not found')
         for (i, room) in enumerate(rooms):
             rooms[i] = self.query(room)
         return AdminGetConnectedSlavesResponse(data=rooms)
