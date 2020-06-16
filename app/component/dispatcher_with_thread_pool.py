@@ -47,7 +47,7 @@ class QueueDispatcherWithThreadPool(BasicThreadDispatcher):
         self.fallback_threshold = fallback_threshold
         self.control_precision = 0.1
 
-        self.waiting_queue = queue.Queue()
+        self.waiting_queue = queue.Queue(maxsize=fallback_threshold)
 
     def is_idle(self) -> bool:
         return self.waiting_queue.empty()

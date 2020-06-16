@@ -158,7 +158,7 @@ class ServerBuilder:
         inj.build(JWT, PyJWTImpl)
         inj.provide(Flask, Flask(APPName))
 
-        self.connection_pool = SafeMemoryConnectionPoolImpl()
+        self.connection_pool = SafeMemoryConnectionPoolImpl(inj)
         inj.provide(ConnectionPool, self.connection_pool)
 
         # todo: should provide parameters later
